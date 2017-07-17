@@ -45,7 +45,7 @@ public class ShowVersionCommand extends CommandBase {
 		}
 		catch(Exception e) {
 			player.sendMessage(new TextComponentString("Error:  " + e.getMessage()));
-			GottschCore.logger.error("Error generating Dungeons2! chest:", e);
+			GottschCore.logger.error("Error :", e);
 			e.printStackTrace();
 		}
 	}
