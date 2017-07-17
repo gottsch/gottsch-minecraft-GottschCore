@@ -33,10 +33,10 @@ public class ShowVersionCommand extends CommandBase {
 		EntityPlayer player = (EntityPlayer) commandSender.getCommandSenderEntity();
 		try {
 
-			if (args[0] == null || args[0].equals("")) player.sendMessage(new TextComponentString("Missing mod ID."));
+//			if (args[0] == null || args[0].equals("")) player.sendMessage(new TextComponentString("Missing mod ID."));
 			
-			String modid;
-			modid =args[0];
+//			String modid;
+//			modid =args[0];
 			
 			if (player != null) {
 				player.sendMessage(new TextComponentString(mod.getName() + " version: " + mod.getVersion()));
@@ -55,7 +55,7 @@ public class ShowVersionCommand extends CommandBase {
 	 */
 	@Override
 	public String getName() {
-		return "showversion " + this.mod.getId();
+		return "showversion-" + this.mod.getId();
 	}
 
 	/* (non-Javadoc)
@@ -63,7 +63,7 @@ public class ShowVersionCommand extends CommandBase {
 	 */
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "showversion " + this.mod.getId();
+		return "showversion-" + this.mod.getId();
 	}
 	
 	/**
