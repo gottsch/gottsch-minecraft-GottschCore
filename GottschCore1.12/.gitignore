@@ -8,3 +8,5 @@
 !build.gradle
 !/gradle.properties
 !.gitattributes
+!*.json
+!*.gradlew
