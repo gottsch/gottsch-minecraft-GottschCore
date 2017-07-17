@@ -42,6 +42,8 @@ public class BuildVersion {
 	 * @param version
 	 */
 	public BuildVersion(String version) {
+		if (version == null || version.equals("")) return;
+		
 		String[] parts = version.split("\\.");
 
 		if (parts.length >= 1) {

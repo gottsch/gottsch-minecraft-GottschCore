@@ -15,9 +15,11 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import com.someguyssoftware.gottschcore.config.ILoggerConfig;
+import com.someguyssoftware.gottschcore.eventhandler.LoginEventHandler;
 import com.someguyssoftware.gottschcore.version.BuildVersion;
 import com.someguyssoftware.gottschcore.version.VersionChecker;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -40,7 +42,7 @@ public abstract class AbstractMod implements IMod {
 	public void preInt(FMLPreInitializationEvent event) {
 		// register events
 		// TODO add registration
-//		MinecraftForge.EVENT_BUS.register(new PlayerFMLEventHandler(this));
+		MinecraftForge.EVENT_BUS.register(new LoginEventHandler(this));
 	}
 	
 	
@@ -167,6 +169,29 @@ public abstract class AbstractMod implements IMod {
         config.addAppender(appender);
 //        ((BaseConfiguration) config).addAppender(appender);
         
+        ///////////////
+		String loggerLevel = loggerConfig.getLoggerLevel();
+		Level level = Level.getLevel(loggerLevel.toUpperCase());
+		
+        // create appender references
+        AppenderRef appenderReference = AppenderRef.createAppenderRef(logName, null, null);
+        
+        // create logger config
+        AppenderRef[] refs = new AppenderRef[] {appenderReference};		
+        
+        // set the logger name to use the rolling file appender
+//        LoggerConfig loggerConfig = LoggerConfig.createLogger("false", loggerLevel, logName, "true", refs, null, config, null );
+        LoggerConfig apacheloggerConfig = LoggerConfig.createLogger(false, level, logName, "true", refs, null, config, null);
+        // add appenders to logger config
+        apacheloggerConfig.addAppender(appender, null, null);
+        
+        // add loggers to base configuratoin
+//        ((BaseConfiguration) config).addLogger(logName, loggerConfig);
+        config.addLogger(logName, apacheloggerConfig);
+        // update existing loggers
+        loggerContext.updateLoggers();	
+        
+        /////////////
         return appender;
 	}
 	

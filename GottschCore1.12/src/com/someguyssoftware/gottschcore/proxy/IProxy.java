@@ -5,6 +5,8 @@ package com.someguyssoftware.gottschcore.proxy;
 
 import javax.annotation.Nullable;
 
+import com.someguyssoftware.gottschcore.config.IConfig;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -51,4 +53,7 @@ public interface IProxy {
 	 */
 	@Nullable
 	World getClientWorld();
+
+	
+	public void registerRenderers(IConfig config);
 }

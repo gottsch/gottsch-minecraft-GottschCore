@@ -17,30 +17,39 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 /**
- * 
+ * This class uses non-static subscribed methods and therefor the concrete class can not
+ * use @Mod.EventBusSubscriber, but rather must be registered manually in the Mod class.
  * @author Mark Gottschling on Apr 29, 2017
  *
  */
-@Mod.EventBusSubscriber(modid = GottschCore.MODID)
-public class PlayerFMLEventHandler {
+public class LoginEventHandler {
 	// reference to the mod.
 	private IMod mod;
-	
-	/**
-	 * 
-	 */
-	public PlayerFMLEventHandler() {
-		mod = GottschCore.instance;
-	}
-	
+
 	/**
 	 * 
 	 * @param mod
 	 */
-//	public PlayerFMLEventHandler(IMod mod) {
-//		this.mod = mod;
-//	}
+	public LoginEventHandler(IMod mod) {
+		this.mod = mod;
+	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public IMod getMod() {
+		return mod;
+	}
+
+	/**
+	 * 
+	 * @param mod
+	 */
+	public void setMod(IMod mod) {
+		this.mod = mod;
+	}
+
 	/**
 	 * Check current mod's build version against the published version when the player logs into a world.
 	 * @param event
