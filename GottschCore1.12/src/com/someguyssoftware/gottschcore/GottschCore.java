@@ -38,7 +38,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 		name=GottschCore.NAME,
 		version=GottschCore.VERSION,
 		acceptedMinecraftVersions = "[1.12]",
-		updateJSON = "https://gist.github.com/gottsch/01a7d96e894b338f3fd1c969263f1e43"
+		updateJSON = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12/update.json"
 	)
 @Credits(values={"GottschCore for Minecraft 1.12 was first developed by Mark Gottschling on Jul 13, 2017."})
 public class GottschCore extends AbstractMod {
