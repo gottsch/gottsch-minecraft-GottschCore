@@ -55,7 +55,7 @@ public class ShowVersionCommand extends CommandBase {
 	 */
 	@Override
 	public String getName() {
-		return "showversion";
+		return "showversion " + this.mod.getId();
 	}
 
 	/* (non-Javadoc)
@@ -64,5 +64,13 @@ public class ShowVersionCommand extends CommandBase {
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return "showversion " + this.mod.getId();
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return true;
 	}
 }
