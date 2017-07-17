@@ -55,7 +55,7 @@ public class ShowVersionCommand extends CommandBase {
 	 */
 	@Override
 	public String getName() {
-		return "showversion " + this.mod.getId();
+		return "showversion";
 	}
 
 	/* (non-Javadoc)
