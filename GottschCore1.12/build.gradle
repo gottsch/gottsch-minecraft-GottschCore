@@ -5,6 +5,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'org.ajoberstar:grgit:1.7.2'
     }
 }
 
@@ -12,8 +13,17 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
+ext {
+    // Open the Git repository in the current directory.
+    git = org.ajoberstar.grgit.Grgit.open(file('C:\\Users\\mgottsch\\git\\gottsch-minecraft-GottschCore'))
 
-version = "${mod_version}-mc${mc_version}"
+    // Get commit id of HEAD.
+    revision = git.head().id
+    // Alternative is using abbreviatedId of head() method.
+    // revision = git.head().abbreviatedId
+}
+
+version = "mc${mc_version}-v${mod_version}-${git.head().abbreviatedId}"
 group = "${package_group}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${mod_name}"
 
