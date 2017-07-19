@@ -9,7 +9,7 @@
   "updateUrl": "",
    "authorList":["gottsch"],
   "credits": "Authored by gottsch",
-  "logoFile": "",
+  "logoFile": "gottschcore-logo.png",
   "screenshots": [],
   "requiredMods": ["Forge"],
   "dependencies": []
