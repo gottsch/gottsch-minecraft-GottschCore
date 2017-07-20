@@ -32,9 +32,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
  */
 public abstract class AbstractMod implements IMod {
 
-	// latest version
-	private static BuildVersion latestVersion;
-
 	/**
 	 * @param event
 	 */
@@ -42,7 +39,7 @@ public abstract class AbstractMod implements IMod {
 	public void preInt(FMLPreInitializationEvent event) {
 		// register events
 		// TODO add registration
-		MinecraftForge.EVENT_BUS.register(new LoginEventHandler(this));
+		MinecraftForge.EVENT_BUS.register(new LoginEventHandler(getInstance()));
 	}
 	
 	
@@ -83,22 +80,6 @@ public abstract class AbstractMod implements IMod {
 
 	@Override
 	abstract public String getVersion();
-	
-	/* (non-Javadoc)
-	 * @see com.someguyssoftware.mod.IMod#getModLatestVersion()
-	 */
-	@Override
-	public BuildVersion getModLatestVersion() {
-		return AbstractMod.latestVersion;
-	}
-    
-	/* (non-Javadoc)
-	 * @see com.someguyssoftware.mod.IMod#setModLatestVersion()
-	 */
-	@Override
-	public void setModLatestVersion(BuildVersion latestVersion) {
-		AbstractMod.latestVersion = latestVersion;
-	}
 
 	/**
 	 * Add rolling file appender to the current logging system.
