@@ -57,7 +57,7 @@ public class LoginEventHandler {
 	@SubscribeEvent
 	public void checkVersionOnLogIn(PlayerEvent.PlayerLoggedInEvent event) {
 		// proceed only if the latest version is not empty and enabled in the config
-		if (!mod.getConfig().isEnableVersionChecker() || mod.getModLatestVersion().isEmpty()) {
+		if (mod.getConfig() == null || !mod.getConfig().isEnableVersionChecker() || mod.getModLatestVersion().isEmpty()) {
 			return;
 		}
 		

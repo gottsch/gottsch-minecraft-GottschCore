@@ -38,14 +38,15 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 		name=GottschCore.NAME,
 		version=GottschCore.VERSION,
 		acceptedMinecraftVersions = "[1.12]",
-		updateJSON = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12/update.json"
-	)
+		updateJSON = GottschCore.UPDATE_JSON_URL
+		)
 @Credits(values={"GottschCore for Minecraft 1.12 was first developed by Mark Gottschling on Jul 13, 2017."})
 public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
 	protected static final String VERSION = "1.0.0";
+	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12/update.json";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
 	
@@ -62,6 +63,9 @@ public class GottschCore extends AbstractMod {
 	 */
 	private static final String GOTTSCHCORE_CONFIG_DIR = "gottschcore";
 	private static GottschCoreConfig config;
+	
+	// latest version
+	private static BuildVersion latestVersion;
 	
 	// logger
 	public static Logger logger = LogManager.getLogger(GottschCore.NAME);
@@ -144,5 +148,15 @@ public class GottschCore extends AbstractMod {
 	@Override
 	public String getVerisionURL() {
 		return GottschCore.VERSION_URL;
+	}
+
+	@Override
+	public BuildVersion getModLatestVersion() {
+		return latestVersion;
+	}
+
+	@Override
+	public void setModLatestVersion(BuildVersion version) {
+		GottschCore.latestVersion = version;
 	}
 }

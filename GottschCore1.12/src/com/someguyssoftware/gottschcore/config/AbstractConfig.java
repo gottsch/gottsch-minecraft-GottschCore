@@ -25,17 +25,17 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 	private String loggerFolder;
 	private String loggerSize;
 	private String loggerFilename;
-	
+
 	// toggle mod enabled
 	private boolean modEnabled;
-	
+
 	// toggle to execute version checker
 	private boolean enableVersionChecker;
 	// latest version that was checked
 	private String latestVersion;
 	// toggle to display reminder for latest version
 	private boolean latestVersionReminder;
-	
+
 	/**
 	 * 
 	 * @param configDir
@@ -52,14 +52,14 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		Configuration configuration = load(configFile);
 		this.forgeConfiguration = configuration;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see com.someguyssoftware.gottschcore.config.IConfig#load(java.io.File)
 	 */
 	@Override
 	public Configuration load(File file) {
 		Configuration config = IConfig.super.load(file);
-		
+
 		String modid = mod.getClass().getAnnotation(Mod.class).modid();
 		// setup the basic settings
 		config.setCategoryComment("01-logging", "Logging properties.");        
@@ -68,22 +68,23 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		setLoggerSize(config.getString("loggerSize", "01-logging", "1000K", "The size a log file can be before rolling over to a new file."));
 
 		setLoggerFilename(config.getString("loggerFilename", "01-logging", modid, "The filename of the  log file."));
-        
-       config.setCategoryComment("03-mod", "General mod properties.");        
-        // create/get properties into wrapped properties
-        setEnableVersionChecker(config.getBoolean("enableVersionChecker", "03-mod", true, "Enables/Disables version checking."));
-        setLatestVersion(config.getString("latestVersion", "03-mod", "", "The latest published version number."));
-        setLatestVersionReminder(config.getBoolean("latestVersionReminder", "03-mod", true, "Remind the user of the latest version (as indicated in latestVersion proeprty) update."));
+
+		config.setCategoryComment("03-mod", "General mod properties.");        
+		// create/get properties into wrapped properties
+		setModEnabled(config.getBoolean("modEnabled", "03-mod", true, "Enables/Disables mod."));
+		setEnableVersionChecker(config.getBoolean("enableVersionChecker", "03-mod", true, "Enables/Disables version checking."));
+		setLatestVersion(config.getString("latestVersion", "03-mod", "", "The latest published version number."));
+		setLatestVersionReminder(config.getBoolean("latestVersionReminder", "03-mod", true, "Remind the user of the latest version (as indicated in latestVersion proeprty) update."));
 
 		return config;
 	}
-	
+
 	// TODO create interface method in IConfig
 	public void setProperty(Property property, String value) {
 		property.set(value);
 		getForgeConfiguration().save();
 	}
-	
+
 	@Override
 	public void setProperty(String category, String key, String value) {
 		Property property = getForgeConfiguration().get(category, key, value);
@@ -92,7 +93,7 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		}
 		getForgeConfiguration().save();
 	}
-	
+
 	@Override
 	public void setProperty(String category, String key, boolean value) {
 		Property property = getForgeConfiguration().get(category, key, value);
@@ -101,7 +102,7 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		}
 		getForgeConfiguration().save();
 	}
-	
+
 	/**
 	 * @return the enableVersionChecker
 	 */
@@ -149,7 +150,7 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 	public void setLatestVersionReminder(boolean latestVersionReminder) {
 		this.latestVersionReminder = latestVersionReminder;
 	}
-	
+
 	/**
 	 * @return the forgeConfiguration
 	 */
