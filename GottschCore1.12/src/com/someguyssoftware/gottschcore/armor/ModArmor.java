@@ -5,6 +5,7 @@ package com.someguyssoftware.gottschcore.armor;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -35,14 +36,14 @@ public class ModArmor extends ItemArmor {
 			int renderIndex,
 			EntityEquipmentSlot armourType,
 			String texture,
-			String repairUnlocalizedName) {
+			Item repairItem) {
 		
 		// call the super construtor
 		super(material, renderIndex, armourType);
 		
 		setArmorName(modID, name);
 		setTexture(modID + ":" + texture);
-		setRepairUnlocalizedName(repairUnlocalizedName);
+		setRepairUnlocalizedName(repairItem.getUnlocalizedName());
 	}
 
 	/**
