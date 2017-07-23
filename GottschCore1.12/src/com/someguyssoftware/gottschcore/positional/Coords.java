@@ -47,9 +47,10 @@ public class Coords implements ICoords {
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 	
-    /**
-     * Offset this Coords n blocks up
-     */
+	/**
+	 * Offset this Coords n blocks up
+	 * @param n the amount to offset by
+	 */
 	@Override
     public ICoords up(int n) {
     	return new Coords(this.getX(), this.getY() + n, this.getZ());
@@ -97,6 +98,9 @@ public class Coords implements ICoords {
     
 	/**
 	 * Calculate squared distance to the given coordinates
+	 * @param toX
+	 * @param toY
+	 * @param toZ
 	 * @since 1.0
 	 */
     @Override

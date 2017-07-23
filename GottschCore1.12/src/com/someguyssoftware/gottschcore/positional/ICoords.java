@@ -110,10 +110,40 @@ public interface ICoords {
 	 * @return
 	 */
 	ICoords up(int n);
+	
+	/**
+	 * 
+	 * @param n
+	 * @return
+	 */
 	ICoords down(int n);
+	
+	/**
+	 * 
+	 * @param n
+	 * @return
+	 */
 	ICoords north(int n);
+	
+	/**
+	 * 
+	 * @param n
+	 * @return
+	 */
 	ICoords south(int n);
+	
+	/**
+	 * 
+	 * @param n
+	 * @return
+	 */
 	ICoords east(int n);
+	
+	/**
+	 * 
+	 * @param n
+	 * @return
+	 */
 	ICoords west(int n);
 
 }
