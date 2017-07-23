@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore.armor;
+package com.someguyssoftware.gottschcore.item;
 
 import net.minecraft.item.Item;
 

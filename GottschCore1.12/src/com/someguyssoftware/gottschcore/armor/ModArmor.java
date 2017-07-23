@@ -27,7 +27,7 @@ public class ModArmor extends ItemArmor {
 	 * @param renderIndex Used on RenderPlayer to select the correspondent armor to be rendered on the player: 0 is cloth, 1 is chain, 2 is iron, 3 is diamond and 4 is gold.
 	 * @param armourType Stores the armor type: 0 is helmet, 1 is plate, 2 is legs and 3 is boots
 	 * @param texture Relative path to the texture file used to render the Item
-	 * @param repairUnlocalizedName The unlocalized name of the Item that is used to repair the Armor
+	 * @param repairItem The unlocalized name of the Item that is used to repair the Armor
 	 */
 	public ModArmor(
 			String modID,

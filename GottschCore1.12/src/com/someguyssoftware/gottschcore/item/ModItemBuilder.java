@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore.armor;
+package com.someguyssoftware.gottschcore.item;
 
 import net.minecraft.creativetab.CreativeTabs;
 
@@ -39,7 +39,7 @@ public class ModItemBuilder {
 		withModID(null)
 		.withName(null)
 		.withStackSize(0)
-		.withTab(null);
+		.withCreativeTab(null);
 	}
 		
 	public String getModID() {
@@ -69,11 +69,11 @@ public class ModItemBuilder {
 		return this;
 	}
 
-	public CreativeTabs getTab() {
+	public CreativeTabs getCreativeTab() {
 		return tab;
 	}
 
-	public ModItemBuilder withTab(CreativeTabs tab) {
+	public ModItemBuilder withCreativeTab(CreativeTabs tab) {
 		this.tab = tab;
 		return this;
 	}
