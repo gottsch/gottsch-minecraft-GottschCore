@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 ext {
     // Open the Git repository in the current directory.
-    git = org.ajoberstar.grgit.Grgit.open(file('C:\\Users\\mgottsch\\git\\gottsch-minecraft-GottschCore'))
+    git = org.ajoberstar.grgit.Grgit.open(file('../'))
 
     // Get commit id of HEAD.
     revision = git.head().id

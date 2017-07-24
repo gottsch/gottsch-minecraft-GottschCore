@@ -5,6 +5,7 @@ package com.someguyssoftware.gottschcore.armor;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,7 +27,7 @@ public class ModArmor extends ItemArmor {
 	 * @param renderIndex Used on RenderPlayer to select the correspondent armor to be rendered on the player: 0 is cloth, 1 is chain, 2 is iron, 3 is diamond and 4 is gold.
 	 * @param armourType Stores the armor type: 0 is helmet, 1 is plate, 2 is legs and 3 is boots
 	 * @param texture Relative path to the texture file used to render the Item
-	 * @param repairUnlocalizedName The unlocalized name of the Item that is used to repair the Armor
+	 * @param repairItem The unlocalized name of the Item that is used to repair the Armor
 	 */
 	public ModArmor(
 			String modID,
@@ -35,14 +36,14 @@ public class ModArmor extends ItemArmor {
 			int renderIndex,
 			EntityEquipmentSlot armourType,
 			String texture,
-			String repairUnlocalizedName) {
+			Item repairItem) {
 		
 		// call the super construtor
 		super(material, renderIndex, armourType);
 		
 		setArmorName(modID, name);
 		setTexture(modID + ":" + texture);
-		setRepairUnlocalizedName(repairUnlocalizedName);
+		setRepairUnlocalizedName(repairItem.getUnlocalizedName());
 	}
 
 	/**

@@ -38,7 +38,6 @@ public abstract class AbstractMod implements IMod {
 	@EventHandler
 	public void preInt(FMLPreInitializationEvent event) {
 		// register events
-		// TODO add registration
 		MinecraftForge.EVENT_BUS.register(new LoginEventHandler(getInstance()));
 	}
 	
