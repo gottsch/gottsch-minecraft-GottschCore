@@ -6,7 +6,7 @@ package com.someguyssoftware.gottschcore.block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.gui.ServerListEntryNormal;
+import net.minecraft.creativetab.CreativeTabs;
 
 /**
  * @author Mark Gottschling on Jul 23, 2017
@@ -20,10 +20,11 @@ public class ModBlockBuilder {
 	private Float hardness;
 	private String toolClass;
 	private Integer toolLevel;
+	private Float resistance;
 	private SoundType soundType;
 	
 	private Boolean normalCube = true;
-	
+	private CreativeTabs tab;
 	/**
 	 * 
 	 */
@@ -41,9 +42,11 @@ public class ModBlockBuilder {
 			block.setHarvestLevel(toolClass, toolLevel);
 		}		
 		if (this.hardness != null) block.setHardness(this.hardness);
+		if (this.resistance != null) block.setResistance(this.resistance);
 		if (this.soundType != null) block.setSoundType(this.soundType);
 		block.setNormalCube(this.normalCube);
 		
+		block.setCreativeTab(this.tab);
 		return block;
 	}
 	
@@ -55,6 +58,10 @@ public class ModBlockBuilder {
 		.withName(null)
 		.withMaterial(null)
 		.withMapColor(null)
+		.withHardness(null)
+		.withHarvestLevel(null, null)
+		.withResistance(null)
+		.withSoundType(null)
 		.withNormalCube(true);		
 	}
 
@@ -124,6 +131,24 @@ public class ModBlockBuilder {
 
 	public ModBlockBuilder withSoundType(SoundType soundType) {
 		this.soundType = soundType;
+		return this;
+	}
+	
+	public CreativeTabs getCreativeTab() {
+		return tab;
+	}
+
+	public ModBlockBuilder withCreativeTab(CreativeTabs tab) {
+		this.tab = tab;
+		return this;
+	}
+
+	public Float getResistance() {
+		return resistance;
+	}
+
+	public ModBlockBuilder withResistance(Float resistance) {
+		this.resistance = resistance;
 		return this;
 	}
 }

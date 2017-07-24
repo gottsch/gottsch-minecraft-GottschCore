@@ -19,7 +19,9 @@ public class ModBlock extends Block {
 	
 	/**
 	 * 
-	 * @param materialIn
+	 * @param modID
+	 * @param name
+	 * @param material
 	 */
 	public ModBlock(String modID, String name, Material material) {
 		super(material);
@@ -28,6 +30,8 @@ public class ModBlock extends Block {
 
 	/**
 	 * 
+	 * @param modID
+	 * @param name
 	 * @param material
 	 * @param mapColor
 	 */

@@ -23,8 +23,9 @@ public class ModItem extends Item {
 	 * @param modID
 	 * @param name
 	 */
-	public void setItemName(String modID, String name) {
+	public Item setItemName(String modID, String name) {
 		setRegistryName(modID, name);
 		setUnlocalizedName(getRegistryName().toString());
+		return this;
 	}
 }
