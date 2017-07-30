@@ -146,4 +146,25 @@ public interface ICoords {
 	 */
 	ICoords west(int n);
 
+	/**
+	 * 
+	 * @param y
+	 * @return
+	 */
+	ICoords setY(int y);
+
+	/**
+	 * 
+	 * @param z
+	 * @return
+	 */
+	ICoords setZ(int z);
+
+	/**
+	 * 
+	 * @param x
+	 * @return
+	 */
+	ICoords setX(int x);
+
 }

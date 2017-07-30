@@ -22,6 +22,7 @@ public class WorldInfo {
 	private static final int MAX_HEIGHT = 256;
 	private static final int MIN_HEIGHT = 1;
 	private static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
+	public static final int INVALID_SURFACE_POS = -255;
 	
 	/*
 	 * =========================================
@@ -360,5 +361,29 @@ public class WorldInfo {
 			return false;
 		}		
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static int getDifferenceWithSurface(World world, ICoords coords) {
+		int ySurface = 0;
+		int diff = 0;
+		
+		// get a valid surface coords (whether on land or sea)
+		ySurface = getHeightValue(world, coords);
+
+		ICoords surfaceCoords= getSurfaceCoords(world, coords.setY(ySurface));
+		if (surfaceCoords == null) {
+			return INVALID_SURFACE_POS;
+		}
+		
+		// get the difference betwen ySurface and the Coords Y
+		diff = surfaceCoords.getY() - coords.getY();		
+		
+		return diff;	
 	}
 }

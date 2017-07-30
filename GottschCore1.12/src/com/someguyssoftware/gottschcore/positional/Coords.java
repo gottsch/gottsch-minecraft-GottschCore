@@ -5,7 +5,6 @@ package com.someguyssoftware.gottschcore.positional;
 
 import javax.annotation.concurrent.Immutable;
 
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -295,13 +294,28 @@ public class Coords implements ICoords {
 	}
 
 	@Override
+	public ICoords setX(int x) {
+    	return new Coords(x, this.getY(), this.getZ());
+	}
+	
+	@Override
 	public int getY() {
 		return y;
+	}
+	
+	@Override
+	public ICoords setY(int y) {
+    	return new Coords(this.getX(), y, this.getZ());
 	}
 
 	@Override
 	public int getZ() {
 		return z;
+	}
+	
+	@Override
+	public ICoords setZ(int z) {
+    	return new Coords(this.getX(), this.getY(), z);
 	}
 
 	/* (non-Javadoc)
