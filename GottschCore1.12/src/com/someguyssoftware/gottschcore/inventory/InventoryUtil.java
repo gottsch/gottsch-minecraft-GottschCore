@@ -75,8 +75,8 @@ public class InventoryUtil {
 	 * 
 	 * @param inventory
 	 * @param stack
-	 * @param enchantments
 	 * @param random
+	 * @return
 	 */
 	public static List<Integer> addItemToInventory(IInventory inventory, ItemStack stack, Random random) {
 		List<Integer> availableSlots = getAvailableSlots(inventory);		

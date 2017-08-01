@@ -50,7 +50,7 @@ public enum Direction implements IEnum {
 	 * 
 	 * @param code
 	 * @param value
-	 * @param alignment
+	 * @param plane
 	 */
 	Direction(Integer code, String value, Alignment plane) {
 		this.code = code;
@@ -60,7 +60,7 @@ public enum Direction implements IEnum {
 
 	/**
 	 * 
-	 * @param alignment
+	 * @param plane
 	 * @return
 	 */
 	public boolean isSamePlane(Alignment plane) {
