@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 /**
  * For Forge 1.8+
  * Wrapper class for Block/BlockState.
+ * TODO remove all the redundant getBlockState() calls and use this.getState()
  * @author Mark Gottschling on May 6, 2017
  *
  */
@@ -32,7 +33,13 @@ public class Cube {
 		this.state = world.getBlockState(coords.toPos());
 	}
 	
-	public IBlockState getState() {return null;}
+	/**
+	 * 
+	 * @return
+	 */
+	public IBlockState getState() {
+		return state;
+	}
 	
 	/**
 	 * 
