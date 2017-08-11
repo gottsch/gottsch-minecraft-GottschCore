@@ -73,7 +73,7 @@ public class VersionChecker {
 			}
 		}
 		catch(Exception e) {
-			GottschCore.logger.warn("Bad JSON: " + json);
+			GottschCore.logger.warn("Bad JSON: " + json, e);
 			return BuildVersion.EMPTY_VERSION;
 		}		
 		return BuildVersion.EMPTY_VERSION;
