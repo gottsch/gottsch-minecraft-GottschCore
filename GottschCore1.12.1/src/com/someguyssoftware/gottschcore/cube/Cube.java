@@ -12,16 +12,14 @@ import net.minecraft.world.World;
 
 /**
  * For Forge 1.8+
- * Wrapper class for Block/BlockState. Immutable.
- * TODO remove all the redundant getBlockState() calls and use this.getState()
+ * Wrapper class for Block/BlockState.
  * @author Mark Gottschling on May 6, 2017
  *
  */
 public class Cube {
-
-	private final World world;
-	private final ICoords coords;
-	private final IBlockState state;
+	private World world;
+	private ICoords coords;
+	private IBlockState state;
 	
 	/**
 	 * 
@@ -34,13 +32,7 @@ public class Cube {
 		this.state = world.getBlockState(coords.toPos());
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public IBlockState getState() {
-		return state;
-	}
+	public IBlockState getState() {return null;}
 	
 	/**
 	 * 
@@ -128,12 +120,7 @@ public class Cube {
 	/**
 	 * @param coords the coords to set
 	 */
-	public Cube setCoords(ICoords coords) {
-		return new Cube(this.world, coords);
-	}
-	
-	@Override
-	public String toString() {
-		return "Cube [world=" + world + ", coords=" + coords.toShortString() + ", state=" + state + "]";
+	public void setCoords(ICoords coords) {
+		this.coords = coords;
 	}
 }

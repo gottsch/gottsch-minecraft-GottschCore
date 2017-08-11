@@ -10,8 +10,8 @@ import java.util.Random;
  *
  */
 public final class RandomHelper {
-	private static final int INT_MAX_PROB = 100;
-	private static final double DOUBLE_MAX_PROB = 100.0D;
+	private static int INT_MAX_PROB = 100;
+	private static double DOUBLE_MAX_PROB = 100.0D;
 	
 	/**
 	 * 
