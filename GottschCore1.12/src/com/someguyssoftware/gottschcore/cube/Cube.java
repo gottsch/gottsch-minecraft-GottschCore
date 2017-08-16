@@ -19,7 +19,7 @@ import net.minecraft.world.World;
  */
 public class Cube {
 
-	private final World world;
+//	private final World world;
 	private final ICoords coords;
 	private final IBlockState state;
 	
@@ -29,7 +29,7 @@ public class Cube {
 	 * @param coords
 	 */
 	public Cube(World world, ICoords coords) {
-		this.world = world;
+//		this.world = world;
 		this.coords = coords;
 		this.state = world.getBlockState(coords.toPos());
 	}
@@ -47,8 +47,9 @@ public class Cube {
 	 * @return
 	 */
 	public Block toBlock() {
-		IBlockState blockState = this.world.getBlockState(this.coords.toPos());
-		if (blockState != null) return blockState.getBlock();
+//		IBlockState blockState = this.world.getBlockState(this.coords.toPos());
+		if (state != null) return state.getBlock();
+//		if (blockState != null) return blockState.getBlock();
 		return null;
 	}
 	
@@ -69,8 +70,9 @@ public class Cube {
 	 * @return
 	 */
 	public boolean hasState() {
-		IBlockState blockState = world.getBlockState(coords.toPos());
-		if (blockState == null) return false;
+//		IBlockState blockState = world.getBlockState(coords.toPos());
+//		if (blockState == null) return false;
+		if (state == null) return false;
 		return true;
 	}
 	
@@ -114,8 +116,8 @@ public class Cube {
 	 * Wrapper to Block.isBurning()
 	 * @return
 	 */
-	public boolean isBurning() {
-		return toBlock().isBurning(this.world, this.coords.toPos());
+	public boolean isBurning(World world) {
+		return toBlock().isBurning(world, this.coords.toPos());
 	}
 	
 	/**
@@ -125,15 +127,16 @@ public class Cube {
 		return coords;
 	}
 
-	/**
-	 * @param coords the coords to set
-	 */
-	public Cube setCoords(ICoords coords) {
-		return new Cube(this.world, coords);
-	}
+	// removed in order to make immutable.
+//	/**
+//	 * @param coords the coords to set
+//	 */
+//	public Cube setCoords(ICoords coords) {
+//		return new Cube(this.world, coords);
+//	}
 	
 	@Override
 	public String toString() {
-		return "Cube [world=" + world + ", coords=" + coords.toShortString() + ", state=" + state + "]";
+		return "Cube [coords=" + coords.toShortString() + ", state=" + state + "]";
 	}
 }
