@@ -8,12 +8,14 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.someguyssoftware.gottschcore.GottschCore;
 
@@ -40,7 +42,7 @@ public class VersionChecker {
 		String json = null;
 		try {
 			in = new URL(url).openStream();
-			json = IOUtils.toString(in);			
+			json = IOUtils.toString(in, Charset.forName("UTF-8"));			
 			GottschCore.logger.info("Published Version Info: " + json);
 		}
 		catch(MalformedURLException e) {
@@ -72,8 +74,12 @@ public class VersionChecker {
 				}
 			}
 		}
+		catch(JsonSyntaxException e) {
+			GottschCore.logger.warn("Bad JSON Syntax: " + json, e);
+			return BuildVersion.EMPTY_VERSION;			
+		}
 		catch(Exception e) {
-			GottschCore.logger.warn("Bad JSON: " + json, e);
+			GottschCore.logger.warn("Unexpected expection processing json: " + json, e);
 			return BuildVersion.EMPTY_VERSION;
 		}		
 		return BuildVersion.EMPTY_VERSION;

@@ -38,7 +38,6 @@ public class WorldInfo {
 	 * @return
 	 */
     public static int getHeightValue(final World world, final ICoords coords) { 
-    	GottschCore.logger.debug("Get height for coords:" + coords.toShortString());
 	     return getHeightValue(world, coords.toPos());
    }
     
