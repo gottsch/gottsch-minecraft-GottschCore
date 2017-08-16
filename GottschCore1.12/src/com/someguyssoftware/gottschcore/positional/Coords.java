@@ -294,7 +294,7 @@ public class Coords implements ICoords {
 	}
 
 	@Override
-	public ICoords setX(int x) {
+	public ICoords resetX(int x) {
     	return new Coords(x, this.getY(), this.getZ());
 	}
 	
@@ -304,7 +304,7 @@ public class Coords implements ICoords {
 	}
 	
 	@Override
-	public ICoords setY(int y) {
+	public ICoords resetY(int y) {
     	return new Coords(this.getX(), y, this.getZ());
 	}
 
@@ -314,7 +314,7 @@ public class Coords implements ICoords {
 	}
 	
 	@Override
-	public ICoords setZ(int z) {
+	public ICoords resetZ(int z) {
     	return new Coords(this.getX(), this.getY(), z);
 	}
 

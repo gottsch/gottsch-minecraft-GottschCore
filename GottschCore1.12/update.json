@@ -8,7 +8,7 @@
         "1.0.0": "-Initial release.",
      	"1.0.1": "-Set modEnabled config property with default value.\n-Removed latestVersion property from AbstractMod forcing concrete classes to implement.", 
  		"1.1.0": "-Added new builder classes that build wrapper classes for common Minecraft classes (ex. Block, Item, ItemSword, etc).\nBug fixes.",
- 		"1.1.1": "-Added additional util methods."
+ 		"1.1.1": "-Added additional util methods.\n-Fixed Cube and Coords classes and WorldInfo methods."
 
     }
 }

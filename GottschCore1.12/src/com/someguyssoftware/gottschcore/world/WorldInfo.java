@@ -49,8 +49,11 @@ public class WorldInfo {
 	 */
     private static int getHeightValue(final World world, final BlockPos pos) { 
 //	     int y = world.getChunkFromBlockCoords(pos).getHeight(pos);
+//    	GottschCore.logger.debug("Get height for blockpos:" + pos.toString());
     	int y = world.getHeight(pos.getX(), pos.getY());
-	     return y;
+    	BlockPos p = world.getHeight(pos);
+//    	GottschCore.logger.debug("Get height(pos):" + p.toString());
+	   return p.getY();
     }
     
     /*
@@ -113,23 +116,24 @@ public class WorldInfo {
 	 * Gets the surface block at a given position (x,z).
 	 * Any aboveground land surface or surface of body of water/lava, ie. excludes any vegatation or replacement material.
 	 * @param world
-	 * @param pos
+	 * @param coords
 	 * @return
 	 */
-	public static ICoords getSurfaceCoords(final World world, final ICoords pos) {
-		Cube cube = new Cube(world, pos);
+	public static ICoords getSurfaceCoords(final World world, final ICoords coords) {
+//		GottschCore.logger.debug("Coords in:" + coords.toShortString());
+		Cube cube = new Cube(world, coords);
 		boolean isSurfaceBlock = false;
 		
 		while (!isSurfaceBlock) {		
-			GottschCore.logger.debug("cube.coords:" + cube.getCoords().toShortString());
-			GottschCore.logger.debug("isAir:" + cube.equalsMaterial(Material.AIR));
-			GottschCore.logger.debug("isLeaves" +cube.equalsMaterial(Material.LEAVES) );
-			GottschCore.logger.debug("isLog:" + cube.equalsBlock(Blocks.LOG) );
-			GottschCore.logger.debug("isLog2: " + cube.equalsBlock(Blocks.LOG2));
-			GottschCore.logger.debug("isBurning: " );
+//			GottschCore.logger.debug("cube.coords:" + cube.getCoords().toShortString());
+//			GottschCore.logger.debug("isAir:" + cube.equalsMaterial(Material.AIR));
+//			GottschCore.logger.debug("isLeaves" +cube.equalsMaterial(Material.LEAVES) );
+//			GottschCore.logger.debug("isLog:" + cube.equalsBlock(Blocks.LOG) );
+//			GottschCore.logger.debug("isLog2: " + cube.equalsBlock(Blocks.LOG2));
+//			GottschCore.logger.debug("isBurning: " + cube.isBurning());
 			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) 
-					|| cube.isBurning()) {
+					|| cube.isBurning(world)) {
 				cube = new Cube(world, cube.getCoords().down(1));
 			}
 			else {
@@ -174,8 +178,8 @@ public class WorldInfo {
 			
 			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
-					|| cube.isBurning()) {
-				cube = cube.setCoords(cube.getCoords().down(1));
+					|| cube.isBurning(world)) {
+				cube = new Cube(world, cube.getCoords().down(1));
 			}
 			else {
 				isSurfaceBlock = true;
@@ -205,8 +209,8 @@ public class WorldInfo {
 					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
 					|| cube.equalsMaterial(Material.LAVA)
 					|| cube.equalsMaterial(Material.ICE)
-					|| cube.isBurning()) {
-				cube = cube.setCoords(cube.getCoords().down(1));
+					|| cube.isBurning(world)) {
+				cube = new Cube(world, cube.getCoords().down(1));
 			}
 			else {
 				isSurfaceBlock = true;
@@ -239,8 +243,8 @@ public class WorldInfo {
 			if (cube.equalsMaterial(Material.AIR) || cube.equalsMaterial(Material.WATER)
 					|| cube.equalsMaterial(Material.ICE) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
-					|| cube.isBurning()) {
-				cube = cube.setCoords(cube.getCoords().down(1));
+					|| cube.isBurning(world)) {
+				cube = new Cube(world, cube.getCoords().down(1));
 			}
 			else {
 				isSurfaceBlock = true;
@@ -310,7 +314,7 @@ public class WorldInfo {
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the cube
-				cube = cube.setCoords(cube.getCoords().add(x, 0, z));
+				cube = new Cube(world, cube.getCoords().add(x, 0, z));
 
 				// test the cube
 				if (cube.hasState() && cube.isSolid() && ! cube.isReplaceable()) {
@@ -341,7 +345,7 @@ public class WorldInfo {
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the cube
-				cube = cube.setCoords(cube.getCoords().add(x, 0, z));
+				cube = new Cube(world, cube.getCoords().add(x, 0, z));
 				
 				if (cube.hasState() || cube.equalsMaterial(Material.AIR) || cube.isReplaceable()) {
 					airBlocks++;		
@@ -383,8 +387,8 @@ public class WorldInfo {
 		
 		// get a valid surface coords (whether on land or sea)
 		ySurface = getHeightValue(world, coords);
-
-		ICoords surfaceCoords= getSurfaceCoords(world, coords.setY(ySurface));
+//		GottschCore.logger.debug("ySurface:" + ySurface);
+		ICoords surfaceCoords= getSurfaceCoords(world, coords.resetY(ySurface));
 		if (surfaceCoords == null) {
 			return INVALID_SURFACE_POS;
 		}

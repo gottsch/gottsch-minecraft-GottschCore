@@ -151,20 +151,20 @@ public interface ICoords {
 	 * @param y
 	 * @return
 	 */
-	ICoords setY(int y);
+	ICoords resetY(int y);
 
 	/**
 	 * 
 	 * @param z
 	 * @return
 	 */
-	ICoords setZ(int z);
+	ICoords resetZ(int z);
 
 	/**
 	 * 
 	 * @param x
 	 * @return
 	 */
-	ICoords setX(int x);
+	ICoords resetX(int x);
 
 }
