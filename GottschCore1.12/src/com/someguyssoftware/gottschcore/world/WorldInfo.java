@@ -281,6 +281,27 @@ public class WorldInfo {
 	}
 	
 	/**
+	 * Method to check if the ground (base) has a % of solid blocks, and checks the y+1, and y+2 to see if has a % of air blocks.
+	 * @param world
+	 * @param coords
+	 * @param width
+	 * @param depth
+	 * @param groundPercentRequired
+	 * @param airPercentRequired1
+	 * @param airPercentRequired2
+	 * @return
+	 */
+	public static boolean isValidAboveGroundBase(final World world, final ICoords coords,
+			final int width, final int depth, 
+			final double groundPercentRequired,
+			final double airPercentRequired1,
+			final double airPercentRequired2) {
+		return isSolidBase(world, coords, width, depth, groundPercentRequired) && 
+				isAirBase(world, coords.up(1), width, depth, airPercentRequired1) && 
+				isAirBase(world, coords.up(2), width, depth, airPercentRequired2);
+	}
+	
+	/**
 	 * 
 	 * @param world
 	 * @param coords
