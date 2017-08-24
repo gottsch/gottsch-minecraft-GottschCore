@@ -50,7 +50,7 @@ public class WorldInfo {
     private static int getHeightValue(final World world, final BlockPos pos) { 
 //	     int y = world.getChunkFromBlockCoords(pos).getHeight(pos);
 //    	GottschCore.logger.debug("Get height for blockpos:" + pos.toString());
-    	int y = world.getHeight(pos.getX(), pos.getY());
+//    	int y = world.getHeight(pos.getX(), pos.getY());
     	BlockPos p = world.getHeight(pos);
 //    	GottschCore.logger.debug("Get height(pos):" + p.toString());
 	   return p.getY();
