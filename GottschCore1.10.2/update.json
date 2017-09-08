@@ -1,0 +1,15 @@
+{
+    "homepage": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2604013-gottschs-mods",
+    "promos": {
+    "1.10.2-latest": "1.1.2",
+    "1.10.2-recommended": "1.1.2"
+  },
+    "1.10.2": {
+        "1.0.0": "-Initial release.",
+     	"1.0.1": "-Set modEnabled config property with default value.\n-Removed latestVersion property from AbstractMod forcing concrete classes to implement.", 
+ 		"1.1.0": "-Added new builder classes that build wrapper classes for common Minecraft classes (ex. Block, Item, ItemSword, etc).\nBug fixes.",
+ 		"1.1.1": "-Added additional util methods.\n-Fixed Cube and Coords classes and WorldInfo methods.",
+ 		"1.1.2": "-Added additional WorldInfo methods."
+
+    }
+}
