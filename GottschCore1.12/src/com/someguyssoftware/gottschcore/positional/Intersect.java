@@ -66,6 +66,12 @@ public class Intersect {
 		return new Intersect(x, y, z);
 	}
 	
+	public static Intersect getIntersect2(AxisAlignedBB bb1, AxisAlignedBB bb2) {
+		double x = Math.max(0.0, Math.min(bb1.maxX, bb2.maxX) - Math.max(bb1.minX, bb2.minX));
+		double y = Math.max(0.0, Math.min(bb1.maxY, bb2.maxY) - Math.max(bb1.minY, bb2.minY));
+		double z = Math.max(0.0, Math.min(bb1.maxZ, bb2.maxZ) - Math.max(bb1.minZ, bb2.minZ));		
+		return new Intersect(x, y, z);
+	}
 	/**
 	 * @return the x
 	 */
