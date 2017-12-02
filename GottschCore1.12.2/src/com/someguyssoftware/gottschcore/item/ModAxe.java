@@ -60,11 +60,19 @@ public class ModAxe extends ItemTool {
 	/**
 	 * 
 	 */
-	public float getStrVsBlock(ItemStack stack, IBlockState state) {
-		Material material = state.getMaterial();
-		return material != Material.WOOD && material != Material.PLANTS && material != Material.VINE
-				? super.getStrVsBlock(stack, state) : this.efficiencyOnProperMaterial;
-	}
+//	public float getStrVsBlock(ItemStack stack, IBlockState state) {
+//		Material material = state.getMaterial();
+//		return material != Material.WOOD && material != Material.PLANTS && material != Material.VINE
+//				? super.getStrVsBlock(stack, state) : this.efficiencyOnProperMaterial;
+//	}
+	
+	/**
+	 * 
+	 */
+    public float getDestroySpeed(ItemStack stack, IBlockState state) {
+        Material material = state.getMaterial();
+        return material != Material.WOOD && material != Material.PLANTS && material != Material.VINE ? super.getDestroySpeed(stack, state) : this.efficiency;
+    }
 	
     /**
      * Return whether this item is repairable in an anvil.

@@ -37,10 +37,10 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 		modid=GottschCore.MODID,
 		name=GottschCore.NAME,
 		version=GottschCore.VERSION,
-		acceptedMinecraftVersions = "[1.12]",
+		acceptedMinecraftVersions = "[1.12.2]",
 		updateJSON = GottschCore.UPDATE_JSON_URL
 		)
-@Credits(values={"GottschCore for Minecraft 1.12 was first developed by Mark Gottschling on Jul 13, 2017."})
+@Credits(values={"GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017."})
 public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
@@ -56,7 +56,7 @@ public class GottschCore extends AbstractMod {
 	// the url to check the for the latest release version
 	private static final String VERSION_URL = "https://www.dropbox.com/s/f5fymmxa8n0ymxs/gottschcore-versions.json?dl=1";
 	// the version of Minecraft that this mod is developed for
-	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 0);
+	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 2);
 	
 	/*
 	 * NOTE not used. Mods that used this library should define their own config path.
