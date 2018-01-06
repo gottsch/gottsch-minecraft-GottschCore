@@ -3,6 +3,13 @@
  */
 package com.someguyssoftware.gottschcore.version;
 
+import static net.minecraftforge.common.ForgeVersion.Status.AHEAD;
+import static net.minecraftforge.common.ForgeVersion.Status.BETA;
+import static net.minecraftforge.common.ForgeVersion.Status.BETA_OUTDATED;
+import static net.minecraftforge.common.ForgeVersion.Status.OUTDATED;
+import static net.minecraftforge.common.ForgeVersion.Status.PENDING;
+import static net.minecraftforge.common.ForgeVersion.Status.UP_TO_DATE;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -11,13 +18,20 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.common.io.ByteStreams;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.someguyssoftware.gottschcore.GottschCore;
+import com.someguyssoftware.gottschcore.mod.IMod;
+
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.ForgeVersion.Status;
+import net.minecraftforge.fml.common.versioning.ComparableVersion;
 
 /**
  * @author Mark Gottschling on Apr 30, 2015
@@ -108,5 +122,68 @@ public class VersionChecker {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static boolean checkVersionUsingForge(IMod mod) throws Exception {
+        URL url = null;
+		try {			
+			url = new URL(mod.getUpdateURL());
+		} catch (MalformedURLException e) {
+			throw new Exception("Unable to open updateURL:", e);
+		}
+		
+		GottschCore.logger.info("[{}] Starting version check at {}", mod.getId(), url.toString());
+        boolean status = false;
+
+        InputStream con = url.openStream();
+        String data = new String(ByteStreams.toByteArray(con), "UTF-8");
+        con.close();
+
+        GottschCore.logger.debug("[{}] Received version check data:\n{}", mod.getId(), data);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> json = new Gson().fromJson(data, Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, String> promos = (Map<String, String>)json.get("promos");
+
+        String rec = promos.get(MinecraftForge.MC_VERSION + "-recommended");
+        String lat = promos.get(MinecraftForge.MC_VERSION + "-latest");
+        ComparableVersion current = new ComparableVersion(mod.getVersion());
+        
+        if (rec != null) {
+            ComparableVersion recommended = new ComparableVersion(rec);
+            int diff = recommended.compareTo(current);
+
+            if (diff == 0)
+                status = true;
+            else if (diff < 0) {
+                status = true;
+                if (lat != null) {
+                    ComparableVersion latest = new ComparableVersion(lat);
+                    if (current.compareTo(latest) < 0) {
+                        status = false;
+                    }
+                }
+            }
+            else{
+                status = false;
+            }
+        }
+        else if (lat != null) {
+            ComparableVersion latest = new ComparableVersion(lat);
+            if (current.compareTo(latest) < 0) {
+                status = false;
+            }
+            else
+                status = true;
+        }
+        else
+            status = true;
+    
+		return status;
 	}
 }

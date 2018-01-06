@@ -56,7 +56,7 @@ public abstract class AbstractMod implements IMod {
 		// check config if version check is enabled
 		if (getConfig().isEnableVersionChecker())	{
 			// get the latest version from the website
-			setModLatestVersion(VersionChecker.getVersion(getVerisionURL(), getMinecraftVersion()));
+			setModLatestVersion(VersionChecker.getVersion(getVersionURL(), getMinecraftVersion()));
 		}
 	}
 	

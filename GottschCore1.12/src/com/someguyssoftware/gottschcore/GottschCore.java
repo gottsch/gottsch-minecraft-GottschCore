@@ -125,6 +125,11 @@ public class GottschCore extends AbstractMod {
 	public IMod getInstance() {
 		return GottschCore.instance;
 	}
+	
+	@Override
+	public String getUpdateURL() {
+		return GottschCore.UPDATE_JSON_URL;
+	}
 
 	/* (non-Javadoc)
 	 * @see com.someguyssoftware.gottschcore.IMod#getConfig()
@@ -146,7 +151,7 @@ public class GottschCore extends AbstractMod {
 	 * @see com.someguyssoftware.gottschcore.IMod#getVerisionURL()
 	 */
 	@Override
-	public String getVerisionURL() {
+	public String getVersionURL() {
 		return GottschCore.VERSION_URL;
 	}
 

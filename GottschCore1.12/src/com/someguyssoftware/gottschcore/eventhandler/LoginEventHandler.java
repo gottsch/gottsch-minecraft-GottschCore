@@ -3,8 +3,20 @@
  */
 package com.someguyssoftware.gottschcore.eventhandler;
 
-import net.minecraft.util.text.TextFormatting;
+import static net.minecraftforge.common.ForgeVersion.Status.AHEAD;
+import static net.minecraftforge.common.ForgeVersion.Status.BETA;
+import static net.minecraftforge.common.ForgeVersion.Status.BETA_OUTDATED;
+import static net.minecraftforge.common.ForgeVersion.Status.OUTDATED;
+import static net.minecraftforge.common.ForgeVersion.Status.PENDING;
+import static net.minecraftforge.common.ForgeVersion.Status.UP_TO_DATE;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
+import com.google.common.io.ByteStreams;
+import com.google.gson.Gson;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.config.IConfig;
 import com.someguyssoftware.gottschcore.mod.IMod;
@@ -12,9 +24,13 @@ import com.someguyssoftware.gottschcore.version.BuildVersion;
 import com.someguyssoftware.gottschcore.version.VersionChecker;
 
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.common.ForgeVersion.Status;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.fml.common.versioning.ComparableVersion;
 
 /**
  * This class uses non-static subscribed methods and therefor the concrete class can not
@@ -63,17 +79,31 @@ public class LoginEventHandler {
 		
 		// get the latest version recorded in the config
 		BuildVersion configVersion = new BuildVersion(mod.getConfig().getLatestVersion());
-
-		boolean isCurrent = VersionChecker.checkVersion(mod.getModLatestVersion(), new BuildVersion(mod.getClass().getAnnotation(Mod.class).version()));
 		boolean isConfigCurrent = VersionChecker.checkVersion(mod.getModLatestVersion(), configVersion);
 		boolean isReminderOn = mod.getConfig().isLatestVersionReminder();
+		boolean isCurrent = false;
 		
+		// update the config to the latest client version if it is not set already
 		if (!isConfigCurrent) {
 			// update config
 			mod.getConfig().setProperty(IConfig.MOD_CATEGORY, "latestVersion", mod.getModLatestVersion().toString());
 			// turn the reminder back on for the latest version
 			mod.getConfig().setProperty(IConfig.MOD_CATEGORY, "latestVersionReminder", true);
 		}
+
+        if (mod.getUpdateURL() != null && !mod.getUpdateURL().equals("")) {
+        	// use Forge update method
+        	try {
+        		isCurrent = VersionChecker.checkVersionUsingForge(mod);
+        	}
+        	catch(Exception e) {
+        		GottschCore.logger.error("Unable to determine version using Forge:", e);
+            	isCurrent = VersionChecker.checkVersion(mod.getModLatestVersion(), new BuildVersion(mod.getClass().getAnnotation(Mod.class).version()));
+        	}
+        }
+        else {
+        	isCurrent = VersionChecker.checkVersion(mod.getModLatestVersion(), new BuildVersion(mod.getClass().getAnnotation(Mod.class).version()));
+        }
 		
 		if (!isCurrent && isReminderOn) {
 			StringBuilder builder = new StringBuilder();

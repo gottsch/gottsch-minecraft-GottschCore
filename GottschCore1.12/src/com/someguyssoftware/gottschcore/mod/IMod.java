@@ -34,7 +34,7 @@ public interface IMod {
 	 */
 	public BuildVersion getMinecraftVersion();
 	
-	public String getVerisionURL();
+	public String getVersionURL();
 	
 	/**
 	 * Get the instance of the mod
@@ -60,4 +60,8 @@ public interface IMod {
 	 */
 	public String getVersion();
 	
+	/**
+	 * The Forge update URL of the mod.
+	 */
+	public String getUpdateURL();
 }
