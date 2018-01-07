@@ -100,9 +100,66 @@ public class VersionChecker {
 	}
 	
 	/**
+	 * TODO instead of having 2 methods, should have 2 implementations of IVersionRetriever
+	 * @param updateURL
+	 * @return
+	 */
+	public static BuildVersion getVersionUsingForge(IMod mod) {
+		BuildVersion buildVersion = BuildVersion.EMPTY_VERSION;
+		
+        URL url = null;
+		try {			
+			url = new URL(mod.getUpdateURL());
+		} catch (MalformedURLException e) {
+			GottschCore.logger.warn("Unable to open updateURL:" + mod.getUpdateURL(), e);
+			return buildVersion;
+		}
+		
+		GottschCore.logger.info("[{}] Starting version check at {}", mod.getId(), url.toString());
+
+        String data = null;
+        try {
+	        InputStream con = url.openStream();
+	        data = new String(ByteStreams.toByteArray(con), "UTF-8");
+	        con.close();
+        }
+        catch(Exception e) {
+        	GottschCore.logger.warn("Unexpected expection in data stream: ", e);
+        	return buildVersion;
+        }
+        GottschCore.logger.debug("[{}] Received version check data:\n{}", mod.getId(), data);
+
+        try {
+	        @SuppressWarnings("unchecked")
+	        Map<String, Object> json = new Gson().fromJson(data, Map.class);
+	        @SuppressWarnings("unchecked")
+	        Map<String, String> promos = (Map<String, String>)json.get("promos");
+	
+	        String rec = promos.get(MinecraftForge.MC_VERSION + "-recommended");
+	        String lat = promos.get(MinecraftForge.MC_VERSION + "-latest");
+	        
+	        if (rec != null) {
+	            buildVersion = new BuildVersion(rec);
+	        }
+	        else if (lat != null) {
+	        	buildVersion = new BuildVersion(lat);
+	        }
+        }
+		catch(JsonSyntaxException e) {
+			GottschCore.logger.warn("Bad JSON Syntax: " + data, e);
+		}
+		catch(Exception e) {
+			GottschCore.logger.warn("Unexpected expection processing json: " + data, e);
+		}        
+
+        return buildVersion;
+	}
+	
+	/**
 	 * 
 	 * @param version the provided version to check against
 	 * @param modVersion the mod's current version
+	 * 
 	 * @return
 	 * @since 2.0
 	 */
@@ -126,64 +183,23 @@ public class VersionChecker {
 	
 	/**
 	 * 
+	 * @param version
+	 * @param modVersion
 	 * @return
+	 * @throws Exception
+	 * @since 2.0
 	 */
-	public static boolean checkVersionUsingForge(IMod mod) throws Exception {
-        URL url = null;
-		try {			
-			url = new URL(mod.getUpdateURL());
-		} catch (MalformedURLException e) {
-			throw new Exception("Unable to open updateURL:", e);
-		}
+	public static boolean checkVersionUsingForge(BuildVersion version, BuildVersion modVersion) throws Exception {
+		if (version == null || modVersion == null) return true;
 		
-		GottschCore.logger.info("[{}] Starting version check at {}", mod.getId(), url.toString());
-        boolean status = false;
-
-        InputStream con = url.openStream();
-        String data = new String(ByteStreams.toByteArray(con), "UTF-8");
-        con.close();
-
-        GottschCore.logger.debug("[{}] Received version check data:\n{}", mod.getId(), data);
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> json = new Gson().fromJson(data, Map.class);
-        @SuppressWarnings("unchecked")
-        Map<String, String> promos = (Map<String, String>)json.get("promos");
-
-        String rec = promos.get(MinecraftForge.MC_VERSION + "-recommended");
-        String lat = promos.get(MinecraftForge.MC_VERSION + "-latest");
-        ComparableVersion current = new ComparableVersion(mod.getVersion());
+		ComparableVersion current = new ComparableVersion(modVersion.toString());
+        ComparableVersion recommended = new ComparableVersion(version.toString());
         
-        if (rec != null) {
-            ComparableVersion recommended = new ComparableVersion(rec);
-            int diff = recommended.compareTo(current);
+        int diff = recommended.compareTo(current);
 
-            if (diff == 0)
-                status = true;
-            else if (diff < 0) {
-                status = true;
-                if (lat != null) {
-                    ComparableVersion latest = new ComparableVersion(lat);
-                    if (current.compareTo(latest) < 0) {
-                        status = false;
-                    }
-                }
-            }
-            else{
-                status = false;
-            }
-        }
-        else if (lat != null) {
-            ComparableVersion latest = new ComparableVersion(lat);
-            if (current.compareTo(latest) < 0) {
-                status = false;
-            }
-            else
-                status = true;
-        }
-        else
-            status = true;
+        if (diff > 0)
+        	return false;
     
-		return status;
+		return true;
 	}
 }
