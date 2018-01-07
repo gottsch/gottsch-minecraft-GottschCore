@@ -3,13 +3,6 @@
  */
 package com.someguyssoftware.gottschcore.version;
 
-import static net.minecraftforge.common.ForgeVersion.Status.AHEAD;
-import static net.minecraftforge.common.ForgeVersion.Status.BETA;
-import static net.minecraftforge.common.ForgeVersion.Status.BETA_OUTDATED;
-import static net.minecraftforge.common.ForgeVersion.Status.OUTDATED;
-import static net.minecraftforge.common.ForgeVersion.Status.PENDING;
-import static net.minecraftforge.common.ForgeVersion.Status.UP_TO_DATE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -30,7 +23,6 @@ import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ForgeVersion.Status;
 import net.minecraftforge.fml.common.versioning.ComparableVersion;
 
 /**
