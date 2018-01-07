@@ -5,6 +5,9 @@ package com.someguyssoftware.gottschcore.positional;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.someguyssoftware.gottschcore.GottschCore;
+
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -287,6 +290,24 @@ public class Coords implements ICoords {
 		default: return this.x;
 		}
 	}	
+	
+	/**
+	 * 
+	 * @param nbt
+	 * @return
+	 */
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		try {
+			nbt.setInteger("x", getX());
+			nbt.setInteger("y", getY());
+			nbt.setInteger("z", getZ());
+		}
+		catch(Exception e) {
+			GottschCore.logger.error("Unable to write state to NBT:", e);
+		}		
+		return nbt;
+	}
 	
 	@Override
 	public int getX() {
