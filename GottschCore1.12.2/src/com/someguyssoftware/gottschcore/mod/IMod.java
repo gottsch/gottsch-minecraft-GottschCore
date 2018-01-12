@@ -34,7 +34,22 @@ public interface IMod {
 	 */
 	public BuildVersion getMinecraftVersion();
 	
-	public String getVerisionURL();
+	/**
+	 * By default calls deprecated getVerisionURL() to maintain backwards-compatibility.
+	 * @return
+	 */
+	public default String getVersionURL() {
+		return getVerisionURL();
+	}
+	
+	/**
+	 * @deprecated use getVersionURL() instead.
+	 * @return
+	 */
+	@Deprecated()
+	public default String getVerisionURL() {
+		return null;
+	}
 	
 	/**
 	 * Get the instance of the mod
@@ -60,4 +75,11 @@ public interface IMod {
 	 */
 	public String getVersion();
 	
+	
+	/**
+	 * The Forge update URL of the mod.
+	 */
+	public default String getUpdateURL() {
+		return null;
+	}
 }

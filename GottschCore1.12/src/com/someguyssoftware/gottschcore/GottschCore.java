@@ -45,7 +45,7 @@ public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.1.2";
+	protected static final String VERSION = "1.2.0";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12/update.json";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
@@ -125,6 +125,11 @@ public class GottschCore extends AbstractMod {
 	public IMod getInstance() {
 		return GottschCore.instance;
 	}
+	
+	@Override
+	public String getUpdateURL() {
+		return GottschCore.UPDATE_JSON_URL;
+	}
 
 	/* (non-Javadoc)
 	 * @see com.someguyssoftware.gottschcore.IMod#getConfig()
@@ -146,7 +151,7 @@ public class GottschCore extends AbstractMod {
 	 * @see com.someguyssoftware.gottschcore.IMod#getVerisionURL()
 	 */
 	@Override
-	public String getVerisionURL() {
+	public String getVersionURL() {
 		return GottschCore.VERSION_URL;
 	}
 

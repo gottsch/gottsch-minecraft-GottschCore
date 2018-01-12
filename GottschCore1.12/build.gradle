@@ -23,7 +23,8 @@ ext {
     // revision = git.head().abbreviatedId
 }
 
-version = "mc${mc_version}-v${mod_version}-${git.head().abbreviatedId}"
+//version = "mc${mc_version}-v${mod_version}-${git.head().abbreviatedId}"
+version = "mc${mc_version}-f${forge_version}-v${mod_version}"
 group = "${package_group}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${mod_name}"
 

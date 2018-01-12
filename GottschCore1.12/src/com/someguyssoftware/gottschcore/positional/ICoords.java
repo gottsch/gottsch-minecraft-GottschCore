@@ -1,5 +1,6 @@
 package com.someguyssoftware.gottschcore.positional;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -166,5 +167,36 @@ public interface ICoords {
 	 * @return
 	 */
 	ICoords resetX(int x);
+
+	/**
+	 * 
+	 * @param parentNBT
+	 */
+	public static ICoords readFromNBT(NBTTagCompound nbt) {
+		Integer x = null;
+		Integer y = null;
+		Integer z = null;
+		ICoords coords = null;
+		if (nbt.hasKey("x")) {
+			x = nbt.getInteger("x");
+		}
+		if (nbt.hasKey("y")) {
+			y = nbt.getInteger("y");
+		}
+		if (nbt.hasKey("z")) {
+			z = nbt.getInteger("z");
+		}
+		if (x != null && y != null && z != null) {
+			coords = new Coords(x, y, z);
+		}
+		return coords;
+	}
+
+	/**
+	 * 
+	 * @param nbt
+	 * @return
+	 */
+	NBTTagCompound writeToNBT(NBTTagCompound nbt);
 
 }
