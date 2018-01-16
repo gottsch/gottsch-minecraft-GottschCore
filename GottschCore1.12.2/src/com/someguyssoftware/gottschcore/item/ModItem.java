@@ -19,7 +19,7 @@ public class ModItem extends Item {
 	}
 	
 	/**
-	 * Set the registry name of {@code this ItemArmor} to {@code name} and the unlocalised name to the full registry name.
+	 * Set the registry name of {@code this Item} to {@code name} and the unlocalised name to the full registry name.
 	 * @param modID
 	 * @param name
 	 */
