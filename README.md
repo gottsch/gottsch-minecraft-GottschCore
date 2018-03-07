@@ -3,5 +3,5 @@
 The base code that all my mods require.
 
 **Current Version:**&nbsp;
-*GottschCore-mc1.12-v1.1.2*
+*v1.2*
 
