@@ -45,7 +45,7 @@ public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.3.0";
+	protected static final String VERSION = "1.3.5";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
