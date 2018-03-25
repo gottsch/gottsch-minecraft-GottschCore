@@ -97,6 +97,14 @@ public class Cube {
 	}
 	
 	/**
+	 * Wrapper for Block.isAir()
+	 * @return
+	 */
+	public boolean isAir() {
+		return state.getMaterial() == Material.AIR;
+	}
+	
+	/**
 	 * Wrapper for Material.isReplaceable();
 	 * @return
 	 */

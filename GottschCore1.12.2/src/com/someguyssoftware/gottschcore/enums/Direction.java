@@ -5,9 +5,10 @@ package com.someguyssoftware.gottschcore.enums;
 
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import net.minecraft.util.EnumFacing;
 
 /**
  * 
@@ -120,6 +121,65 @@ public enum Direction implements IEnum {
 			}			
 		default:
 			return this;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param direction
+	 * @return
+	 */
+	public Rotate getRotation(Direction direction) {
+		switch (direction) {
+		case NORTH:
+			switch(this) {
+			case NORTH: return Rotate.NO_ROTATE;
+			case EAST: return Rotate.ROTATE_90;
+			case SOUTH: return Rotate.ROTATE_180;
+			case WEST: return Rotate.ROTATE_270;
+			default: return Rotate.NO_ROTATE;
+			}
+		case EAST:
+			switch(this) {
+			case NORTH: return Rotate.ROTATE_90;
+			case EAST: return Rotate.NO_ROTATE;
+			case SOUTH: return Rotate.ROTATE_270;
+			case WEST: return Rotate.ROTATE_180;
+			default: return Rotate.NO_ROTATE;
+			}				
+		case SOUTH:
+			switch(this) {
+			case NORTH: return Rotate.ROTATE_180;
+			case EAST: return Rotate.ROTATE_270;
+			case SOUTH: return Rotate.NO_ROTATE;
+			case WEST: return Rotate.ROTATE_90;
+			default: return Rotate.NO_ROTATE;
+			}			
+		case WEST:
+			switch(this) {
+			case NORTH: return Rotate.ROTATE_270;
+			case EAST: return Rotate.ROTATE_180;
+			case SOUTH: return Rotate.ROTATE_90;
+			case WEST: return Rotate.NO_ROTATE;
+			default: return Rotate.NO_ROTATE;
+			}	
+		default:
+			return Rotate.NO_ROTATE;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param facing
+	 * @return
+	 */
+	public static Direction fromFacing(EnumFacing facing) {
+		switch (facing) {
+		case NORTH: return Direction.NORTH;
+		case EAST: return Direction.EAST;
+		case SOUTH: return Direction.SOUTH;
+		case WEST: return Direction.WEST;
+		default: return Direction.NORTH;
 		}
 	}
 	

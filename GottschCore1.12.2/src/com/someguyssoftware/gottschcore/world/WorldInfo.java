@@ -3,14 +3,11 @@
  */
 package com.someguyssoftware.gottschcore.world;
 
-import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.cube.Cube;
 import com.someguyssoftware.gottschcore.positional.Coords;
 import com.someguyssoftware.gottschcore.positional.ICoords;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -22,7 +19,7 @@ import net.minecraft.world.World;
 public class WorldInfo {
 	private static final int MAX_HEIGHT = 256;
 	private static final int MIN_HEIGHT = 1;
-	private static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
+	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
 	public static final int INVALID_SURFACE_POS = -255;
 	
 	/*
@@ -120,32 +117,30 @@ public class WorldInfo {
 	 * @return
 	 */
 	public static ICoords getSurfaceCoords(final World world, final ICoords coords) {
-//		GottschCore.logger.debug("Coords in:" + coords.toShortString());
-		Cube cube = new Cube(world, coords);
+
 		boolean isSurfaceBlock = false;
+		ICoords newCoords = coords;
 		
 		while (!isSurfaceBlock) {		
-//			GottschCore.logger.debug("cube.coords:" + cube.getCoords().toShortString());
-//			GottschCore.logger.debug("isAir:" + cube.equalsMaterial(Material.AIR));
-//			GottschCore.logger.debug("isLeaves" +cube.equalsMaterial(Material.LEAVES) );
-//			GottschCore.logger.debug("isLog:" + cube.equalsBlock(Blocks.LOG) );
-//			GottschCore.logger.debug("isLog2: " + cube.equalsBlock(Blocks.LOG2));
-//			GottschCore.logger.debug("isBurning: " + cube.isBurning());
+			Cube cube = new Cube(world, newCoords.down(1));
+			
+			// exit if not valid Y coordinate
+			if (!isValidY(cube.getCoords())) {
+				return null;
+			}		
+			
 			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) 
 					|| cube.isBurning(world)) {
-				cube = new Cube(world, cube.getCoords().down(1));
+				newCoords = newCoords.down(1);
 			}
 			else {
 				isSurfaceBlock = true;
 			}
 			
-			// exit if not valid Y coordinate
-			if (!isValidY(cube.getCoords())) {
-				return null;
-			}			
+	
 		}
-		return cube.getCoords();
+		return newCoords;
 	}
 	
 //	/**
@@ -161,14 +156,22 @@ public class WorldInfo {
 	/**
 	 * Gets the first valid dry land surface position (not on/under water or lava) from the given starting point.
 	 * @param world
-	 * @param pos
+	 * @param coords
 	 * @return
 	 */
-	public static ICoords getDryLandSurfaceCoords(final World world, final ICoords pos) {
-		Cube cube = new Cube(world, pos);
+	public static ICoords getDryLandSurfaceCoords(final World world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
+		ICoords newCoords = coords;
 		
 		while (!isSurfaceBlock) {
+			// get the cube that is 1 below current position
+			Cube cube = new Cube(world, newCoords.down(1));
+			
+			// exit if not valid Y coordinate
+			if (!isValidY(cube.getCoords())) {
+				return EMPTY_COORDS;
+			}	
+			
 			// test if the block at position is water, lava or ice
 			if (cube.equalsMaterial(Material.WATER)
 					|| cube.equalsMaterial(Material.LAVA)
@@ -179,18 +182,13 @@ public class WorldInfo {
 			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
 					|| cube.isBurning(world)) {
-				cube = new Cube(world, cube.getCoords().down(1));
+				newCoords = newCoords.down(1);
 			}
 			else {
 				isSurfaceBlock = true;
-			}
-			
-			// exit if not valid Y coordinate
-			if (!isValidY(cube.getCoords())) {
-				return EMPTY_COORDS;
-			}			
+			}		
 		}
-		return cube.getCoords();
+		return newCoords;
 	}
 	
 	/**
@@ -199,29 +197,29 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getAnyLandSurfaceCoords(final World world, final ICoords pos) {
-		Cube cube = new Cube(world, pos);
+	public static ICoords getAnyLandSurfaceCoords(final World world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
+		ICoords newCoords = coords;
 		
 		while (!isSurfaceBlock) {
-			
-			if (cube.equalsMaterial(Material.AIR) || cube.equalsMaterial(Material.WATER)||cube.isReplaceable()
-					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
-					|| cube.equalsMaterial(Material.LAVA)
-					|| cube.equalsMaterial(Material.ICE)
-					|| cube.isBurning(world)) {
-				cube = new Cube(world, cube.getCoords().down(1));
-			}
-			else {
-				isSurfaceBlock = true;
-			}
+			Cube cube = new Cube(world, newCoords.down(1));
 			
 			// exit if not valid Y coordinate
 			if (!isValidY(cube.getCoords())) {
 				return EMPTY_COORDS;
 			}			
+			if (cube.equalsMaterial(Material.AIR) || cube.equalsMaterial(Material.WATER)||cube.isReplaceable()
+					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
+					|| cube.equalsMaterial(Material.LAVA)
+					|| cube.equalsMaterial(Material.ICE)
+					|| cube.isBurning(world)) {
+				newCoords = newCoords.down(1);
+			}
+			else {
+				isSurfaceBlock = true;
+			}
 		}
-		return cube.getCoords();
+		return newCoords;
 	}
 	
 	/**
@@ -230,11 +228,17 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getOceanFloorSurfaceCoords(final World world, final ICoords pos) {
-		Cube cube = new Cube(world, pos);
+	public static ICoords getOceanFloorSurfaceCoords(final World world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
+		ICoords newCoords = coords;
 		
 		while (!isSurfaceBlock) {
+			Cube cube = new Cube(world, newCoords.down(1));
+			// exit if not valid Y coordinate
+			if (!isValidY(cube.getCoords())) {
+				return EMPTY_COORDS;
+			}	
+			
 			// test if the block at position is water, lava or ice
 			if (cube.equalsMaterial(Material.LAVA)) {
 				return EMPTY_COORDS;
@@ -244,18 +248,13 @@ public class WorldInfo {
 					|| cube.equalsMaterial(Material.ICE) || cube.isReplaceable()
 					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
 					|| cube.isBurning(world)) {
-				cube = new Cube(world, cube.getCoords().down(1));
+				newCoords = newCoords.down(1);
 			}
 			else {
 				isSurfaceBlock = true;
-			}
-			
-			// exit if not valid Y coordinate
-			if (!isValidY(cube.getCoords())) {
-				return EMPTY_COORDS;
-			}			
+			}		
 		}
-		return cube.getCoords();
+		return newCoords;
 	}	
 	
 	/*
