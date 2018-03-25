@@ -5,12 +5,16 @@ package com.someguyssoftware.gottschcore.item.util;
 
 import java.util.Random;
 
+import com.someguyssoftware.gottschcore.random.RandomHelper;
+
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemFishingRod;
+import net.minecraft.item.ItemShield;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
@@ -68,9 +72,10 @@ public class ItemUtil {
 		Random random = new Random();
 		int enchantmentIndex = 0;
 		Item item = stack.getItem();
+		// TODO make this better so that armor specific enchantments have a better chance of being added.
 		if (item instanceof ItemArmor) {
 			// generate the enchantment index
-			enchantmentIndex = random.nextInt(10);
+			enchantmentIndex = random.nextInt(12);
 			switch(enchantmentIndex) {
 			case 0:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("protection"), random.nextInt(4) + 1);
@@ -101,18 +106,27 @@ public class ItemUtil {
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("thorns"), random.nextInt(3) + 1);
 				break;	
 			case 8:
-				// TODO should be depth strider
-				stack.addEnchantment(Enchantment.getEnchantmentByLocation("thorns"), random.nextInt(3) + 1);
+				if (item.getUnlocalizedName().toLowerCase().contains("boots")) {
+					stack.addEnchantment(Enchantment.getEnchantmentByLocation("depth_strider"), random.nextInt(3) + 1);
+				}
 				break;
 			case 9:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("unbreaking"), random.nextInt(3) + 1);
 				break;	
+			case 10:
+				if (item.getUnlocalizedName().toLowerCase().contains("boots")) {
+					stack.addEnchantment(Enchantment.getEnchantmentByLocation("frost_walker"), random.nextInt(3) + 1);
+				}
+				break;
+			case 11:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("mending"), 1);
+				break;
 			default:
 				break;
 			}
 		}
 		else if (item instanceof ItemSword) {
-			enchantmentIndex = random.nextInt(7);
+			enchantmentIndex = random.nextInt(9);
 			switch(enchantmentIndex) {
 			case 0:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("sharpness"), random.nextInt(5) + 1);
@@ -135,10 +149,16 @@ public class ItemUtil {
 			case 6:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("unbreaking"), random.nextInt(3) + 1);
 				break;
+			case 7:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("sweeping"), random.nextInt(3) + 1);
+				break;
+			case 8:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("mending"), 1);
+				break;
 			}
 		}
 		else if (item instanceof ItemTool) {
-			enchantmentIndex = random.nextInt(4);
+			enchantmentIndex = random.nextInt(5);
 			switch(enchantmentIndex) {
 			case 0:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("efficiency"), random.nextInt(5) + 1);
@@ -152,10 +172,13 @@ public class ItemUtil {
 			case 3:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("fortune"), random.nextInt(3) + 1);
 				break;
+			case 4:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("mending"), 1);
+				break;
 			}
 		}
 		else if (item instanceof ItemBow) {
-			enchantmentIndex = random.nextInt(4);
+			enchantmentIndex = random.nextInt(5);
 			switch(enchantmentIndex) {
 			case 0:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("power"), random.nextInt(5) + 1);
@@ -168,6 +191,23 @@ public class ItemUtil {
 				break;
 			case 3:
 				stack.addEnchantment(Enchantment.getEnchantmentByLocation("infinity"), 1);
+				break;
+			case 4:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("mending"), 1);
+				break;
+			}
+		}
+		else if (item instanceof ItemShield) {
+			stack.addEnchantment(Enchantment.getEnchantmentByLocation("mending"), 1);
+		}
+		else if (item instanceof ItemFishingRod) {
+			enchantmentIndex = random.nextInt(2);
+			switch(enchantmentIndex) {
+			case 0:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("luck_of_the_sea"), RandomHelper.randomInt(random,  1, 3));
+				break;
+			case 1:
+				stack.addEnchantment(Enchantment.getEnchantmentByLocation("lure"), RandomHelper.randomInt(random,  1, 3));
 				break;
 			}
 		}
