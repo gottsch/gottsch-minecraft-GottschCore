@@ -6,7 +6,6 @@ package com.someguyssoftware.gottschcore.positional;
 import javax.annotation.concurrent.Immutable;
 
 import com.someguyssoftware.gottschcore.GottschCore;
-import com.someguyssoftware.gottschcore.enums.Direction;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -80,7 +79,7 @@ public class Coords implements ICoords {
      */
     @Override
     public ICoords south(int n) {
-    	return new Coords(this.getX(), this.getY(), this.getZ() + n);
+    	return new Coords(this.getX(), this.getY() + n, this.getZ() + n);
     }
     
     /**
@@ -201,23 +200,6 @@ public class Coords implements ICoords {
 	public ICoords add(ICoords coords) {
 		ICoords c = new Coords(this.x + coords.getX(), this.y + coords.getY(), this.z + coords.getZ());
 		return c;
-	}
-	
-	/**
-	 * 
-	 * @param direction
-	 * @param n
-	 * @return
-	 */
-	@Override
-	public ICoords add(Direction direction, int n) {
-		switch(direction) {
-		case NORTH: return this.north(n);
-		case EAST: return this.east(n);
-		case SOUTH: return this.south(n);
-		case WEST: return this.west(n);
-		default: return this;
-		}		
 	}
 	
 	/**

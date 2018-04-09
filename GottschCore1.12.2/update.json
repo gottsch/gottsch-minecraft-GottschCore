@@ -12,6 +12,7 @@
  		"1.1.2": "-Added additional WorldInfo methods.",
  		"1.2.0": "-Added AbstractModContainerBlock, AbstractModTileEntity.\nAdded getUpateURL() to IMod.\n-Renamed getVerisionURL to getVersionURL in IMod.\n-Added readFromNBT() and writeToNBT() methods to ICoords/Coords class.\n-VersionChecker now first attempts to use the Forge update.json to track versions.",
  		"1.3.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
- 		"1.3.5": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700"
+ 		"1.3.5": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
+ 		"1.4.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700"
     }
 }
