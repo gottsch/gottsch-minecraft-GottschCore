@@ -25,13 +25,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-// TODO how to incorporate method references
-// TODO how to incorporate lambda expressions and functional interfaces
-// TODO how to incorporate default method in interface
-// TODO how to incorporate Stream API
-// TODO how to incorporate forEach()
-// TODO how to incorporate java.util.function.Consumer (function interface)
-
 /**
  * @author Mark Gottschling on Apr 29, 2017
  *
@@ -46,7 +39,7 @@ public class GottschCore extends AbstractMod {
 	// constants
 	protected static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.0.0";
+	protected static final String VERSION = "1.2.0";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
 	
