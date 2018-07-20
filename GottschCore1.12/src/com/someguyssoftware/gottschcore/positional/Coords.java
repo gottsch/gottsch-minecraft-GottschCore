@@ -6,6 +6,7 @@ package com.someguyssoftware.gottschcore.positional;
 import javax.annotation.concurrent.Immutable;
 
 import com.someguyssoftware.gottschcore.GottschCore;
+import com.someguyssoftware.gottschcore.enums.Direction;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -79,7 +80,7 @@ public class Coords implements ICoords {
      */
     @Override
     public ICoords south(int n) {
-    	return new Coords(this.getX(), this.getY() + n, this.getZ() + n);
+    	return new Coords(this.getX(), this.getY(), this.getZ() + n);
     }
     
     /**
@@ -203,6 +204,23 @@ public class Coords implements ICoords {
 	}
 	
 	/**
+	 * 
+	 * @param direction
+	 * @param n
+	 * @return
+	 */
+	@Override
+	public ICoords add(Direction direction, int n) {
+		switch(direction) {
+		case NORTH: return this.north(n);
+		case EAST: return this.east(n);
+		case SOUTH: return this.south(n);
+		case WEST: return this.west(n);
+		default: return this;
+		}		
+	}
+	
+	/**
 	 * Delta between this and input ie. this.[xyz] - input.[xyz]
 	 * @param coords
 	 * @return new instance
@@ -222,6 +240,28 @@ public class Coords implements ICoords {
 		return new BlockPos(getX(), getY(), getZ());
 	}
 
+	/**
+	 * 
+	 * @param xlen
+	 * @param zlen
+	 * @param degrees
+	 * @return
+	 */
+	@Override
+	public ICoords rotate(double xlen, double zlen, final double degrees) {
+		// convert degrees to radian		
+		double s = Math.sin(Math.toRadians(degrees));
+		double c = Math.cos(Math.toRadians(degrees));
+
+		// rotate point
+		double xnew = xlen * c - zlen * s;
+		double znew = xlen * s + zlen * c;
+
+		// translate point back:
+		ICoords coords = this.add((int)xnew, 0,(int)znew);
+		return coords;
+	}
+	
 	/**
 	 * Rotate 90 degrees.
 	 * @param width

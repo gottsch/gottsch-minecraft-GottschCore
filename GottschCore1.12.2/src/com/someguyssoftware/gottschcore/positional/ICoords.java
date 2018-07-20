@@ -208,4 +208,6 @@ public interface ICoords {
 	 * @return
 	 */
 	ICoords add(Direction direction, int n);
+
+	ICoords rotate(double xlen, double zlen, double degrees);
 }

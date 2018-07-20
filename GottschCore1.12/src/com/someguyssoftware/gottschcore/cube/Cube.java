@@ -121,6 +121,14 @@ public class Cube {
 	}
 	
 	/**
+	 * Wrapper for IBlockState.isTopSolid
+	 * @return
+	 */
+	public boolean isTopSolid() {
+		return getState().isTopSolid();		
+	}
+	
+	/**
 	 * Wrapper to Block.isBurning()
 	 * @return
 	 */

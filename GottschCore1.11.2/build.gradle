@@ -7,6 +7,7 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
@@ -25,9 +26,8 @@ compileJava {
 minecraft {
     version = "${mc_version}-${forge_version}"
     runDir = "run"
-    
-    if (project.hasProperty('mappings_version'))
-        mappings = project.mappings_version
+
+    mappings = "snapshot_20161220"
 }
 
 //Optional: change the project structure
@@ -41,9 +41,24 @@ sourceSets.main{
 }
 
 dependencies {
-
+    compile files('../../ModCommonLibs/libs/DelaunayTriangulator-1.0.3.jar')
+	compile files('../../ModCommonLibs/libs/log4j-core-2.8.1.jar')
+	compile files('../../ModCommonLibs/libs/log4j-api-2.8.1.jar')
 }
 
+jar {
+	// for PROD only
+	from (zipTree('../../ModCommonLibs/libs/DelaunayTriangulator-1.0.3.jar')) {
+		exclude 'META-INF/**'
+	}
+	from (zipTree('../../ModCommonLibs/libs/log4j-core-2.8.1.jar')) {
+		exclude 'META-INF/**'
+	}
+	from (zipTree('../../ModCommonLibs/libs/log4j-api-2.8.1.jar')) {
+		exclude 'META-INF/**'
+	}
+}
+	
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
