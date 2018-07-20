@@ -1,5 +1,7 @@
 package com.someguyssoftware.gottschcore.positional;
 
+import com.someguyssoftware.gottschcore.enums.Direction;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
@@ -199,4 +201,13 @@ public interface ICoords {
 	 */
 	NBTTagCompound writeToNBT(NBTTagCompound nbt);
 
+	/**
+	 * 
+	 * @param direction
+	 * @param n
+	 * @return
+	 */
+	ICoords add(Direction direction, int n);
+
+	ICoords rotate(double xlen, double zlen, double degrees);
 }

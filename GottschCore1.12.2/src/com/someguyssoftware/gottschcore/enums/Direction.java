@@ -179,7 +179,26 @@ public enum Direction implements IEnum {
 		case EAST: return Direction.EAST;
 		case SOUTH: return Direction.SOUTH;
 		case WEST: return Direction.WEST;
+		case UP: return Direction.UP;
+		case DOWN: return Direction.DOWN;
 		default: return Direction.NORTH;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param direction
+	 * @return
+	 */
+	public EnumFacing toFacing() {
+		switch(this) {
+		case NORTH: return EnumFacing.NORTH;
+		case EAST: return EnumFacing.EAST;
+		case SOUTH: return EnumFacing.SOUTH;
+		case WEST: return EnumFacing.WEST;
+		case UP: return EnumFacing.UP;
+		case DOWN: return EnumFacing.DOWN;
+		default: return EnumFacing.NORTH;
 		}
 	}
 	
