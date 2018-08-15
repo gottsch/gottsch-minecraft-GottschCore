@@ -131,12 +131,12 @@ public enum Direction implements IEnum {
 	 */
 	public Rotate getRotation(Direction direction) {
 		switch (direction) {
-		case NORTH:
+		case NORTH: // <-- destination
 			switch(this) {
-			case NORTH: return Rotate.NO_ROTATE;
-			case EAST: return Rotate.ROTATE_90;
+			case NORTH: return Rotate.NO_ROTATE; // <-- source
+			case EAST: return Rotate.ROTATE_270;
 			case SOUTH: return Rotate.ROTATE_180;
-			case WEST: return Rotate.ROTATE_270;
+			case WEST: return Rotate.ROTATE_90;
 			default: return Rotate.NO_ROTATE;
 			}
 		case EAST:
@@ -150,9 +150,9 @@ public enum Direction implements IEnum {
 		case SOUTH:
 			switch(this) {
 			case NORTH: return Rotate.ROTATE_180;
-			case EAST: return Rotate.ROTATE_270;
+			case EAST: return Rotate.ROTATE_90;
 			case SOUTH: return Rotate.NO_ROTATE;
-			case WEST: return Rotate.ROTATE_90;
+			case WEST: return Rotate.ROTATE_270;
 			default: return Rotate.NO_ROTATE;
 			}			
 		case WEST:
