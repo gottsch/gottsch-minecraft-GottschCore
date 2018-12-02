@@ -94,7 +94,7 @@ public class LootTableMaster {
 		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getModsFolder()).toAbsolutePath().toFile());
 
 		// create a context
-		this.context = new LootContext.Builder(world).build();
+		this.context = new LootContext.Builder(world, lootTableManager).build();
 	}
 	
 	/**
