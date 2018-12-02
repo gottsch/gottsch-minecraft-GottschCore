@@ -45,7 +45,7 @@ public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.5.1";
+	protected static final String VERSION = "1.6.0";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
@@ -54,7 +54,7 @@ public class GottschCore extends AbstractMod {
 	 * Instance variables used for custom version checker.
 	 */
 	// the url to check the for the latest release version
-	private static final String VERSION_URL = "https://www.dropbox.com/s/f5fymmxa8n0ymxs/gottschcore-versions.json?dl=1";
+//	private static final String VERSION_URL = "https://www.dropbox.com/s/f5fymmxa8n0ymxs/gottschcore-versions.json?dl=1";
 	// the version of Minecraft that this mod is developed for
 	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 2);
 	
@@ -150,10 +150,10 @@ public class GottschCore extends AbstractMod {
 	/* (non-Javadoc)
 	 * @see com.someguyssoftware.gottschcore.IMod#getVerisionURL()
 	 */
-	@Override
-	public String getVersionURL() {
-		return GottschCore.VERSION_URL;
-	}
+//	@Override
+//	public String getVersionURL() {
+//		return GottschCore.VERSION_URL;
+//	}
 
 	@Override
 	public BuildVersion getModLatestVersion() {
