@@ -88,4 +88,16 @@ public interface IConfig {
 	 * @param modEnabled
 	 */
 	void setModEnabled(boolean modEnabled);
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getModsFolder();
+	
+	/**
+	 * 
+	 * @param modFolder
+	 */
+	public void setModsFolder(String modsFolder);
 }

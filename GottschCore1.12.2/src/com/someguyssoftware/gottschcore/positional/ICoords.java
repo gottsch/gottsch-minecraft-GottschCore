@@ -4,6 +4,7 @@ import com.someguyssoftware.gottschcore.enums.Direction;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations. Ex. BlockPos in 1.8+, or for (x, y, z) in &lt;1.8
@@ -17,7 +18,13 @@ public interface ICoords {
 	 * @return
 	 */
 	public BlockPos toPos();
-
+	
+	/**
+	 * Convert to Minecraft ChunkPos object
+	 * @return
+	 */
+	public ChunkPos toChunkPos();
+	
 	/**
 	 * Convenience method
 	 * @param axis

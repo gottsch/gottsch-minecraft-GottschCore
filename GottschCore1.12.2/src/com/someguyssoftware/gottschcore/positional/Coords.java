@@ -8,9 +8,11 @@ import javax.annotation.concurrent.Immutable;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.enums.Direction;
 
-import io.netty.util.internal.MathUtil;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * For Forge 1.8+
@@ -49,6 +51,14 @@ public class Coords implements ICoords {
 	 */	
 	public Coords(BlockPos pos) {
 		this(pos.getX(), pos.getY(), pos.getZ());
+	}
+	
+	/**
+	 * Copy constructor from Vec3d
+	 * @param vec
+	 */
+	public Coords(Vec3d vec) {
+		this(MathHelper.floor(vec.x), MathHelper.floor(vec.y), MathHelper.floor(vec.z));
 	}
 	
 	/**
@@ -241,6 +251,15 @@ public class Coords implements ICoords {
 		return new BlockPos(getX(), getY(), getZ());
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	@Override
+	public ChunkPos toChunkPos() {
+		return new ChunkPos(toPos());
+	}
+	
 	/**
 	 * 
 	 * @param xlen

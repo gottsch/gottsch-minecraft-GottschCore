@@ -8,9 +8,12 @@ import com.someguyssoftware.gottschcore.positional.Coords;
 import com.someguyssoftware.gottschcore.positional.ICoords;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Mark Gottschling on May 6, 2017
@@ -22,6 +25,36 @@ public class WorldInfo {
 	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
 	public static final int INVALID_SURFACE_POS = -255;
 	
+	/*
+	 * =========================================
+	 * Find the game side.
+	 * =========================================
+	 */
+	
+	public static boolean isServerSide() {
+        return FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
+    }
+
+    public static boolean isServerSide(World world) {
+        return !world.isRemote;
+    }
+    
+    /**
+     * Convenience companion method to isServerSide()
+     */
+    public static boolean isClientSide() {
+    	return FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT;
+    }
+    
+    /**
+     * Convenience companion method to isServerSide(World world)
+     * @param world
+     * @return
+     */
+    public static boolean isClientSide(World world) {
+        return world.isRemote;
+    }
+    
 	/*
 	 * =========================================
 	 * Find the topmost block position methods 
@@ -45,11 +78,7 @@ public class WorldInfo {
 	 * @return
 	 */
     private static int getHeightValue(final World world, final BlockPos pos) { 
-//	     int y = world.getChunkFromBlockCoords(pos).getHeight(pos);
-//    	GottschCore.logger.debug("Get height for blockpos:" + pos.toString());
-//    	int y = world.getHeight(pos.getX(), pos.getY());
     	BlockPos p = world.getHeight(pos);
-//    	GottschCore.logger.debug("Get height(pos):" + p.toString());
 	   return p.getY();
     }
     
@@ -328,13 +357,12 @@ public class WorldInfo {
 	 */
 	public static double getSolidBasePercent(final World world, final ICoords coords, final int width, final int depth) {
 		int platformSize = 0;
-		Cube cube = new Cube(world, coords);
-		
+
 		// process all z, x in base y (-1) to count the number of allowable blocks in the world platform
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the cube
-				cube = new Cube(world, cube.getCoords().add(x, 0, z));
+				Cube cube = new Cube(world, coords.add(x, 0, z));
 
 				// test the cube
 				if (cube.hasState() && cube.isSolid() && ! cube.isReplaceable()) {
@@ -359,13 +387,12 @@ public class WorldInfo {
 	public static double getAirBasePercent(final World world, final ICoords coords, final int width, final int depth) {
 		double percent = 0.0D;
 		int airBlocks = 0;
-		Cube cube = new Cube(world, coords);
-		
+
 		// process all z, x in base y to count the number of allowable blocks in the world platform
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the cube
-				cube = new Cube(world, cube.getCoords().add(x, 0, z));
+				Cube cube = new Cube(world, coords.add(x, 0, z));
 				
 				if (cube.hasState() || cube.equalsMaterial(Material.AIR) || cube.isReplaceable()) {
 					airBlocks++;		
@@ -417,5 +444,26 @@ public class WorldInfo {
 		diff = surfaceCoords.getY() - coords.getY();		
 		
 		return diff;	
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param sourceCoords
+	 * @return
+	 */
+	public static ICoords getClosestPlayerCoords(World world, ICoords sourceCoords) {
+        double closestDistSq = -1.0D;
+        ICoords closestCoords = null;
+		for (int i = 0; i < world.playerEntities.size(); ++i) {
+			EntityPlayer player = world.playerEntities.get(i);
+			ICoords playerCoords = new Coords(player.getPosition());
+			double dist = sourceCoords.getDistanceSq(playerCoords);
+			if (closestDistSq == -1.0D || dist < closestDistSq) {
+				closestDistSq = dist;
+				closestCoords = playerCoords;
+			}
+		}
+		return closestCoords;
 	}
 }

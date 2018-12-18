@@ -110,7 +110,6 @@ public class RelativeDirectionFacadeBlock extends ModBlock {
 	@Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
 		switch (state.getValue(BASE)) {
-		// TODO need UP and DOWN
 		    case NORTH:
 		        return NORTH_AABB;
 		    case SOUTH:
