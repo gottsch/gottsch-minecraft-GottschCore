@@ -60,7 +60,6 @@ public class LootTableMaster {
 	 */
 	public LootTableMaster(IMod mod, String resourcePath, String folderName) {
 		this.mod = mod;
-//		this.lootTablesResourcePath = resourcePath;
 		this.lootTablesFolderName = folderName;
 	}
 
@@ -74,12 +73,6 @@ public class LootTableMaster {
 	public void buildAndExpose(String resourceRootPath, String modID) {
 		// create paths to custom loot tables if they don't exist
 		for (String location : getLootTableFolderLocations()) {
-			// TODO this is good so far but doesn't take into account other mod's loot
-			// tables under this mod's folder
-			// ex. it builds /mods/treasure2/loot_tables/[name]/, or
-			// /mods/mocreatures/loot_tables[name]/
-			// but not /mods/treasure2/loot_tables/mocreatures/[name], unless location
-			// contains mocreatures
 			createLootTableFolder(modID, location);
 			exposeLootTable(resourceRootPath, modID, location);
 		}

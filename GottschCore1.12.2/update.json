@@ -16,6 +16,6 @@
  		"1.4.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.5.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.5.1": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
- 		"1.6.0": "-remove deprecated update link.\nAdd modsFolder to IConfig/AbstractConfig.\nAdded custom Loot Table management system.\n"
+ 		"1.6.0": "-remove deprecated update link.\nAdd modsFolder to IConfig/AbstractConfig.\nAdded custom Loot Table management system.\nAdd WorldInfo methods - isServerSide, isClientSide, getClosestPlayerCoords.\nAdd Coords constructor from Vec3d.\nAdded BBox class - wrapper for AxisAlignedBB.\nFixed bug in getSolidBasePercent(), getAirBasePercent().\nAdd toChunkPos().\n"
     }
 }
