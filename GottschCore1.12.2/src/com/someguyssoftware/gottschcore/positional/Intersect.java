@@ -59,6 +59,14 @@ public class Intersect {
 	 * @param bb2
 	 * @return
 	 */
+	public static Intersect getIntersect(BBox bb1, BBox bb2) {
+		double x = Math.max(0.0, Math.abs(Math.min(bb1.getMaxCoords().getX(), bb2.getMaxCoords().getX()) - Math.max(bb1.getMinCoords().getX(), bb2.getMinCoords().getX())));
+		double y = Math.max(0.0, Math.abs(Math.min(bb1.getMaxCoords().getY(), bb2.getMaxCoords().getY()) - Math.max(bb1.getMinCoords().getY(), bb2.getMinCoords().getY())));
+		double z = Math.max(0.0, Math.abs(Math.min(bb1.getMaxCoords().getZ(), bb2.getMaxCoords().getZ()) - Math.max(bb1.getMinCoords().getZ(), bb2.getMinCoords().getZ())));		
+		return new Intersect(x, y, z);
+	}
+	
+	@Deprecated
 	public static Intersect getIntersect(AxisAlignedBB bb1, AxisAlignedBB bb2) {
 		double x = Math.max(0.0, Math.abs(Math.min(bb1.maxX, bb2.maxX) - Math.max(bb1.minX, bb2.minX)));
 		double y = Math.max(0.0, Math.abs(Math.min(bb1.maxY, bb2.maxY) - Math.max(bb1.minY, bb2.minY)));
@@ -66,6 +74,7 @@ public class Intersect {
 		return new Intersect(x, y, z);
 	}
 	
+	@Deprecated
 	public static Intersect getIntersect2(AxisAlignedBB bb1, AxisAlignedBB bb2) {
 		double x = Math.max(0.0, Math.min(bb1.maxX, bb2.maxX) - Math.max(bb1.minX, bb2.minX));
 		double y = Math.max(0.0, Math.min(bb1.maxY, bb2.maxY) - Math.max(bb1.minY, bb2.minY));
