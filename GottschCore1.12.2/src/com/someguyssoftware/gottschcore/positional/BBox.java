@@ -42,35 +42,72 @@ public class BBox {
 		setMaxCoords(c.add(1, 1, 1));
 	}
 	
+	/*
+	 * Constructor from AxisAlignedBB.
+	 */
+	public BBox(final AxisAlignedBB aabb) {
+		setMinCoords(new Coords((int)aabb.minX, (int)aabb.minY, (int)aabb.minZ));
+		setMaxCoords(new Coords((int)aabb.maxX, (int)aabb.maxY, (int)aabb.maxZ));
+	}
+	
 	public AxisAlignedBB toAABB() {
 		return new AxisAlignedBB(this.minCoords.toPos(), this.maxCoords.toPos());
 	}
 
 	/**
+	 * 
+	 * @param other
+	 * @return
+	 */
+	public boolean intersects(BBox other) {
+		return this.toAABB().intersects(other.toAABB());
+	}
+	
+	/**
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public BBox grow(int value) {
+		return new BBox(this.toAABB().grow(value));
+	}
+	
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public BBox grow(int x, int y, int z) {
+		return new BBox(this.toAABB().grow(x, y, z));
+	}
+	
+	/**
 	 * @return the minCoords
 	 */
-	protected ICoords getMinCoords() {
+	public ICoords getMinCoords() {
 		return minCoords;
 	}
 
 	/**
 	 * @param minCoords the minCoords to set
 	 */
-	protected void setMinCoords(ICoords minCoords) {
+	public void setMinCoords(ICoords minCoords) {
 		this.minCoords = minCoords;
 	}
 
 	/**
 	 * @return the maxCoords
 	 */
-	protected ICoords getMaxCoords() {
+	public ICoords getMaxCoords() {
 		return maxCoords;
 	}
 
 	/**
 	 * @param maxCoords the maxCoords to set
 	 */
-	protected void setMaxCoords(ICoords maxCoords) {
+	public void setMaxCoords(ICoords maxCoords) {
 		this.maxCoords = maxCoords;
 	}
 }
