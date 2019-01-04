@@ -71,8 +71,10 @@ public class LootTableMaster {
 	 * @param modID
 	 */
 	public void buildAndExpose(String resourceRootPath, String modID) {
+		GottschCore.logger.debug("loot table folder locations -> {}", getLootTableFolderLocations());
 		// create paths to custom loot tables if they don't exist
 		for (String location : getLootTableFolderLocations()) {
+			GottschCore.logger.debug("buildAndExpose location -> {}", location);
 			createLootTableFolder(modID, location);
 			exposeLootTable(resourceRootPath, modID, location);
 		}
@@ -166,7 +168,7 @@ public class LootTableMaster {
 			Path resourceBasePath = fs.getPath(resourceRootPath, modID, location);
 			// GottschCore.logger.debug("resource base path -> {}",
 			// resourceBasePath.toString());
-			folder = Paths.get(getMod().getConfig().getModsFolder(), modID, getLootTablesFolderName(), location).toAbsolutePath();
+			folder = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
 
 			boolean isFirst = true;
 			// proces all the files in the folder
@@ -197,7 +199,7 @@ public class LootTableMaster {
 								fos.write(buf, 0, r);
 							}
 						} catch (IOException e) {
-							GottschCore.logger.error("Error exposing chestsheet resource to file system.");
+							GottschCore.logger.error("Error exposing chestsheet resource to file system.", e);
 						}
 					}
 				}
@@ -385,7 +387,7 @@ public class LootTableMaster {
 	 *            the lootTableFolderLocations to set
 	 */
 	public void setLootTableFolderLocations(List<String> lootTableFolderLocations) {
-		lootTableFolderLocations = lootTableFolderLocations;
+		this.lootTableFolderLocations = lootTableFolderLocations;
 	}
 
 	/**
