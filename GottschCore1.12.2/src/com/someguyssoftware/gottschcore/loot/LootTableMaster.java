@@ -374,7 +374,7 @@ public class LootTableMaster {
 	/**
 	 * @return the lootTableFolderLocations
 	 */
-	protected List<String> getLootTableFolderLocations() {
+	public List<String> getLootTableFolderLocations() {
 		if (lootTableFolderLocations == null)
 			lootTableFolderLocations = new ArrayList<>();
 		return lootTableFolderLocations;
@@ -384,7 +384,7 @@ public class LootTableMaster {
 	 * @param lootTableFolderLocations
 	 *            the lootTableFolderLocations to set
 	 */
-	protected void setLootTableFolderLocations(List<String> lootTableFolderLocations) {
+	public void setLootTableFolderLocations(List<String> lootTableFolderLocations) {
 		lootTableFolderLocations = lootTableFolderLocations;
 	}
 
