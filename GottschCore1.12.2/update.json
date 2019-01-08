@@ -17,6 +17,6 @@
  		"1.5.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.5.1": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.6.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
- 		"1.7.0": "-Fixed LootTableMaster to build and examine the correct folder.\n"
+ 		"1.7.0": "-Fixed LootTableMaster to build and examine the correct folder.\nFixed ModPresent Loot Condition to be gottschcore:mod_present"
     }
 }
