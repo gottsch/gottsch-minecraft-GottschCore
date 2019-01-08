@@ -350,7 +350,7 @@ public class LootTableMaster {
 	/**
 	 * @return the context
 	 */
-	protected LootContext getContext() {
+	public LootContext getContext() {
 		return context;
 	}
 
