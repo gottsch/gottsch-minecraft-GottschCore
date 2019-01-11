@@ -84,6 +84,17 @@ public class BBox {
 	}
 	
 	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @return
+	 */
+	public BBox expand(double x, double y, double z) {
+		return new BBox(this.toAABB().expand(x, y, z));
+	}
+	
+	/**
 	 * @return the minCoords
 	 */
 	public ICoords getMinCoords() {
