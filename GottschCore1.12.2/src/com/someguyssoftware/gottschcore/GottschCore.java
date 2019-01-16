@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 		modid=GottschCore.MODID,
 		name=GottschCore.NAME,
 		version=GottschCore.VERSION,
+		dependencies="required-after:forge@[14.23.5.2768,)",
 		acceptedMinecraftVersions = "[1.12.2]",
 		updateJSON = GottschCore.UPDATE_JSON_URL
 		)
