@@ -40,7 +40,7 @@ public class ModPresent implements LootCondition {
 	 */
 	public static class Serializer extends LootCondition.Serializer<ModPresent> {
 		public Serializer() {
-			super(new ResourceLocation("treasure2:mod_present"), ModPresent.class);
+			super(new ResourceLocation("gottschcore:mod_present"), ModPresent.class);
 		}
 
 		public void serialize(JsonObject json, ModPresent value, JsonSerializationContext context) {

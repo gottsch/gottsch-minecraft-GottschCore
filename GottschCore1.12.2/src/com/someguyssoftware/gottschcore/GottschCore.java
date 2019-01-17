@@ -37,6 +37,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 		modid=GottschCore.MODID,
 		name=GottschCore.NAME,
 		version=GottschCore.VERSION,
+		dependencies="required-after:forge@[14.23.5.2768,)",
 		acceptedMinecraftVersions = "[1.12.2]",
 		updateJSON = GottschCore.UPDATE_JSON_URL
 		)
@@ -45,7 +46,7 @@ public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.6.0";
+	protected static final String VERSION = "1.7.0";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
 	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages

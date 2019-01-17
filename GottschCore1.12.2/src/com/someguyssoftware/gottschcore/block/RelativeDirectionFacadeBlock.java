@@ -65,6 +65,11 @@ public class RelativeDirectionFacadeBlock extends ModBlock {
         return false;
     }
 
+	@Override
+	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return false;
+	}
+	
     /**
      * 
      */
