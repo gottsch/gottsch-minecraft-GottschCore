@@ -71,9 +71,9 @@ public class LootTableMaster {
 	 * @param modID
 	 */
 	public void buildAndExpose(String resourceRootPath, String modID, List<String> locations) {
-		GottschCore.logger.debug("loot table folder locations -> {}", /*getLootTableFolderLocations()*/locations);
+		GottschCore.logger.debug("loot table folder locations -> {}", locations);
 		// create paths to custom loot tables if they don't exist
-		for (String location : /*getLootTableFolderLocations()*/locations) {
+		for (String location : locations) {
 			GottschCore.logger.debug("buildAndExpose location -> {}", location);
 			createLootTableFolder(modID, location);
 			exposeLootTable(resourceRootPath, modID, location);
