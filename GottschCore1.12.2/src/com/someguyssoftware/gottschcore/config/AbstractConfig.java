@@ -27,7 +27,7 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 	private String loggerFilename;
 
 	private String modsFolder;
-		// toggle mod enabled
+	// toggle mod enabled
 	private boolean modEnabled;
 
 	// toggle to execute version checker

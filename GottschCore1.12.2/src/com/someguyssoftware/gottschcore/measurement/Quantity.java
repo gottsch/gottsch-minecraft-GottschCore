@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore;
+package com.someguyssoftware.gottschcore.measurement;
 
 /**
  * A class to hold a minimum and maximum value for a value range.

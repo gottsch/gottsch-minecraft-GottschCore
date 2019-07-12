@@ -1,9 +1,11 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore;
+package com.someguyssoftware.gottschcore.mod;
 
 import java.lang.reflect.Field;
+
+import com.someguyssoftware.gottschcore.GottschCore;
 
 /**
  * @author Mark Gottschling on Jul 23, 2017
@@ -13,17 +15,17 @@ public abstract class AbstractModObjectHolder {
 	
 	/**
 	 * 
-	 * @param clazz
-	 * @param name
+	 * @param classToSet
+	 * @param fieldName
 	 * @param value
 	 */
-	public static void setPropertyWithReflection(Class clazz, String name, Object value) {
+	public static void setPropertyWithReflection(Class classToSet, String fieldName, Object value) {
 		// get the field by reflection
 		Field f = null;
 		try {
-			f = clazz.getField(name);
+			f = classToSet.getField(fieldName);
 		} catch (NoSuchFieldException e) {
-			GottschCore.logger.warn(String.format("No such field [%s] for class", name, clazz.getSimpleName()));
+			GottschCore.logger.warn(String.format("No such field [%s] for class", fieldName, classToSet.getSimpleName()));
 		} catch (SecurityException e) {
 			GottschCore.logger.warn("Security violation: ", e);
 		}
