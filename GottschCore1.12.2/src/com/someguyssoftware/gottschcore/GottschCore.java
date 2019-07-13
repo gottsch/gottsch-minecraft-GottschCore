@@ -49,13 +49,6 @@ public class GottschCore extends AbstractMod {
 	protected static final String VERSION = "1.8.0";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
-	// TODO [back-burner]add a message file (messages.json) to check from.... global message and mod specific messages
-	
-	/*
-	 * Instance variables used for custom version checker.
-	 */
-	// the url to check the for the latest release version
-//	private static final String VERSION_URL = "https://www.dropbox.com/s/f5fymmxa8n0ymxs/gottschcore-versions.json?dl=1";
 	// the version of Minecraft that this mod is developed for
 	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 2);
 	
