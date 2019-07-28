@@ -88,7 +88,7 @@ public class GottschTemplateManager {
 	}
 
 	/**
-	 * 
+	 * TODO remove loading should be done by concrete implementation
 	 */
 	public GottschTemplateManager loadAll(List<String> locations) {
 		GottschCore.logger.debug("loading all structures...");

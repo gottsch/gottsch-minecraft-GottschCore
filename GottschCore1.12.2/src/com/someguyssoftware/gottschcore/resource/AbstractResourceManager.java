@@ -213,9 +213,9 @@ public class AbstractResourceManager implements IResourceManager {
 				 logger.debug("Custom loot table -> {}", f.toAbsolutePath().toString());
 				ResourceLocation loc = 
 						new ResourceLocation(
-								/*getMod().getId() + ":" + //getLootTablesFolderName()//"structures" + */ // took this out becuase of conflict with baseFolder property used elsewhere - fix
-								"/" + modID + "/" + location
-										+ f.getFileName().toString().replace(".json", ""));
+								getMod().getId() + ":" + getBaseResourceFolder()
+								+ "/" + modID + "/" + location
+										+ f.getFileName().toString());//.replace(".json", ""));
 				logger.debug("Resource location -> {}", loc);
 				locs.add(loc);
 			});
