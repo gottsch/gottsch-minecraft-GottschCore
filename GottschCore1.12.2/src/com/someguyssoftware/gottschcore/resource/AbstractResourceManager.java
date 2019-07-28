@@ -38,6 +38,7 @@ public class AbstractResourceManager implements IResourceManager {
 	private static Logger logger = LogManager.getLogger(GottschCore.instance.getId());
 	
 	private IMod mod;
+	
 	/*
 	 * the base folder name on the file system where resources should be located. 
 	 * this location is after the /mod/<modID>/ path 
@@ -222,7 +223,6 @@ public class AbstractResourceManager implements IResourceManager {
 		} catch (IOException e) {
 			logger.error("Error processing custom loot table:", e);
 		}
-
 		return locs;
 	}
 	

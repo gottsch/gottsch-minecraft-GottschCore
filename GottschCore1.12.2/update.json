@@ -18,6 +18,6 @@
  		"1.5.1": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.6.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
  		"1.7.0": "-see changelog @ https://gist.github.com/gottsch/75a22a51a52d0fe8bf5f6711d4a65700",
- 		"1.8.0": "Add custom Template management system.\nAdd StructureInfo, IStructureInfoProvider.\nAdded CHUNK_RADIUS to WorldInfo().\nAdd bounds checking in RandomHelper methods.\nAdd base resource management class.\nMoved Quantity to proper package.\n"
+ 		"1.8.0": "Add custom Template management system.\nAdd StructureInfo, IStructureInfoProvider.\nAdded CHUNK_RADIUS to WorldInfo().\nAdd bounds checking in RandomHelper methods.\nAdd base resource management class.\nMoved Quantity to proper package.\nAdd meta resource files system.\n"
     }
 }

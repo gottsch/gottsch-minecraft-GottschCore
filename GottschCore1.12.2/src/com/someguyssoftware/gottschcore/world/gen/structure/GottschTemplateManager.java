@@ -5,21 +5,20 @@ package com.someguyssoftware.gottschcore.world.gen.structure;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
+import com.someguyssoftware.gottschcore.resource.AbstractResourceManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -35,9 +34,7 @@ import net.minecraft.world.gen.structure.template.Template;
  * @author Mark Gottschling on Feb 3, 2019
  *
  */
-public class GottschTemplateManager {
-	private final IMod mod;
-	private final String baseFolder;
+public class GottschTemplateManager extends AbstractResourceManager {
 	private final DataFixer fixer;
 	
 	/*
@@ -58,12 +55,11 @@ public class GottschTemplateManager {
 	/**
 	 * 
 	 * @param mod
-	 * @param baseFolder
+	 * @param resourceFolder
 	 * @param fixer
 	 */
-	public GottschTemplateManager(IMod mod, String baseFolder, DataFixer fixer) {
-		this.mod = mod;
-		this.baseFolder = baseFolder;
+	public GottschTemplateManager(IMod mod, String resourceFolder, DataFixer fixer) {
+		super(mod, resourceFolder);
 		this.fixer = fixer;
 		
         // setup standard list of markers
@@ -88,7 +84,7 @@ public class GottschTemplateManager {
 	}
 
 	/**
-	 * TODO remove loading should be done by concrete implementation
+	 * generic load - load all templates in template map
 	 */
 	public GottschTemplateManager loadAll(List<String> locations) {
 		GottschCore.logger.debug("loading all structures...");
@@ -100,7 +96,7 @@ public class GottschTemplateManager {
 	}
 	
 	/**
-	 * 
+	 * Load template file from classpath or file system
 	 * @param server
 	 * @param templatePath
 	 * @return
@@ -114,10 +110,10 @@ public class GottschTemplateManager {
 
 		this.readTemplate(templatePath, scanForBlocks);
 		if (this.templates.get(key) != null) {
-			GottschCore.logger.debug("Loaded structure from -> {}", templatePath.toString());
+			GottschCore.logger.debug("Loaded template from -> {}", templatePath.toString());
 		}
 		else {
-			GottschCore.logger.debug("Unable to read structure from -> {}", templatePath.toString());
+			GottschCore.logger.debug("Unable to read template from -> {}", templatePath.toString());
 		}
 		return this.templates.containsKey(key) ? (Template) this.templates.get(key) : null;
 	}
@@ -129,8 +125,15 @@ public class GottschTemplateManager {
 	 */
 	public boolean readTemplate(ResourceLocation location, List<Block> scanForBlocks) {
 		String s = location.getResourcePath();
-		File file1 = new File(this.baseFolder, s + ".nbt");
-
+		GottschCore.logger.debug("template resource path -> {}", s);
+		String suffix = "";
+		if (!s.endsWith(".nbt")) {
+			suffix = ".nbt";
+		}
+		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), s + suffix);
+//		File file1 = new File(this.getBaseResourceFolder(), s + suffix);
+		File file1 = path.toFile();
+		GottschCore.logger.debug("template file path -> {}", file1.getAbsoluteFile());
 		if (!file1.exists()) {
 			GottschCore.logger.debug("file does not exist, read from jar -> {}", file1.getAbsolutePath());
 			return this.readTemplateFromJar(location, scanForBlocks);
@@ -196,41 +199,41 @@ public class GottschTemplateManager {
 	/**
 	 * writes the template to an external folder
 	 */
-	public boolean writeTemplate(@Nullable MinecraftServer server, ResourceLocation id) {
-		String s = id.getResourcePath();
-
-		if (server != null && this.templates.containsKey(s)) {
-			File file1 = new File(this.baseFolder);
-
-			if (!file1.exists()) {
-				if (!file1.mkdirs()) {
-					return false;
-				}
-			} else if (!file1.isDirectory()) {
-				return false;
-			}
-
-			File file2 = new File(file1, s + ".nbt");
-			Template template = this.templates.get(s);
-			OutputStream outputstream = null;
-			boolean flag;
-
-			try {
-				NBTTagCompound nbttagcompound = template.writeToNBT(new NBTTagCompound());
-				outputstream = new FileOutputStream(file2);
-				CompressedStreamTools.writeCompressed(nbttagcompound, outputstream);
-				return true;
-			} catch (Throwable var13) {
-				flag = false;
-			} finally {
-				IOUtils.closeQuietly(outputstream);
-			}
-
-			return flag;
-		} else {
-			return false;
-		}
-	}
+//	public boolean writeTemplate(@Nullable MinecraftServer server, ResourceLocation id) {
+//		String s = id.getResourcePath();
+//
+//		if (server != null && this.templates.containsKey(s)) {
+//			File file1 = new File(this.baseFolder);
+//
+//			if (!file1.exists()) {
+//				if (!file1.mkdirs()) {
+//					return false;
+//				}
+//			} else if (!file1.isDirectory()) {
+//				return false;
+//			}
+//
+//			File file2 = new File(file1, s + ".nbt");
+//			Template template = this.templates.get(s);
+//			OutputStream outputstream = null;
+//			boolean flag;
+//
+//			try {
+//				NBTTagCompound nbttagcompound = template.writeToNBT(new NBTTagCompound());
+//				outputstream = new FileOutputStream(file2);
+//				CompressedStreamTools.writeCompressed(nbttagcompound, outputstream);
+//				return true;
+//			} catch (Throwable var13) {
+//				flag = false;
+//			} finally {
+//				IOUtils.closeQuietly(outputstream);
+//			}
+//
+//			return flag;
+//		} else {
+//			return false;
+//		}
+//	}
 	
 	/**
 	 * 
@@ -258,20 +261,6 @@ public class GottschTemplateManager {
 
 	public void setMarkerMap(Map<StructureMarkers, Block> markerMap) {
 		this.markerMap = markerMap;
-	}
-
-	/**
-	 * @return the mod
-	 */
-	public IMod getMod() {
-		return mod;
-	}
-
-	/**
-	 * @return the baseFolder
-	 */
-	public String getBaseFolder() {
-		return baseFolder;
 	}
 
 	/**
