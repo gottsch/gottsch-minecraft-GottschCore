@@ -105,15 +105,16 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		String key = templatePath.toString();
 		
 		if (this.getTemplates().containsKey(key)) {
+			GottschCore.logger.debug("read template from master map using key -> {}", key);
 			return this.templates.get(key);
 		}
 
 		this.readTemplate(templatePath, scanForBlocks);
 		if (this.templates.get(key) != null) {
-			GottschCore.logger.debug("Loaded template from -> {}", templatePath.toString());
+			GottschCore.logger.debug("Loaded template from -> {}", key);
 		}
 		else {
-			GottschCore.logger.debug("Unable to read template from -> {}", templatePath.toString());
+			GottschCore.logger.debug("Unable to read template from -> {}", key);
 		}
 		return this.templates.containsKey(key) ? (Template) this.templates.get(key) : null;
 	}
@@ -131,13 +132,13 @@ public class GottschTemplateManager extends AbstractResourceManager {
 			suffix = ".nbt";
 		}
 		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), s + suffix);
-//		File file1 = new File(this.getBaseResourceFolder(), s + suffix);
 		File file1 = path.toFile();
 		GottschCore.logger.debug("template file path -> {}", file1.getAbsoluteFile());
 		if (!file1.exists()) {
 			GottschCore.logger.debug("file does not exist, read from jar -> {}", file1.getAbsolutePath());
 			return this.readTemplateFromJar(location, scanForBlocks);
 		} else {
+			GottschCore.logger.debug("reading template from file system using file path -> {}", file1.getAbsolutePath());
 			InputStream inputstream = null;
 			boolean flag;
 

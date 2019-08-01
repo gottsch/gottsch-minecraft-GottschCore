@@ -219,5 +219,13 @@ public class Meta implements IMeta {
 	public void setOrder(Double order) {
 		this.order = order;
 	}
+
+	@Override
+	public String toString() {
+		return "Meta [name=" + name + ", description=" + description + ", author=" + author + ", parent=" + parent
+				+ ", archetypes=" + archetypes + ", type=" + type + ", themes=" + themes + ", biomeWhiteList="
+				+ biomeWhiteList + ", biomeBlackList=" + biomeBlackList + ", rarities=" + rarities + ", order=" + order
+				+ "]";
+	}
 	
 }

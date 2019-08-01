@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 
@@ -64,17 +65,21 @@ public class MetaManager extends AbstractResourceManager {
 		String key = location.toString();
 		
 		if (this.getMetaMap().containsKey(key)) {
+			GottschCore.logger.debug("read meta from master map using key -> {}", key);
 			return this.getMetaMap().get(key);
 		}
 		
 		// TODO load meta from Json
 		readMeta(location);
-		
+		GottschCore.logger.debug("output from master meta map:");
+		for (Entry<String, IMeta> entry : getMetaMap().entrySet()) {
+			GottschCore.logger.debug("key: {}, value: {}", entry.getKey(), entry.getValue());
+		}
 		if (this.getMetaMap().get(key) != null) {
-			GottschCore.logger.debug("Loaded meta file from -> {}", location.toString());
+			GottschCore.logger.debug("Loaded meta file from -> {}", key);
 		}
 		else {
-			GottschCore.logger.debug("Unable to read meta file from -> {}", location.toString());
+			GottschCore.logger.debug("Unable to read meta file from -> {}", key);
 		}
 		return this.getMetaMap().containsKey(key) ? (IMeta) this.getMetaMap().get(key) : null;	
 	}
@@ -93,6 +98,7 @@ public class MetaManager extends AbstractResourceManager {
 			GottschCore.logger.debug("file does not exist, read from jar -> {}", file.getAbsolutePath());
 			return this.readFromJar(location);
 		} else {
+			GottschCore.logger.debug("read file from stream (file system) -> {}", file.getAbsolutePath());
 			InputStream inputstream = null;
 			boolean flag;
 
@@ -100,7 +106,8 @@ public class MetaManager extends AbstractResourceManager {
 				inputstream = new FileInputStream(file);
 				this.readFromStream(location.toString(), inputstream);
 				return true;
-			} catch (Throwable var10) {
+			} catch (Throwable e) {
+				GottschCore.logger.error("error reading from stream: ", e);
 				flag = false;
 			} finally {
 				IOUtils.closeQuietly(inputstream);
@@ -141,6 +148,7 @@ public class MetaManager extends AbstractResourceManager {
 	 * reads a template from an inputstream
 	 */
 	protected void readFromStream(String id, InputStream stream) throws IOException, Exception {
+		GottschCore.logger.debug("reading meta file from stream.");
 		IMeta meta = null;
 		
 		// read json sheet in and minify it
@@ -170,10 +178,11 @@ public class MetaManager extends AbstractResourceManager {
 		// read minified json into gson and generate objects
 		try {
 			meta = gson.fromJson(jsonReader, Meta.class);
+			GottschCore.logger.debug("meta -> {}", meta);
 		}
 		catch(JsonIOException | JsonSyntaxException e) {
 			// TODO change to custom exception
-			throw new Exception("Unable to load style sheet.");
+			throw new Exception("Unable to meta file:", e);
 		}
 		finally {
 			// close objects

@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 
@@ -35,8 +32,6 @@ import net.minecraft.util.ResourceLocation;
  *
  */
 public class AbstractResourceManager implements IResourceManager {
-	private static Logger logger = LogManager.getLogger(GottschCore.instance.getId());
-	
 	private IMod mod;
 	
 	/*
@@ -56,7 +51,7 @@ public class AbstractResourceManager implements IResourceManager {
 	@Override
 	public void buildAndExpose(String jarResourceRootPath, String modID, List<String> locations) {
 		GottschCore.logger.debug("resource folder locations -> {}", locations);
-		// create paths to custom templates if they don't exist
+		// create paths to custom resources if they don't exist
 		for (String location : locations) {
 			GottschCore.logger.debug("buildAndExpose location -> {}", location);
 			createFileSystemResourceFolder(modID, location);
@@ -79,12 +74,12 @@ public class AbstractResourceManager implements IResourceManager {
 			).toAbsolutePath();
 
 		if (Files.notExists(folder)) {
-			logger.debug("templates folder \"{}\" will be created.", folder.toString());
+			GottschCore.logger.debug("resources folder \"{}\" will be created.", folder.toString());
 			try {
 				Files.createDirectories(folder);
 
 			} catch (IOException e) {
-				logger.warn("Unable to create templates folder \"{}\"", folder.toString());
+				GottschCore.logger.warn("Unable to create resources folder \"{}\"", folder.toString());
 			}
 		}
 	}
@@ -97,7 +92,7 @@ public class AbstractResourceManager implements IResourceManager {
 		
 		Path folder = null;
 		Stream<Path> walk = null;
-		logger.debug("resource as file system path -> {},{},{}", jarResourceRootPath.toString(), modID, location);
+		GottschCore.logger.debug("resource as file system path -> {},{},{}", jarResourceRootPath.toString(), modID, location);
 
 		FileSystem fs = getJarResourceAsFileSystemObject(jarResourceRootPath, modID, location);
 		if (fs == null) {
@@ -107,7 +102,7 @@ public class AbstractResourceManager implements IResourceManager {
 		try {
 			// get the base path of the resource
 			Path resourceBasePath = fs.getPath(jarResourceRootPath, modID, location);
-			logger.debug("resource base path -> {}", resourceBasePath.toString());
+			GottschCore.logger.debug("resource base path -> {}", resourceBasePath.toString());
 			
 			folder = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
 
@@ -125,7 +120,7 @@ public class AbstractResourceManager implements IResourceManager {
 				} else {
 					// test if file exists on the file system
 					Path fileSystemFilePath = Paths.get(folder.toString(), resourceFilePath.getFileName().toString()).toAbsolutePath();
-					logger.debug("file system resource path -> {}", fileSystemFilePath.toString());
+					GottschCore.logger.debug("file system resource path -> {}", fileSystemFilePath.toString());
 
 					if (Files.notExists(fileSystemFilePath)) {
 						// copy from resource/classpath to file path
@@ -137,18 +132,25 @@ public class AbstractResourceManager implements IResourceManager {
 								fos.write(buf, 0, r);
 							}
 						} catch (IOException e) {
-							logger.error("Error exposing resource to file system.", e);
+							GottschCore.logger.error("Error exposing resource to file system.", e);
 						}
 					}
 				}
 				isFirst = false;
 			}
 		} catch (Exception e) {
-			logger.error("error:", e);
+			GottschCore.logger.error("error:", e);
 		} finally {
 			// close the stream
 			if (walk != null) {
 				walk.close();
+			}
+			if (fs != null) {
+				try {
+					fs.close();
+				} catch (IOException e) {
+					GottschCore.logger.error("error:", e);
+				}
 			}
 		}	
 	}
@@ -168,7 +170,7 @@ public class AbstractResourceManager implements IResourceManager {
 		resourceRootPath = "/" + resourceRootPath.replaceAll("^/|/$", "") + "/";
 		URL url = getMod().getClass().getResource(resourceRootPath + modID + "/" + location);
 		if (url == null) {
-			logger.error("Unable to locate resource {}", resourceRootPath + modID + "/" + location);
+			GottschCore.logger.error("Unable to locate resource {}", resourceRootPath + modID + "/" + location);
 			return null;
 		}
 
@@ -176,7 +178,7 @@ public class AbstractResourceManager implements IResourceManager {
 		try {
 			uri = url.toURI();
 		} catch (URISyntaxException e) {
-			logger.error("An error occurred during loot table processing:", e);
+			GottschCore.logger.error("An error occurred during resource exposing processing:", e);
 			return null;
 		}
 
@@ -185,7 +187,7 @@ public class AbstractResourceManager implements IResourceManager {
 		try {
 			fs = FileSystems.newFileSystem(URI.create(array[0]), env);
 		} catch (IOException e) {
-			logger.error("An error occurred during loot table processing:", e);
+			GottschCore.logger.error("An error occurred during resource exposing processing:", e);
 			return null;
 		}
 		return fs;
@@ -202,26 +204,26 @@ public class AbstractResourceManager implements IResourceManager {
 		List<ResourceLocation> locs = new ArrayList<>();
 		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
 
-		 logger.debug("Path to custom template -> {}", path.toString());
+		 GottschCore.logger.debug("Path to custom resource -> {}", path.toString());
 		// check if path/folder exists
 		if (Files.notExists(path)) {
-			logger.debug("Unable to locate -> {}", path.toString());
+			GottschCore.logger.debug("Unable to locate -> {}", path.toString());
 			return locs;
 		}
 
 		try {
 			Files.walk(path).filter(Files::isRegularFile).forEach(f -> {
-				 logger.debug("Custom loot table -> {}", f.toAbsolutePath().toString());
+				 GottschCore.logger.debug("Custom resource file path-> {}", f.toAbsolutePath().toString());
 				ResourceLocation loc = 
 						new ResourceLocation(
 								getMod().getId() + ":" + getBaseResourceFolder()
 								+ "/" + modID + "/" + location
 										+ f.getFileName().toString());//.replace(".json", ""));
-				logger.debug("Resource location -> {}", loc);
+				GottschCore.logger.debug("Resource location -> {}", loc);
 				locs.add(loc);
 			});
 		} catch (IOException e) {
-			logger.error("Error processing custom loot table:", e);
+			GottschCore.logger.error("Error processing custom resource:", e);
 		}
 		return locs;
 	}
