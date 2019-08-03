@@ -2,7 +2,6 @@ package com.someguyssoftware.gottschcore.meta;
 
 import java.util.List;
 
-import com.someguyssoftware.gottschcore.biome.BiomeTypeHolder;
 import com.someguyssoftware.gottschcore.enums.IRarity;
 
 public interface IMeta {
@@ -35,13 +34,13 @@ public interface IMeta {
 
 	void setThemes(List<IMetaTheme> themes);
 
-	List<BiomeTypeHolder> getBiomeWhiteList();
+	List<String> getBiomeWhiteList();
 
-	void setBiomeWhiteList(List<BiomeTypeHolder> biomeWhiteList);
+	void setBiomeWhiteList(List<String> biomeWhiteList);
 
-	List<BiomeTypeHolder> getBiomeBlackList();
+	List<String> getBiomeBlackList();
 
-	void setBiomeBlackList(List<BiomeTypeHolder> biomeBlackList);
+	void setBiomeBlackList(List<String> biomeBlackList);
 
 	List<IRarity> getRarities();
 

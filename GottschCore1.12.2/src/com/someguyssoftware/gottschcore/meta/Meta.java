@@ -6,7 +6,6 @@ package com.someguyssoftware.gottschcore.meta;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.someguyssoftware.gottschcore.biome.BiomeTypeHolder;
 import com.someguyssoftware.gottschcore.enums.IRarity;
 import com.someguyssoftware.gottschcore.positional.ICoords;
 
@@ -19,11 +18,12 @@ public class Meta implements IMeta {
 	private String description;
 	private String author;
 	private String parent;
+	private ICoords offset;
 	private List<IMetaArchetype> archetypes;
 	private IMetaType type;
 	private List<IMetaTheme> themes;
-	private List<BiomeTypeHolder> biomeWhiteList;
-	private List<BiomeTypeHolder> biomeBlackList;
+	private List<String> biomeWhiteList;
+	private List<String> biomeBlackList;
 	private List<IRarity> rarities;
 	private Double order;
 	
@@ -151,7 +151,7 @@ public class Meta implements IMeta {
 	 * @see com.someguyssoftware.gottschcore.meta.IMeta#getBiomeWhiteList()
 	 */
 	@Override
-	public List<BiomeTypeHolder> getBiomeWhiteList() {
+	public List<String> getBiomeWhiteList() {
 		if (this.biomeWhiteList == null) {
 			this.biomeWhiteList = new ArrayList<>();
 		}
@@ -162,7 +162,7 @@ public class Meta implements IMeta {
 	 * @see com.someguyssoftware.gottschcore.meta.IMeta#setBiomeWhiteList(java.util.List)
 	 */
 	@Override
-	public void setBiomeWhiteList(List<BiomeTypeHolder> biomeWhiteList) {
+	public void setBiomeWhiteList(List<String> biomeWhiteList) {
 		this.biomeWhiteList = biomeWhiteList;
 	}
 
@@ -170,7 +170,7 @@ public class Meta implements IMeta {
 	 * @see com.someguyssoftware.gottschcore.meta.IMeta#getBiomeBlackList()
 	 */
 	@Override
-	public List<BiomeTypeHolder> getBiomeBlackList() {
+	public List<String> getBiomeBlackList() {
 		if (this.biomeBlackList == null) {
 			this.biomeBlackList = new ArrayList<>();
 		}
@@ -181,7 +181,7 @@ public class Meta implements IMeta {
 	 * @see com.someguyssoftware.gottschcore.meta.IMeta#setBiomeBlackList(java.util.List)
 	 */
 	@Override
-	public void setBiomeBlackList(List<BiomeTypeHolder> biomeBlackList) {
+	public void setBiomeBlackList(List<String> biomeBlackList) {
 		this.biomeBlackList = biomeBlackList;
 	}
 
@@ -220,12 +220,12 @@ public class Meta implements IMeta {
 		this.order = order;
 	}
 
-	@Override
-	public String toString() {
-		return "Meta [name=" + name + ", description=" + description + ", author=" + author + ", parent=" + parent
-				+ ", archetypes=" + archetypes + ", type=" + type + ", themes=" + themes + ", biomeWhiteList="
-				+ biomeWhiteList + ", biomeBlackList=" + biomeBlackList + ", rarities=" + rarities + ", order=" + order
-				+ "]";
+	public ICoords getOffset() {
+		return offset;
+	}
+
+	public void setOffset(ICoords offset) {
+		this.offset = offset;
 	}
 	
 }
