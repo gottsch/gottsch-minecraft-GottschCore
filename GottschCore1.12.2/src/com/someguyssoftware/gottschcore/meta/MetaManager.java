@@ -49,6 +49,13 @@ public class MetaManager extends AbstractResourceManager {
 		super(mod, resourceFolder);
 	}
 
+	/**
+	 * 
+	 */
+	public void clear() {
+		metaMap.clear();
+	}
+	
 	public MetaManager loadAll(List<String> locations) {
 		GottschCore.logger.debug("loading all meta files...");
 		for (String location : locations) {

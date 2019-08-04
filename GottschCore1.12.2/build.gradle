@@ -74,11 +74,8 @@ processResources
     }
 }
 
-//task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
-//    from javadoc.destinationDir
-//    classifier = 'javadoc'
-//}
-
-//artifacts {
-//    archives packageJavadoc
-//}
+task copyJar(type: Copy) {
+	from jar
+	into "${dest_folder}"
+}
+build.dependsOn copyJar
