@@ -25,6 +25,7 @@ public class WorldInfo {
 	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
 	public static final int INVALID_SURFACE_POS = -255;
 	public static final int CHUNK_RADIUS = 8;
+	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
 	
 	/*
 	 * =========================================
@@ -285,7 +286,26 @@ public class WorldInfo {
 			}		
 		}
 		return newCoords;
-	}	
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static boolean isCoordsOnLand(World world, ICoords coords) {
+		// go down to surface
+		ICoords surfaceCoords = getSurfaceCoords(world, coords);
+		
+		Cube cube = new Cube(world, surfaceCoords.down(1));
+		
+		// exit if not valid Y coordinate
+		if (!isValidY(cube.getCoords())) {
+			return null; // TODO might need to return an enum
+		}
+		return false;
+	}
 	
 	/*
 	 * =========================================
