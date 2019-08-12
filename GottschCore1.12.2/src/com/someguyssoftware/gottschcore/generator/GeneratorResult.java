@@ -11,8 +11,21 @@ public class GeneratorResult implements IGeneratorResult {
 	private boolean success;
 
 	public GeneratorResult() {}
+	
 	public GeneratorResult(boolean success) {
 		setSuccess(success);
+	}
+		
+	@Override
+	public IGeneratorResult success() {
+		this.success = true;
+		return this;
+	}
+
+	@Override
+	public IGeneratorResult fail() {
+		this.success = false;
+		return this;
 	}
 	
 	@Override

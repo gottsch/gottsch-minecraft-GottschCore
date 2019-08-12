@@ -9,4 +9,6 @@ package com.someguyssoftware.gottschcore.generator;
  */
 public interface IGeneratorResult {
 	public boolean isSuccess();
+	public IGeneratorResult success();
+	public IGeneratorResult fail();
 }

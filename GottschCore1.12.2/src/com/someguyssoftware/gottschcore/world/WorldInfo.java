@@ -27,6 +27,14 @@ public class WorldInfo {
 	public static final int CHUNK_RADIUS = 8;
 	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
 	
+	public enum SURFACE {
+		LAND,
+		WATER,
+		LAVA,
+		OTHER,
+		INVALID
+	};
+	
 	/*
 	 * =========================================
 	 * Find the game side.
@@ -294,16 +302,54 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static boolean isCoordsOnLand(World world, ICoords coords) {
+	public static SURFACE  getSurface(World world, ICoords coords) {
 		// go down to surface
 		ICoords surfaceCoords = getSurfaceCoords(world, coords);
+		
+		if (surfaceCoords == null) return SURFACE.INVALID;
 		
 		Cube cube = new Cube(world, surfaceCoords.down(1));
 		
 		// exit if not valid Y coordinate
 		if (!isValidY(cube.getCoords())) {
-			return null; // TODO might need to return an enum
+			return SURFACE.INVALID;
 		}
+		
+		SURFACE surface;
+		if (cube.equalsMaterial(Material.WATER)	|| cube.equalsMaterial(Material.ICE)) {
+			surface = SURFACE.WATER;
+		}
+		else if (cube.equalsMaterial(Material.LAVA)) {
+			surface = SURFACE.LAVA;
+		}
+		else if (cube.isSolid()) {
+			surface = SURFACE.LAND;
+		}
+		else {
+			surface = SURFACE.OTHER;
+		}		
+		return surface;
+	}
+	
+	/**
+	 * Convenience method.
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static boolean isSurfaceOnLand(World world, ICoords coords) {
+		if ( getSurface(world, coords) == SURFACE.LAND) return true;
+		return false;
+	}
+
+	/**
+	 * Convenience method.
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static boolean isSurfaceOnWater(World world, ICoords coords) {
+		if ( getSurface(world, coords) == SURFACE.WATER) return true;
 		return false;
 	}
 	
