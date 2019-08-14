@@ -151,6 +151,9 @@ public class GottschTemplate extends Template {
 			Block replacedBlock = placementIn.getReplacedBlock();
 			StructureBoundingBox structureboundingbox = placementIn.getBoundingBox();
 
+			// TODO replace templateProcessor with custom processor that takes into account decay.
+			// TODO as well, need to "build" the structure bottom up in memory so proper supports checks can take place.
+			
 			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
 				BlockPos blockpos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
 				// Forge: skip processing blocks outside BB to prevent cascading worldgen issues
