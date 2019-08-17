@@ -115,8 +115,8 @@ public class GottschTemplate extends Template {
 	 *            {@link World#setBlockState(BlockPos, IBlockState, int)}
 	 */
 	@Override
-	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, int flags) {
-		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, Blocks.BEDROCK, flags);
+	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, int flags) {		
+		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, Blocks.BEDROCK, null, flags);
 	}
 	
 	/**
@@ -127,8 +127,8 @@ public class GottschTemplate extends Template {
 	 * @param NULL_BLOCK
 	 * @param flags
 	 */
-	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, final Block NULL_BLOCK, int flags) {
-		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, NULL_BLOCK, flags);
+	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, final Block NULL_BLOCK, Map<IBlockState, IBlockState> replacementBlocks, int flags) {
+		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, NULL_BLOCK, replacementBlocks, flags);
 	}
 
 	/**
@@ -146,7 +146,12 @@ public class GottschTemplate extends Template {
 	 *            Flags to pass to
 	 *            {@link World#setBlockState(BlockPos, IBlockState, int)}
 	 */
-	public void addBlocksToWorld(World worldIn, BlockPos pos, @Nullable ITemplateProcessor templateProcessor, PlacementSettings placementIn, final Block NULL_BLOCK, int flags) {
+	public void addBlocksToWorld(World worldIn, BlockPos pos, 
+			@Nullable ITemplateProcessor templateProcessor, 
+			PlacementSettings placementIn, 
+			final Block NULL_BLOCK, 
+			Map<IBlockState, IBlockState> replacementBlocks,
+			int flags) {
 		if ((!this.blocks.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
 			Block replacedBlock = placementIn.getReplacedBlock();
 			StructureBoundingBox structureboundingbox = placementIn.getBoundingBox();
@@ -162,8 +167,13 @@ public class GottschTemplate extends Template {
 				GottschTemplate.BlockInfo processedBlockInfo = templateProcessor != null ? templateProcessor.processBlock(worldIn, blockpos, blockInfo) : blockInfo;
 
 				if (processedBlockInfo != null) {
-					Block processedBlock = processedBlockInfo.blockState.getBlock();
+					Block processedBlock = null;
+					processedBlock = processedBlockInfo.blockState.getBlock();
 
+					/* 
+					 * TODO instead of having this huge test, should refactor to fail fast
+					 * ex. if (processBlock == NULL_BLOCK) continue; ...
+					 */
 					if ((replacedBlock == null || replacedBlock != processedBlock) && (!placementIn.getIgnoreStructureBlock() || processedBlock != Blocks.STRUCTURE_BLOCK)
 							&& (structureboundingbox == null || structureboundingbox.isVecInside(blockpos))
 							&& processedBlock != NULL_BLOCK
@@ -171,6 +181,13 @@ public class GottschTemplate extends Template {
 						IBlockState iblockstate = processedBlockInfo.blockState.withMirror(placementIn.getMirror());
 						IBlockState iblockstate1 = iblockstate.withRotation(placementIn.getRotation());
 
+						////////////////// GottschCore Block Replacement Code //////////////////////
+						if (replacementBlocks != null && replacementBlocks.containsKey(iblockstate1)) {
+							// replace the structure block with the replacement block
+							iblockstate1 = replacementBlocks.get(iblockstate1);
+						}
+						//////////////////////////////////////////////////////////////////////
+						
 						if (processedBlockInfo.tileentityData != null) {
 							TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
@@ -178,7 +195,6 @@ public class GottschTemplate extends Template {
 								if (tileentity instanceof IInventory) {
 									((IInventory) tileentity).clear();
 								}
-
 								worldIn.setBlockState(blockpos, Blocks.BARRIER.getDefaultState(), 4);
 							}
 						}
@@ -381,9 +397,9 @@ public class GottschTemplate extends Template {
 	/**
 	 * 
 	 * @param compound
-	 * @param scanForBlocks
+	 * @param markerBlocks
 	 */
-	public void read(NBTTagCompound compound, List<Block> scanForBlocks) {
+	public void read(NBTTagCompound compound, List<Block> markerBlocks, Map<IBlockState, IBlockState> replacementBlocks) {
 		GottschCore.logger.debug("made it to template.read()");
 		this.blocks.clear();
 		this.entities.clear();
@@ -398,24 +414,36 @@ public class GottschTemplate extends Template {
 		}
 
 		NBTTagList blocks = compound.getTagList("blocks", 10);
-
+		
 		for (int blockIndex = 0; blockIndex < blocks.tagCount(); ++blockIndex) {
 			NBTTagCompound nbttagcompound = blocks.getCompoundTagAt(blockIndex);
 			NBTTagList nbttaglist2 = nbttagcompound.getTagList("pos", 3);
 			BlockPos blockPos = new BlockPos(nbttaglist2.getIntAt(0), nbttaglist2.getIntAt(1), nbttaglist2.getIntAt(2));
 			IBlockState blockState = template$basicpalette.stateFor(nbttagcompound.getInteger("state"));
-			NBTTagCompound nbttagcompound1;
+			NBTTagCompound nbttagcompound1 = null;
 
-			if (nbttagcompound.hasKey("nbt")) {
-				nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
-			} else {
-				nbttagcompound1 = null;
-			}
+			// TODO - NO this shouldn't be on read!! partly.... need two maps, pre/onRead and post/onWrite so that things like chests and spawner and can be inserted
+			// and picked up by the marker scan, and post so that they are replaced on adding to the world like air, which which won't be flagged as a null block.
+			// add a scan/replace for replaceBlocks ie null block, substitutes (air for null, wool for air, etc). skip the nbts if replaced.
+//			if (replacementBlocks.containsKey(blockState)) {
+//				// replace the structure block with the replacement block
+//				blockState = replacementBlocks.get(blockState);
+//			}			
+			// END TODO
+//			else { //
+				if (nbttagcompound.hasKey("nbt")) {
+					nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
+				}
+					else {
+					nbttagcompound1 = null;
+				}
+//			} //
 			this.blocks.add(new GottschTemplate.BlockInfo(blockPos, blockState, nbttagcompound1));
 			
-			// check if a scan block
+			// check if a marker block
 			Block block = blockState.getBlock();
-			if (block != Blocks.AIR && scanForBlocks.contains(block)) {
+			if (block != Blocks.AIR && markerBlocks.contains(block)) {
+				// TODO don't map NULL blocks - in fact remove it from markers blocks, rename scanForBlocks to markerBlocks
 				// add pos to map
 				GottschCore.logger.debug("template map adding block -> {} with pos -> {}", block.getRegistryName(), blockPos);
 				map.put(block, new Coords(blockPos));

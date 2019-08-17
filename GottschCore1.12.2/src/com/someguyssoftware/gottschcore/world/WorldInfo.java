@@ -168,7 +168,7 @@ public class WorldInfo {
 				return null;
 			}		
 			
-			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
+			if (cube.equalsMaterial(Material.AIR) || (cube.isReplaceable() && !cube.isLiquid())
 					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) 
 					|| cube.isBurning(world)) {
 				newCoords = newCoords.down(1);

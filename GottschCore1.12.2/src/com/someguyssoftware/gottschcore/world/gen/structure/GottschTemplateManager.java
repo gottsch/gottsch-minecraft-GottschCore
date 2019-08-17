@@ -21,7 +21,10 @@ import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.resource.AbstractResourceManager;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockColored;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -43,14 +46,20 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	private final Map<String, Template> templates = Maps.<String, Template>newHashMap();
 	
 	/*
-	 * standard list of blocks to scan for 
+	 * standard list of marker blocks to scan for 
 	 */
-	private List<Block> scanList;
-	
+	private List<Block> markerScanList;
+
 	/*
 	 * 
 	 */
 	private Map<StructureMarkers, Block> markerMap;
+	
+	/*
+	 * standard list of replacements blocks.
+	 * NOTE needs to be <IBlockState, IBlockState> (for v1.12.x anyway)
+	 */
+	private Map<IBlockState, IBlockState> replacementMap;
 	
 	/**
 	 * 
@@ -71,9 +80,9 @@ public class GottschTemplateManager extends AbstractResourceManager {
         markerMap.put(StructureMarkers.OFFSET, Blocks.REDSTONE_BLOCK);
         markerMap.put(StructureMarkers.PROXIMITY_SPAWNER, Blocks.IRON_BLOCK);
         markerMap.put(StructureMarkers.NULL, Blocks.BEDROCK);
-        
-        // default scan list
-        scanList = Arrays.asList(new Block[] {
+
+        // default marker scan list
+        markerScanList = Arrays.asList(new Block[] {
     			markerMap.get(StructureMarkers.CHEST),
     			markerMap.get(StructureMarkers.BOSS_CHEST),
     			markerMap.get(StructureMarkers.SPAWNER),
@@ -81,6 +90,12 @@ public class GottschTemplateManager extends AbstractResourceManager {
     			markerMap.get(StructureMarkers.OFFSET),
     			markerMap.get(StructureMarkers.PROXIMITY_SPAWNER)
     			});
+        
+        // TODO rename this to preWriteReplacementMap();
+        // default replacement scan map
+        replacementMap = Maps.newHashMap();
+        replacementMap.put(Blocks.WOOL.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.WHITE), Blocks.AIR.getDefaultState());
+        replacementMap.put(Blocks.STAINED_GLASS.getDefaultState().withProperty(BlockColored.COLOR, EnumDyeColor.BLACK), Blocks.MOB_SPAWNER.getDefaultState());    
 	}
 
 	/**
@@ -90,7 +105,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		GottschCore.logger.debug("loading all structures...");
 		for (String location : locations) {
 			GottschCore.logger.debug("loading from -> {}", location);
-			load(new ResourceLocation(location), scanList);
+			load(new ResourceLocation(location), markerScanList, replacementMap);
 		}		
 		return this;
 	}
@@ -101,7 +116,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	 * @param templatePath
 	 * @return
 	 */
-	public Template load(ResourceLocation templatePath, List<Block> scanForBlocks) {
+	public Template load(ResourceLocation templatePath, List<Block> markerBlocks, Map<IBlockState, IBlockState> replacementBlocks) {
 		String key = templatePath.toString();
 		
 		if (this.getTemplates().containsKey(key)) {
@@ -109,7 +124,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 			return this.templates.get(key);
 		}
 
-		this.readTemplate(templatePath, scanForBlocks);
+		this.readTemplate(templatePath, markerBlocks, replacementBlocks);
 		if (this.templates.get(key) != null) {
 			GottschCore.logger.debug("Loaded template from -> {}", key);
 		}
@@ -124,7 +139,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	 * first attempts get the template from an external folder. If it isn't there
 	 * then it attempts to take it from the minecraft jar.
 	 */
-	public boolean readTemplate(ResourceLocation location, List<Block> scanForBlocks) {
+	public boolean readTemplate(ResourceLocation location, List<Block> markerBlocks, Map<IBlockState, IBlockState> replacementBlocks) {
 		String s = location.getResourcePath();
 		GottschCore.logger.debug("template resource path -> {}", s);
 		String suffix = "";
@@ -136,7 +151,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		GottschCore.logger.debug("template file path -> {}", file1.getAbsoluteFile());
 		if (!file1.exists()) {
 			GottschCore.logger.debug("file does not exist, read from jar -> {}", file1.getAbsolutePath());
-			return this.readTemplateFromJar(location, scanForBlocks);
+			return this.readTemplateFromJar(location, markerBlocks, replacementBlocks);
 		} else {
 			GottschCore.logger.debug("reading template from file system using file path -> {}", file1.getAbsolutePath());
 			InputStream inputstream = null;
@@ -144,7 +159,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 
 			try {
 				inputstream = new FileInputStream(file1);
-				this.readTemplateFromStream(location.toString(), inputstream, scanForBlocks);
+				this.readTemplateFromStream(location.toString(), inputstream, markerBlocks, replacementBlocks);
 				return true;
 			} catch (Throwable var10) {
 				flag = false;
@@ -159,7 +174,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	/**
 	 * reads a template from the minecraft jar
 	 */
-	private boolean readTemplateFromJar(ResourceLocation id, List<Block> scanForBlocks) {
+	private boolean readTemplateFromJar(ResourceLocation id, List<Block> markerBlocks, Map<IBlockState, IBlockState> replacementBlocks) {
 		String s = id.getResourceDomain();
 		String s1 = id.getResourcePath();
 		InputStream inputstream = null;
@@ -168,7 +183,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		try {
 			GottschCore.logger.debug("attempting to open resource stream -> {}", "/assets/" + s + "/strucutres/" + s1 + ".nbt");
 			inputstream = MinecraftServer.class.getResourceAsStream("/assets/" + s + "/structures/" + s1 + ".nbt");
-			this.readTemplateFromStream(id.toString(), inputstream, scanForBlocks);
+			this.readTemplateFromStream(id.toString(), inputstream, markerBlocks, replacementBlocks);
 			return true;
 			// TODO change from Throwable
 		} catch (Throwable var10) {
@@ -184,7 +199,9 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	/**
 	 * reads a template from an inputstream
 	 */
-	private void readTemplateFromStream(String id, InputStream stream, List<Block> scanForBlocks) throws IOException {
+	private void readTemplateFromStream(String id, InputStream stream, List<Block> markerBlocks, 
+			Map<IBlockState, IBlockState> replacementBlocks) throws IOException {
+		
 		NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(stream);
 
 		if (!nbttagcompound.hasKey("DataVersion", 99)) {
@@ -192,7 +209,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		}
 
 		GottschTemplate template = new GottschTemplate();
-		template.read(this.fixer.process(FixTypes.STRUCTURE, nbttagcompound), scanForBlocks);
+		template.read(this.fixer.process(FixTypes.STRUCTURE, nbttagcompound), markerBlocks, replacementBlocks);
 		GottschCore.logger.debug("adding template to map with key -> {}", id);
 		this.templates.put(id, template);
 	}
@@ -248,12 +265,12 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		return templates;
 	}
 
-	public List<Block> getScanList() {
-		return scanList;
+	public List<Block> getMarkerScanList() {
+		return markerScanList;
 	}
 
-	public void setScanList(List<Block> scanList) {
-		this.scanList = scanList;
+	public void setMarkerScanList(List<Block> scanList) {
+		this.markerScanList = scanList;
 	}
 
 	public Map<StructureMarkers, Block> getMarkerMap() {
@@ -269,6 +286,14 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	 */
 	public DataFixer getFixer() {
 		return fixer;
+	}
+
+	public Map<IBlockState, IBlockState> getReplacementMap() {
+		return replacementMap;
+	}
+
+	public void setReplacementMap(Map<IBlockState, IBlockState> replacementMap) {
+		this.replacementMap = replacementMap;
 	}
 
 }
