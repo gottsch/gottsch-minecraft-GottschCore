@@ -72,7 +72,6 @@ public class ItemUtil {
 		Random random = new Random();
 		int enchantmentIndex = 0;
 		Item item = stack.getItem();
-		// TODO make this better so that armor specific enchantments have a better chance of being added.
 		if (item instanceof ItemArmor) {
 			// generate the enchantment index
 			enchantmentIndex = random.nextInt(12);

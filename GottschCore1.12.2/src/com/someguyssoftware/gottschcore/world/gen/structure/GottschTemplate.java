@@ -443,7 +443,6 @@ public class GottschTemplate extends Template {
 			// check if a marker block
 			Block block = blockState.getBlock();
 			if (block != Blocks.AIR && markerBlocks.contains(block)) {
-				// TODO don't map NULL blocks - in fact remove it from markers blocks, rename scanForBlocks to markerBlocks
 				// add pos to map
 				GottschCore.logger.debug("template map adding block -> {} with pos -> {}", block.getRegistryName(), blockPos);
 				map.put(block, new Coords(blockPos));

@@ -35,10 +35,6 @@ public class StructureInfo implements IStructureInfo {
 	 */
 	private Multimap<Block, ICoords> map;
 	
-	/*
-	 * TODO should look for Data Structure blocks and record/map their values? test an nbt structure
-	 */
-	
 	/**
 	 * 
 	 */

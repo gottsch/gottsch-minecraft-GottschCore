@@ -21,13 +21,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-// TODO how to incorporate method references
-// TODO how to incorporate lambda expressions and functional interfaces
-// TODO how to incorporate default method in interface
-// TODO how to incorporate Stream API
-// TODO how to incorporate forEach()
-// TODO how to incorporate java.util.function.Consumer (function interface)
-
 /**
  * 
  * @author Mark Gottschling on Jul 13, 2017
