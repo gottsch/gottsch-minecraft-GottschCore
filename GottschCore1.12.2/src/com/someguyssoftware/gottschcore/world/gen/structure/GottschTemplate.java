@@ -54,7 +54,7 @@ public class GottschTemplate extends Template {
 	 * A map of block undergroundLocations of all the specials within the template.
 	 */
 	private final Multimap<Block, ICoords> map = ArrayListMultimap.create();
-	
+
 	@Override
 	public BlockPos getSize() {
 		return this.size;
@@ -118,7 +118,7 @@ public class GottschTemplate extends Template {
 	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, int flags) {		
 		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, Blocks.BEDROCK, null, flags);
 	}
-	
+
 	/**
 	 * 
 	 * @param worldIn
@@ -158,7 +158,7 @@ public class GottschTemplate extends Template {
 
 			// TODO replace templateProcessor with custom processor that takes into account decay.
 			// TODO as well, need to "build" the structure bottom up in memory so proper supports checks can take place.
-			
+
 			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
 				BlockPos blockpos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
 				// Forge: skip processing blocks outside BB to prevent cascading worldgen issues
@@ -187,7 +187,7 @@ public class GottschTemplate extends Template {
 							iblockstate1 = replacementBlocks.get(iblockstate1);
 						}
 						//////////////////////////////////////////////////////////////////////
-						
+
 						if (processedBlockInfo.tileentityData != null) {
 							TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
@@ -250,7 +250,7 @@ public class GottschTemplate extends Template {
 	private void addEntitiesToWorld(World worldIn, BlockPos pos, Mirror mirrorIn, Rotation rotationIn, @Nullable StructureBoundingBox aabb) {
 		PlacementSettings placement = new PlacementSettings();
 		placement.setRotation(rotationIn).setMirror(mirrorIn);
-		
+
 		for (GottschTemplate.EntityInfo template$entityinfo : this.entities) {
 			BlockPos blockpos = transformedBlockPos(placement, template$entityinfo.blockPos).add(pos);
 
@@ -295,24 +295,24 @@ public class GottschTemplate extends Template {
 			return this.getSize();
 		}
 	}
-    
+
 	/**
 	 * Wrapper for transformedBlockPos()
 	 * @param placementIn
 	 * @param coords
 	 * @return
 	 */
-    public static ICoords transformedCoords(PlacementSettings placement, ICoords coords) {
-        return new Coords(transformedBlockPos(placement, coords.toPos()));
-    }
+	public static ICoords transformedCoords(PlacementSettings placement, ICoords coords) {
+		return new Coords(transformedBlockPos(placement, coords.toPos()));
+	}
 
-    /**
-     * 
-     * @param vec
-     * @param mirrorIn
-     * @param rotationIn
-     * @return
-     */
+	/**
+	 * 
+	 * @param vec
+	 * @param mirrorIn
+	 * @param rotationIn
+	 * @return
+	 */
 	private static Vec3d transformedVec3d(Vec3d vec, Mirror mirrorIn, Rotation rotationIn) {
 		double d0 = vec.x;
 		double d1 = vec.y;
@@ -414,7 +414,7 @@ public class GottschTemplate extends Template {
 		}
 
 		NBTTagList blocks = compound.getTagList("blocks", 10);
-		
+
 		for (int blockIndex = 0; blockIndex < blocks.tagCount(); ++blockIndex) {
 			NBTTagCompound nbttagcompound = blocks.getCompoundTagAt(blockIndex);
 			NBTTagList nbttaglist2 = nbttagcompound.getTagList("pos", 3);
@@ -425,21 +425,21 @@ public class GottschTemplate extends Template {
 			// TODO - need two maps, pre/onRead and post/onWrite so that things like chests and spawner and can be inserted
 			// and picked up by the marker scan, and post so that they are replaced on adding to the world like air, which which won't be flagged as a null block.
 			// add a scan/replace for replaceBlocks ie null block, substitutes (air for null, wool for air, etc). skip the nbts if replaced.
-//			if (replacementBlocks.containsKey(blockState)) {
-//				// replace the structure block with the replacement block
-//				blockState = replacementBlocks.get(blockState);
-//			}			
+			//			if (replacementBlocks.containsKey(blockState)) {
+			//				// replace the structure block with the replacement block
+			//				blockState = replacementBlocks.get(blockState);
+			//			}			
 
-//			else { //
-				if (nbttagcompound.hasKey("nbt")) {
-					nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
-				}
-					else {
-					nbttagcompound1 = null;
-				}
-//			} //
+			//			else { //
+			if (nbttagcompound.hasKey("nbt")) {
+				nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
+			}
+			else {
+				nbttagcompound1 = null;
+			}
+			//			} //
 			this.blocks.add(new GottschTemplate.BlockInfo(blockPos, blockState, nbttagcompound1));
-			
+
 			// check if a marker block
 			Block block = blockState.getBlock();
 			if (block != Blocks.AIR && markerBlocks.contains(block)) {
@@ -548,7 +548,7 @@ public class GottschTemplate extends Template {
 		else coords = list.get(random.nextInt(list.size()));
 		return coords;
 	}
-	
+
 	/**
 	 * 
 	 * @param findBlock
@@ -558,7 +558,7 @@ public class GottschTemplate extends Template {
 		List<ICoords> list = (List<ICoords>) getMap().get(findBlock);
 		return list;
 	}
-	
+
 	/**
 	 * 
 	 * @return
