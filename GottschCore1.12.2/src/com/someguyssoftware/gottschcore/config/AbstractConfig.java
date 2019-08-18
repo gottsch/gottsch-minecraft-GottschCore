@@ -81,7 +81,7 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		return config;
 	}
 
-	// TODO create interface method in IConfig
+	@Override
 	public void setProperty(Property property, String value) {
 		property.set(value);
 		getForgeConfiguration().save();

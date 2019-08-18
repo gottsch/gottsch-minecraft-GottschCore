@@ -422,14 +422,14 @@ public class GottschTemplate extends Template {
 			IBlockState blockState = template$basicpalette.stateFor(nbttagcompound.getInteger("state"));
 			NBTTagCompound nbttagcompound1 = null;
 
-			// TODO - NO this shouldn't be on read!! partly.... need two maps, pre/onRead and post/onWrite so that things like chests and spawner and can be inserted
+			// TODO - need two maps, pre/onRead and post/onWrite so that things like chests and spawner and can be inserted
 			// and picked up by the marker scan, and post so that they are replaced on adding to the world like air, which which won't be flagged as a null block.
 			// add a scan/replace for replaceBlocks ie null block, substitutes (air for null, wool for air, etc). skip the nbts if replaced.
 //			if (replacementBlocks.containsKey(blockState)) {
 //				// replace the structure block with the replacement block
 //				blockState = replacementBlocks.get(blockState);
 //			}			
-			// END TODO
+
 //			else { //
 				if (nbttagcompound.hasKey("nbt")) {
 					nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
