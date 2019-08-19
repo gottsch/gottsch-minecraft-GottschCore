@@ -6,6 +6,7 @@ package com.someguyssoftware.gottschcore.config;
 import java.io.File;
 
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
 /**
  * @author Mark Gottschling on Apr 30, 2017
@@ -80,6 +81,13 @@ public interface IConfig {
 	void setProperty(String category, String key, String value);
 
 	/**
+	 * 
+	 * @param property
+	 * @param value
+	 */
+	public void setProperty(Property property, String value);
+
+	/**
 	 * @return
 	 */
 	boolean isModEnabled();
@@ -100,4 +108,5 @@ public interface IConfig {
 	 * @param modFolder
 	 */
 	public void setModsFolder(String modsFolder);
+
 }

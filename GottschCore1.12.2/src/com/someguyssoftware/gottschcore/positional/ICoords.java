@@ -3,6 +3,7 @@ package com.someguyssoftware.gottschcore.positional;
 import com.someguyssoftware.gottschcore.enums.Direction;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
@@ -217,4 +218,8 @@ public interface ICoords {
 	ICoords add(Direction direction, int n);
 
 	ICoords rotate(double xlen, double zlen, double degrees);
+
+	ICoords offset(EnumFacing facing);
+
+	ICoords offset(EnumFacing facing, int n);
 }

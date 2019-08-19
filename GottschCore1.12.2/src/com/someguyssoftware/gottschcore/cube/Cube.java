@@ -128,6 +128,10 @@ public class Cube {
 		return getState().isTopSolid();		
 	}
 	
+	public boolean isLiquid() {
+		return getState().getMaterial().isLiquid();
+	}
+	
 	/**
 	 * Wrapper to Block.isBurning()
 	 * @return

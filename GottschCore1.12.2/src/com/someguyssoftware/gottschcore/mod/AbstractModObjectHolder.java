@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore;
+package com.someguyssoftware.gottschcore.mod;
 
 import java.lang.reflect.Field;
 
@@ -9,9 +9,8 @@ import com.someguyssoftware.gottschcore.GottschCore;
 
 /**
  * @author Mark Gottschling on Jul 23, 2017
- * @deprecated use com.someguyssoftware.gottschcore.mod.AbstractModObjectHolder
+ *
  */
-@Deprecated
 public abstract class AbstractModObjectHolder {
 	
 	/**

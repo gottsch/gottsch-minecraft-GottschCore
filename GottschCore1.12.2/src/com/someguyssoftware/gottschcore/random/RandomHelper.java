@@ -31,7 +31,15 @@ public final class RandomHelper {
 	 * @param max
 	 * @return
 	 */
-	public static int randomInt(final Random random, final int min, final int max) {
+	public static int randomInt(final Random random,int min, int max) {
+		if (min < 0) {
+			min = 0;
+		}
+		
+		if (max <= 0) {
+			return 0;
+		}
+		
 		if (min == max) {
 			return min;
 		}
@@ -60,7 +68,15 @@ public final class RandomHelper {
 	 * @param max
 	 * @return
 	 */
-	public static double randomDouble(final Random random, final double min, final double max) {
+	public static double randomDouble(final Random random, double min, double max) {
+		if (min < 0) {
+			min = 0;
+		}
+		
+		if (max <= 0) {
+			return 0;
+		}
+		
 		if (min == max) {
 			return min;
 		}

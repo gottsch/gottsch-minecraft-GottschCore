@@ -24,6 +24,16 @@ public class WorldInfo {
 	private static final int MIN_HEIGHT = 1;
 	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
 	public static final int INVALID_SURFACE_POS = -255;
+	public static final int CHUNK_RADIUS = 8;
+	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
+	
+	public enum SURFACE {
+		LAND,
+		WATER,
+		LAVA,
+		OTHER,
+		INVALID
+	};
 	
 	/*
 	 * =========================================
@@ -158,7 +168,7 @@ public class WorldInfo {
 				return null;
 			}		
 			
-			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
+			if (cube.equalsMaterial(Material.AIR) || (cube.isReplaceable() && !cube.isLiquid())
 					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) 
 					|| cube.isBurning(world)) {
 				newCoords = newCoords.down(1);
@@ -284,7 +294,64 @@ public class WorldInfo {
 			}		
 		}
 		return newCoords;
-	}	
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static SURFACE  getSurface(World world, ICoords coords) {
+		// go down to surface
+		ICoords surfaceCoords = getSurfaceCoords(world, coords);
+		
+		if (surfaceCoords == null) return SURFACE.INVALID;
+		
+		Cube cube = new Cube(world, surfaceCoords.down(1));
+		
+		// exit if not valid Y coordinate
+		if (!isValidY(cube.getCoords())) {
+			return SURFACE.INVALID;
+		}
+		
+		SURFACE surface;
+		if (cube.equalsMaterial(Material.WATER)	|| cube.equalsMaterial(Material.ICE)) {
+			surface = SURFACE.WATER;
+		}
+		else if (cube.equalsMaterial(Material.LAVA)) {
+			surface = SURFACE.LAVA;
+		}
+		else if (cube.isSolid()) {
+			surface = SURFACE.LAND;
+		}
+		else {
+			surface = SURFACE.OTHER;
+		}		
+		return surface;
+	}
+	
+	/**
+	 * Convenience method.
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static boolean isSurfaceOnLand(World world, ICoords coords) {
+		if ( getSurface(world, coords) == SURFACE.LAND) return true;
+		return false;
+	}
+
+	/**
+	 * Convenience method.
+	 * @param world
+	 * @param coords
+	 * @return
+	 */
+	public static boolean isSurfaceOnWater(World world, ICoords coords) {
+		if ( getSurface(world, coords) == SURFACE.WATER) return true;
+		return false;
+	}
 	
 	/*
 	 * =========================================

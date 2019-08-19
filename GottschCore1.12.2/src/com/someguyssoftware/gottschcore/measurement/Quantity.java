@@ -1,14 +1,13 @@
 /**
  * 
  */
-package com.someguyssoftware.gottschcore;
+package com.someguyssoftware.gottschcore.measurement;
 
 /**
  * A class to hold a minimum and maximum value for a value range.
  * @author Mark Gottschling on Jul 18, 2016
- * @deprecated Use com.someguyssoftware.gottschcore.measurement.Quantity instead.
+ *
  */
-@Deprecated
 public class Quantity {
 	private double min;
 	private double max;

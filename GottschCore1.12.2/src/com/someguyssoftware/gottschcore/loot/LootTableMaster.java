@@ -71,9 +71,9 @@ public class LootTableMaster {
 	 * @param modID
 	 */
 	public void buildAndExpose(String resourceRootPath, String modID, List<String> locations) {
-		GottschCore.logger.debug("loot table folder locations -> {}", /*getLootTableFolderLocations()*/locations);
+		GottschCore.logger.debug("loot table folder locations -> {}", locations);
 		// create paths to custom loot tables if they don't exist
-		for (String location : /*getLootTableFolderLocations()*/locations) {
+		for (String location : locations) {
 			GottschCore.logger.debug("buildAndExpose location -> {}", location);
 			createLootTableFolder(modID, location);
 			exposeLootTable(resourceRootPath, modID, location);
@@ -178,8 +178,7 @@ public class LootTableMaster {
 			for (Iterator<Path> it = walk.iterator(); it.hasNext();) {
 				Path resourceFilePath = it.next();
 				// String tableName = resourceFilePath.getFileName().toString();
-				// GottschCore.logger.debug("foreign mod loot_table -> {}",
-				// resourceFilePath.toString());
+				 GottschCore.logger.debug("mod loot_table -> {}", resourceFilePath.toString());
 				// check the first file, which is actually the given directory itself
 				if (isFirst) {
 					// create the file system folder if it doesn't exist
@@ -187,6 +186,12 @@ public class LootTableMaster {
 						createLootTableFolder(modID, location);
 					}
 				} else {
+					// TODO check if the file is actually a sub-directory
+					if (Files.isDirectory(resourceFilePath)) {
+						GottschCore.logger.debug("resource is a folder -> {}", resourceFilePath.toString());
+						continue;
+					}
+					
 					// test if file exists on the file system
 					Path fileSystemFilePath = Paths.get(folder.toString(), resourceFilePath.getFileName().toString()).toAbsolutePath();
 					GottschCore.logger.debug("folderLootTablePath -> {}", fileSystemFilePath.toString());

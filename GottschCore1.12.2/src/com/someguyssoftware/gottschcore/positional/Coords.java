@@ -9,6 +9,7 @@ import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.enums.Direction;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -108,6 +109,22 @@ public class Coords implements ICoords {
     @Override
     public ICoords west(int n) {
     	return new Coords(this.getX() - n, this.getY(), this.getZ());
+    }
+    
+    /**
+     * Offset this Coords 1 block in the given direction
+     */
+    @Override
+    public ICoords offset(EnumFacing facing) {
+        return this.offset(facing, 1);
+    }
+
+    /**
+     * Offsets this Coords n blocks in the given direction
+     */
+    @Override
+    public ICoords offset(EnumFacing facing, int n) {
+        return n == 0 ? this : new Coords(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);
     }
     
 	/**
