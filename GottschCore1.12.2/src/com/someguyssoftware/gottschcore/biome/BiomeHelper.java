@@ -3,17 +3,62 @@
  */
 package com.someguyssoftware.gottschcore.biome;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.BiomeDictionary.Type;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 /**
  * @author Mark Gottschling on May 8, 2017
  *
  */
 public class BiomeHelper {
+	
+	/**
+	 * 
+	 * @param biomes
+	 * @return
+	 */
+	public static List<Biome> loadBiomesList(String[] biomes) {
+		List<Biome> list = new ArrayList<>();
+		for (String biomeName : biomes) {
+			Biome biome = ForgeRegistries.BIOMES.getValue(new ResourceLocation(biomeName));
+			if (!list.contains(biome)) {
+				list.add(biome);
+			}
+		}
+		return list;
+	}
+	
+	/**
+	 * 
+	 * @param biome
+	 * @param whiteList
+	 * @param blackList
+	 * @return
+	 */
+	// TODO will need to refactor names
+//	public static boolean isBiomeAllowed(Biome biome, List<Biome> whiteList, List<Biome> blackList) {
+//        if (whiteList != null && whiteList.size() > 0) {
+//        	if (whiteList.contains(biome)) {
+//        		return true;
+//        	}
+//        }
+//        
+//        if (blackList != null && blackList.size() > 0) {
+//        	if (blackList.contains(biome)) {
+//        		return false;
+//        	}
+//        }
+//        
+//    	// neither white list nor black list have values = all biomes are valid
+//    	return true;
+//	}
+	
 	
 //	/**
 //	 * Loads all the Minecraft Forge Biome Types into a map by name.

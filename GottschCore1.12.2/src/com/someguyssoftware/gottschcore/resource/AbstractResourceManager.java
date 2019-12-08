@@ -66,7 +66,7 @@ public class AbstractResourceManager implements IResourceManager {
 	protected void createFileSystemResourceFolder(String modID, String location) {
 		// build a path to the specified location
 		Path folder = Paths.get(
-				getMod().getConfig().getModsFolder(), 
+				getMod().getConfig().getConfigFolder(), 
 				getMod().getId(), 
 				getBaseResourceFolder(), 
 				modID, 
@@ -104,7 +104,7 @@ public class AbstractResourceManager implements IResourceManager {
 			Path resourceBasePath = fs.getPath(jarResourceRootPath, modID, location);
 			GottschCore.logger.debug("resource base path -> {}", resourceBasePath.toString());
 			
-			folder = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
+			folder = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
 
 			boolean isFirst = true;
 			// proces all the files in the folder
@@ -202,7 +202,7 @@ public class AbstractResourceManager implements IResourceManager {
 		final String location= (locationIn != null && !locationIn.equals("")) ? (locationIn + "/") : "";
 
 		List<ResourceLocation> locs = new ArrayList<>();
-		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
+		Path path = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getBaseResourceFolder(), modID, location).toAbsolutePath();
 
 		 GottschCore.logger.debug("Path to custom resource -> {}", path.toString());
 		// check if path/folder exists

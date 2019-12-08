@@ -146,7 +146,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		if (!s.endsWith(".nbt")) {
 			suffix = ".nbt";
 		}
-		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), s + suffix);
+		Path path = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), s + suffix);
 		File file1 = path.toFile();
 		GottschCore.logger.debug("template file path -> {}", file1.getAbsoluteFile());
 		if (!file1.exists()) {

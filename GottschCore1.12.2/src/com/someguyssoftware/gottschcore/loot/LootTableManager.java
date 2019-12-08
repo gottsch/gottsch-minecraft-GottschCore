@@ -126,6 +126,7 @@ public class LootTableManager {
 			}
 		}
 
+		// TODO need to change from baseFolder, resource.getResourceDomain(), to just baseFolder
 		@Nullable
 		private LootTable loadLootTable(ResourceLocation resource) {
 //			GottschCore.logger.debug("baseFolder -> {}", TreasureLootTableManager.this.baseFolder);

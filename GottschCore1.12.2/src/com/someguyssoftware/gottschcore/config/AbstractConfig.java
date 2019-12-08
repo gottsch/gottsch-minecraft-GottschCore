@@ -27,6 +27,8 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 	private String loggerFilename;
 
 	private String modsFolder;
+	private String configFolder;
+	
 	// toggle mod enabled
 	private boolean modEnabled;
 
@@ -65,13 +67,14 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 		// setup the basic settings
 		config.setCategoryComment("01-logging", "Logging properties.");        
 		setLoggerLevel(config.getString("loggerLevel", "01-logging", "info", "The logging level. Set to 'off' to disable logging. [trace|debug|info|warn|error|off]"));
-		setLoggerFolder(config.getString("loggerFolder", "01-logging", "mods/" + modID + "/logs/", "The directory where the logs should be stored. This is relative to the Minecraft install path."));
+		setLoggerFolder(config.getString("loggerFolder", "01-logging", "logs/" + modID, "The directory where the logs should be stored. This is relative to the Minecraft install path."));
 		setLoggerSize(config.getString("loggerSize", "01-logging", "1000K", "The size a log file can be before rolling over to a new file."));
 
 		setLoggerFilename(config.getString("loggerFilename", "01-logging", modID, "The filename of the  log file."));
 
 		config.setCategoryComment("03-mod", "General mod properties.");
-		setModsFolder(modID);
+		setModsFolder("mods");
+		setConfigFolder("config/" + modID);
 		// create/get properties into wrapped properties
 		setModEnabled(config.getBoolean("modEnabled", "03-mod", true, "Enables/Disables mod."));
 		setEnableVersionChecker(config.getBoolean("enableVersionChecker", "03-mod", true, "Enables/Disables version checking."));
@@ -259,5 +262,15 @@ public abstract class AbstractConfig implements IConfig, ILoggerConfig {
 	@Override
 	public void setModsFolder(String modsFolder) {
 		this.modsFolder = modsFolder;
+	}
+
+	@Override
+	public String getConfigFolder() {
+		return configFolder;
+	}
+
+	@Override
+	public void setConfigFolder(String configFolder) {
+		this.configFolder = configFolder;
 	}
 }

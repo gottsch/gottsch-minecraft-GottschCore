@@ -86,7 +86,7 @@ public class LootTableMaster {
 	 */
 	public void init(WorldServer world) {
 		// create a new loot table manager for custom file-system loot tables
-		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getModsFolder()).toAbsolutePath().toFile());
+		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getConfigFolder()).toAbsolutePath().toFile());
 
 		// create a context
 		this.context = new LootContext.Builder(world, lootTableManager).build();
@@ -132,9 +132,9 @@ public class LootTableMaster {
 		if (modID == null || modID.isEmpty())
 			modID = getMod().getId();
 		// build a path to the specified location
-		// ie ../mods/[MODID]/[LOOT_TABLES]/[location]
-		Path modsPath = Paths.get(getMod().getConfig().getModsFolder());
-		Path folder = Paths.get(modsPath.toString(), getMod().getId(), getLootTablesFolderName(), modID, ((location != null && !location.equals("")) ? (location + "/") : "")).toAbsolutePath();
+		// ie ../[CONFIG FOLDER]/[MODID]/[LOOT_TABLES]/[location]
+		Path configPath = Paths.get(getMod().getConfig().getConfigFolder());
+		Path folder = Paths.get(configPath.toString(), getMod().getId(), getLootTablesFolderName(), modID, ((location != null && !location.equals("")) ? (location + "/") : "")).toAbsolutePath();
 
 		if (Files.notExists(folder)) {
 			GottschCore.logger.debug("loot tables folder \"{}\" will be created.", folder.toString());
@@ -170,7 +170,7 @@ public class LootTableMaster {
 			Path resourceBasePath = fs.getPath(resourceRootPath, modID, location);
 			// GottschCore.logger.debug("resource base path -> {}",
 			// resourceBasePath.toString());
-			folder = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
+			folder = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
 
 			boolean isFirst = true;
 			// proces all the files in the folder
@@ -280,7 +280,7 @@ public class LootTableMaster {
 //		final String location = locationIn;
 
 		List<ResourceLocation> locs = new ArrayList<>();
-		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
+		Path path = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
 
 		 GottschCore.logger.debug("Path to custom loot table -> {}", path.toString());
 		// check if path/folder exists
