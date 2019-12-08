@@ -222,4 +222,13 @@ public interface ICoords {
 	ICoords offset(EnumFacing facing);
 
 	ICoords offset(EnumFacing facing, int n);
+
+	ICoords withY(ICoords coords);
+	ICoords withY(int y);
+
+	ICoords withX(ICoords coords);
+	ICoords withX(int x);
+
+	ICoords withZ(ICoords coords);
+	ICoords withZ(int z);
 }

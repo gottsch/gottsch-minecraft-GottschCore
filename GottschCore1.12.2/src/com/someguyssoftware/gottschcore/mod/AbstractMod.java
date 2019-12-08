@@ -3,6 +3,9 @@
  */
 package com.someguyssoftware.gottschcore.mod;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -163,7 +166,6 @@ public abstract class AbstractMod implements IMod {
 	 */
 	public Appender createRollingFileAppender(String appenderName, ILoggerConfig modConfig) {
 		// get config properties
-//		String loggerLevel = modConfig.getLoggerLevel();
 		String loggerFolder = modConfig.getLoggerFolder();
 		
 		if (!loggerFolder.endsWith("/")) {
@@ -187,6 +189,52 @@ public abstract class AbstractMod implements IMod {
         		.newBuilder()
         		.withFileName(loggerFolder + modConfig.getLoggerFilename() + ".log")
         		.withFilePattern(loggerFolder + modConfig.getLoggerFilename() + "-%d{yyyy-MM-dd-HH_mm_ss}.log")
+        		.withAppend(true)
+        		.withName(appenderName)
+        		.withBufferedIo(true)
+        		.withImmediateFlush(true)
+        		.withPolicy(policy)
+//        		.withStrategy(strategy)
+        		.withLayout(layout)
+//        		.withFilter(filter)
+        		.withIgnoreExceptions(true)
+        		.withAdvertise(false)
+        		.setConfiguration(config)
+        		.build();
+
+        // start the appender
+        appender.start();
+        
+        // add appenders to config
+        config.addAppender(appender);
+
+        return appender;
+	}
+	
+	/**
+	 * Add rolling file appender to the current logging system.
+	 */
+	public Appender createRollingFileAppender(IMod mod, String appenderName, ILoggerConfig modConfig) {
+
+		Path loggerFilePath = Paths.get(modConfig.getLoggerFolder(), mod.getId(), modConfig.getLoggerFilename());
+
+		final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+        final Configuration config = loggerContext.getConfiguration();
+        
+        // create a sized-based trigger policy, using config setting for size.
+        SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(modConfig.getLoggerSize());
+        // create the pattern for log statements
+        PatternLayout layout = PatternLayout
+        		.newBuilder()
+        		.withPattern("%d [%t] %p %c | %F:%L | %m%n")
+        		.withAlwaysWriteExceptions(true)
+        		.build();
+        
+        // create a rolling file appender for SGS_Treasure logger (which is used by the Treasure mod)
+        Appender appender = RollingFileAppender
+        		.newBuilder()
+        		.withFileName(loggerFilePath + ".log")
+        		.withFilePattern(loggerFilePath + "-%d{yyyy-MM-dd-HH_mm_ss}.log")
         		.withAppend(true)
         		.withName(appenderName)
         		.withBufferedIo(true)

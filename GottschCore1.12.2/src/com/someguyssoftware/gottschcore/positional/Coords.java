@@ -244,8 +244,39 @@ public class Coords implements ICoords {
 		case EAST: return this.east(n);
 		case SOUTH: return this.south(n);
 		case WEST: return this.west(n);
+		case UP: return this.up(n);
+		case DOWN: return this.down(n);
+		
 		default: return this;
 		}		
+	}
+	
+
+	@Override
+	public ICoords withX(ICoords coords) {
+		return new Coords(coords.getX(), this.getY(), this.getZ());
+	}	
+	@Override
+	public ICoords withX(int x) {
+		return new Coords(x, this.getY(), this.getZ());
+	}
+	
+	@Override
+	public ICoords withY(ICoords coords) {
+		return new Coords(this.getX(), coords.getY(), this.getZ());
+	}	
+	@Override
+	public ICoords withY(int y) {
+		return new Coords(this.getX(), y, this.getZ());
+	}
+	
+	@Override
+	public ICoords withZ(ICoords coords) {
+		return new Coords(this.getX(), this.getY(), coords.getZ());
+	}	
+	@Override
+	public ICoords withZ(int z) {
+		return new Coords(this.getX(), this.getY(), z);
 	}
 	
 	/**

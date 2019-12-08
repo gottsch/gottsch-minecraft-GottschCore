@@ -98,7 +98,7 @@ public class MetaManager extends AbstractResourceManager {
 		if (!loc.endsWith(".json")) {
 			suffix = ".json";
 		}
-		Path path = Paths.get(getMod().getConfig().getModsFolder(), getMod().getId(), loc + suffix);
+		Path path = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), loc + suffix);
 		File file = path.toFile();
 		GottschCore.logger.debug("template file path -> {}", file.getAbsoluteFile());
 		if (!file.exists()) {

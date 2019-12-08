@@ -109,4 +109,16 @@ public interface IConfig {
 	 */
 	public void setModsFolder(String modsFolder);
 
+	/**
+	 * 
+	 * @return
+	 */
+	public String getConfigFolder();
+
+	/**
+	 * 
+	 * @param configFolder
+	 */
+	void setConfigFolder(String configFolder);
+
 }
