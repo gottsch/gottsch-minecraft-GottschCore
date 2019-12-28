@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
  * @author Mark Gottschling on Jul 11, 2019
  *
  */
+@Deprecated
 public class StructureInfo implements IStructureInfo {
 	private ICoords coords;
 	

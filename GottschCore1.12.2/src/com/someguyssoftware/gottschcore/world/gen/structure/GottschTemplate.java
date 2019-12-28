@@ -97,6 +97,7 @@ public class GottschTemplate extends Template {
 	 * @param placementIn
 	 *            Placement settings to use
 	 */
+	@Override
 	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn) {
 		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, 2);
 	}
@@ -115,23 +116,52 @@ public class GottschTemplate extends Template {
 	 *            {@link World#setBlockState(BlockPos, IBlockState, int)}
 	 */
 	@Override
-	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, int flags) {		
-		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, Blocks.BEDROCK, null, flags);
+	public void addBlocksToWorld(World world, BlockPos pos, PlacementSettings placementIn, int flags) {		
+		this.addBlocksToWorld(world, pos, new BlockRotationProcessor(pos, placementIn), placementIn, Blocks.BEDROCK, null, flags);
 	}
 
+
+	/**
+	 * GottschCore addition.
+	 * @param world
+	 * @param pos
+	 * @param decayProcessor
+	 * @param placementIn
+	 * @param flags
+	 */
+	public void addBlocksToWorld(World world, BlockPos pos, IDecayProcessor decayProcessor, PlacementSettings placementIn, int flags) {		
+		this.addBlocksToWorld(world, pos, new BlockRotationProcessor(pos, placementIn), decayProcessor, placementIn, Blocks.BEDROCK, null, flags);
+	}
+	
 	/**
 	 * 
 	 * @param worldIn
 	 * @param pos
 	 * @param placementIn
 	 * @param NULL_BLOCK
+	 * @param replacementBlocks
 	 * @param flags
 	 */
 	public void addBlocksToWorld(World worldIn, BlockPos pos, PlacementSettings placementIn, final Block NULL_BLOCK, Map<IBlockState, IBlockState> replacementBlocks, int flags) {
 		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), placementIn, NULL_BLOCK, replacementBlocks, flags);
 	}
+	
+	/**
+	 * 
+	 * @param worldIn
+	 * @param pos
+	 * @param decayProcessor
+	 * @param placementIn
+	 * @param NULL_BLOCK
+	 * @param replacementBlocks
+	 * @param flags
+	 */
+	public void addBlocksToWorld(World worldIn, BlockPos pos, IDecayProcessor decayProcessor, PlacementSettings placementIn, final Block NULL_BLOCK, Map<IBlockState, IBlockState> replacementBlocks, int flags) {
+		this.addBlocksToWorld(worldIn, pos, new BlockRotationProcessor(pos, placementIn), decayProcessor, placementIn, NULL_BLOCK, replacementBlocks, flags);
+	}
 
 	/**
+	 * *Original/Non-Decay* version.
 	 * Adds blocks and entities from this structure to the given world.
 	 * 
 	 * @param worldIn
@@ -155,9 +185,6 @@ public class GottschTemplate extends Template {
 		if ((!this.blocks.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
 			Block replacedBlock = placementIn.getReplacedBlock();
 			StructureBoundingBox structureboundingbox = placementIn.getBoundingBox();
-
-			// TODO replace templateProcessor with custom processor that takes into account decay.
-			// TODO as well, need to "build" the structure bottom up in memory so proper supports checks can take place.
 
 			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
 				BlockPos blockpos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
@@ -235,6 +262,138 @@ public class GottschTemplate extends Template {
 
 			if (!placementIn.getIgnoreEntities()) {
 				this.addEntitiesToWorld(worldIn, pos, placementIn.getMirror(), placementIn.getRotation(), structureboundingbox);
+			}
+		}
+	}
+	
+	/**
+	 * * Decay * version.
+	 * Adds blocks and entities from this structure to the given world.
+	 * 
+	 * @param worldIn
+	 *            The world to use
+	 * @param pos
+	 *            The origin position for the structure
+	 * @param templateProcessor
+	 *            The template processor to use
+	 * @param placementIn
+	 *            Placement settings to use
+	 * @param flags
+	 *            Flags to pass to
+	 *            {@link World#setBlockState(BlockPos, IBlockState, int)}
+	 */
+	public void addBlocksToWorld(World worldIn, BlockPos pos, 
+			@Nullable ITemplateProcessor templateProcessor, 
+			@Nullable IDecayProcessor decayProcessor,
+			PlacementSettings placementIn, 
+			final Block NULL_BLOCK, 
+			Map<IBlockState, IBlockState> replacementBlocks,
+			int flags) {
+
+		if ((!this.blocks.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
+			Block replacedBlock = placementIn.getReplacedBlock();
+			StructureBoundingBox structureBoundingBox = placementIn.getBoundingBox();
+
+			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
+				BlockPos blockPos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
+				// Forge: skip processing blocks outside BB to prevent cascading worldgen issues
+				if (structureBoundingBox != null && !structureBoundingBox.isVecInside(blockPos))
+					continue;
+				GottschTemplate.BlockInfo processedBlockInfo = templateProcessor != null ? templateProcessor.processBlock(worldIn, blockPos, blockInfo) : blockInfo;
+
+				if (processedBlockInfo != null) {
+					Block processedBlock = null;
+					processedBlock = processedBlockInfo.blockState.getBlock();
+
+					// NOTE removed - have to process the null so that the decayprocess has a full matrix
+//					if (processedBlock == NULL_BLOCK) {
+////						continue;
+////						// TODO add to layout
+////						// see below
+//						GottschCore.logger.debug("null block SHOULD be added for pos -> {}", processedBlockInfo.pos);
+//					}
+					
+					if ((replacedBlock == null || replacedBlock != processedBlock) && (!placementIn.getIgnoreStructureBlock() || processedBlock != Blocks.STRUCTURE_BLOCK)
+							&& (structureBoundingBox == null || structureBoundingBox.isVecInside(blockPos))
+							) {
+						
+						// check for null block
+						// if null block, grab blockstate from the world and to a new processedBlockInfo and add to decayProcessor
+						if (processedBlock == NULL_BLOCK) {
+//							GottschCore.logger.debug("null block INSIDE IF to be added for pos -> {}", blockPos);
+							IBlockState worldState = worldIn.getBlockState(blockPos);
+							processedBlockInfo = new BlockInfo(processedBlockInfo.pos, worldState, processedBlockInfo.tileentityData);
+						}
+						
+						IBlockState iblockstate = processedBlockInfo.blockState.withMirror(placementIn.getMirror());
+						IBlockState blockState1 = iblockstate.withRotation(placementIn.getRotation());
+
+						////////////////// GottschCore Block Replacement Code //////////////////////
+						if (replacementBlocks != null && replacementBlocks.containsKey(blockState1)) {
+							// replace the structure block with the replacement block
+							blockState1 = replacementBlocks.get(blockState1);
+						}
+
+						// add blockstate to structure map (read pass).
+						decayProcessor.add(new Coords(blockPos), processedBlockInfo, blockState1);
+						//////////////////////////////////////////////////////////////////////
+					}
+				}
+			}
+			
+			// need the transformed size
+			ICoords transformedSize = new Coords(transformedSize(placementIn.getRotation()));
+			List<DecayBlockInfo> decayBlockInfoList = decayProcessor.process(worldIn, new Random(), transformedSize, NULL_BLOCK);
+			
+			for (DecayBlockInfo decay : decayBlockInfoList) {
+				BlockInfo processed = decay.getBlockInfo();
+				BlockPos decayPos = decay.getCoords().toPos();
+				if (processed.tileentityData != null) {
+					TileEntity tileentity = worldIn.getTileEntity(decayPos);
+
+					if (tileentity != null) {
+						if (tileentity instanceof IInventory) {
+							((IInventory) tileentity).clear();
+						}
+						worldIn.setBlockState(decayPos, Blocks.BARRIER.getDefaultState(), 4);
+					}
+				}
+
+				if (worldIn.setBlockState(decayPos, decay.getState(), flags) && processed.tileentityData != null) {
+					TileEntity tileentity2 = worldIn.getTileEntity(decayPos);
+
+					if (tileentity2 != null) {
+						processed.tileentityData.setInteger("x", decayPos.getX());
+						processed.tileentityData.setInteger("y", decayPos.getY());
+						processed.tileentityData.setInteger("z", decayPos.getZ());
+						tileentity2.readFromNBT(processed.tileentityData);
+						tileentity2.mirror(placementIn.getMirror());
+						tileentity2.rotate(placementIn.getRotation());
+					}
+				}
+			}
+
+			for (DecayBlockInfo decay : decayBlockInfoList) {
+				BlockInfo processed = decay.getBlockInfo();
+				if (replacedBlock == null || replacedBlock != processed.blockState.getBlock()) {
+					BlockPos blockPos1 = transformedBlockPos(placementIn, processed.pos).add(pos);
+
+					if (structureBoundingBox == null || structureBoundingBox.isVecInside(blockPos1)) {
+						worldIn.notifyNeighborsRespectDebug(blockPos1, processed.blockState.getBlock(), false);
+
+						if (processed.tileentityData != null) {
+							TileEntity tileEntity1 = worldIn.getTileEntity(blockPos1);
+
+							if (tileEntity1 != null) {
+								tileEntity1.markDirty();
+							}
+						}
+					}
+				}
+			}
+
+			if (!placementIn.getIgnoreEntities()) {
+				this.addEntitiesToWorld(worldIn, pos, placementIn.getMirror(), placementIn.getRotation(), structureBoundingBox);
 			}
 		}
 	}
@@ -408,7 +567,7 @@ public class GottschTemplate extends Template {
 		setAuthor(compound.getString("author"));
 		GottschTemplate.BasicPalette template$basicpalette = new GottschTemplate.BasicPalette();
 		NBTTagList nbttaglist1 = compound.getTagList("palette", 10);
-
+		
 		for (int i = 0; i < nbttaglist1.tagCount(); ++i) {
 			template$basicpalette.addMapping(NBTUtil.readBlockState(nbttaglist1.getCompoundTagAt(i)), i);
 		}
@@ -418,6 +577,7 @@ public class GottschTemplate extends Template {
 		for (int blockIndex = 0; blockIndex < blocks.tagCount(); ++blockIndex) {
 			NBTTagCompound nbttagcompound = blocks.getCompoundTagAt(blockIndex);
 			NBTTagList nbttaglist2 = nbttagcompound.getTagList("pos", 3);
+			// get the pos of each block
 			BlockPos blockPos = new BlockPos(nbttaglist2.getIntAt(0), nbttaglist2.getIntAt(1), nbttaglist2.getIntAt(2));
 			IBlockState blockState = template$basicpalette.stateFor(nbttagcompound.getInteger("state"));
 			NBTTagCompound nbttagcompound1 = null;
@@ -438,8 +598,9 @@ public class GottschTemplate extends Template {
 				nbttagcompound1 = null;
 			}
 			//			} //
-			this.blocks.add(new GottschTemplate.BlockInfo(blockPos, blockState, nbttagcompound1));
 
+			this.blocks.add(new GottschTemplate.BlockInfo(blockPos, blockState, nbttagcompound1));
+				
 			// check if a marker block
 			Block block = blockState.getBlock();
 			if (block != Blocks.AIR && markerBlocks.contains(block)) {
