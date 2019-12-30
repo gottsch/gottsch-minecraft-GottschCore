@@ -42,6 +42,7 @@ public class DecayProcessor implements IDecayProcessor {
 	private static int AIR = -9999;
 	private static int UNKNOWN = 9999;
 
+	private static String DEFAULT_DECAY_RULE_NAME = "default";
 	private static int NO_DECAY_INDEX = -1;
 	private static String NULL_BLOCK_NAME = "null";
 
@@ -93,7 +94,7 @@ public class DecayProcessor implements IDecayProcessor {
 
 		// pass 1
 		int decayBlockInfoListIndex = 0;
-		for(DecayBlockInfo decay : decayBlockInfoList) {			
+		for(DecayBlockInfo decay : decayBlockInfoList) {		
 			// load array from list
 			int x = decay.getX() - offsetCoords.getX();
 			int y = decay.getY() - offsetCoords.getY();
@@ -117,16 +118,37 @@ public class DecayProcessor implements IDecayProcessor {
 			}
 
 			// get the rule for the current block
-			String ruleKey = decay.getState().getBlock().getRegistryName().toString();
-			DecayRule decayRule = ruleSet.getDecayRules().get(ruleKey);
-			if (decayRule != null) {
-				int decayIndex = getDecayIndex(random, decayRule);
-				// decay the block before any other tests (because it might turn to air)
-				IBlockState decayState = applyDecay(decay.getState(), decayRule, decayIndex, NULL_BLOCK);
-				decay.setState(decayState);
-				decay.setDecayIndex(decayIndex);
+			String blockRegistryName = null;
+			String ruleKey = null;
+			DecayRule decayRule = null;
+			
+			if (decay.getState().getBlock() != Blocks.AIR) {
+				ruleKey = decay.getState().getBlock().getRegistryName().toString();
+				
+				// TODO check if the block is a *special* block that is registered in the DecayRuleKeyRegistry
+				if (DecayRuleKeyRegistry.getInstance().has(ruleKey)) {
+					ruleKey = DecayRuleKeyRegistry.getInstance().get(ruleKey, String.valueOf(decay.getState().getBlock().getMetaFromState(decay.getState())));
+					GottschCore.logger.debug("block -> {} has a registry key -> {} in the DecayRuleKeyRegistry.", decay.getState().getBlock().getRegistryName().toString(), ruleKey);
+				}
+				else {
+					// TODO set the ruleKey to equal that of the blockRegistryKey
+				}
+				
+				decayRule = ruleSet.getDecayRules().get(ruleKey);
+//				GottschCore.logger.debug("ruleKey -> {}", ruleKey);
+				
+				if (decayRule == null) {
+					decayRule = ruleSet.getDecayRules().get(DEFAULT_DECAY_RULE_NAME);
+				}
+				if (decayRule != null) {
+					int decayIndex = getDecayIndex(random, decayRule);
+					// decay the block before any other tests (because it might turn to air)
+					IBlockState decayState = applyDecay(decay.getState(), decayRule, decayIndex, NULL_BLOCK);
+					decay.setState(decayState);
+					decay.setDecayIndex(decayIndex);
+				}
 			}
-
+			
 			// determine if block is a wall/supported from below
 			boolean isWall = decay.getY() >=0 &&
 					decay.getState().getMaterial().isSolid() &&
@@ -183,7 +205,6 @@ public class DecayProcessor implements IDecayProcessor {
 					decay = decayBlockInfoList.get(layout[y][z][x]);
 
 					if (decay.getState().getBlock() == NULL_BLOCK) {
-						GottschCore.logger.debug("null block in list at xyz -> {} {} {}", x, y, z);
 						continue;
 					}
 
@@ -192,6 +213,9 @@ public class DecayProcessor implements IDecayProcessor {
 							RandomHelper.randomDouble(random, 
 									getRuleSet().getVerticalDecayRate().getMin(), 
 									getRuleSet().getVerticalDecayRate().getMax()));
+					if (y > 0) {
+						yStrength = Math.min(yStrength, decayBlockInfoList.get(layout[y-1][z][x]).getStrength());
+					}
 					decay.setStrength(yStrength);
 
 					// perform tests
@@ -242,17 +266,12 @@ public class DecayProcessor implements IDecayProcessor {
 					if (decay.getStrength() <= threshold) {
 						decay.setState(Blocks.AIR.getDefaultState());
 					}
+
 					// test behind (x-1 and z-1) for strength <= threshold
 					if (z + 1 < layout[y].length && decayBlockInfoList.get(layout[y][z+1][x]).getState().getBlock() != Blocks.AIR
 							&& decayBlockInfoList.get(layout[y][z+1][x]).getState().getBlock() != NULL_BLOCK) {
 						if (decayBlockInfoList.get(layout[y][z+1][x]).getStrength() <= threshold) {
 							decayBlockInfoList.get(layout[y][z+1][x]).setState(Blocks.AIR.getDefaultState());
-						}
-						else {
-							// test if has no neighbors nor floor, then AIR.
-							if (!checkForNeighbors(world, y, z+1, x)) {
-								decayBlockInfoList.get(layout[y][z+1][x]).setState(Blocks.AIR.getDefaultState());
-							}
 						}
 					}
 					if (x + 1 < layout[y][z].length && decayBlockInfoList.get(layout[y][z][x+1]).getState().getBlock() != Blocks.AIR
@@ -260,19 +279,33 @@ public class DecayProcessor implements IDecayProcessor {
 						if (decayBlockInfoList.get(layout[y][z][x+1]).getStrength() <= threshold) {
 							decayBlockInfoList.get(layout[y][z][x+1]).setState(Blocks.AIR.getDefaultState());
 						}
-						else {
-							// test if has no neighbors nor floor, then AIR.
-							if (!checkForNeighbors(world, y, z, x + 1)) {
-								decayBlockInfoList.get(layout[y][z][x + 1]).setState(Blocks.AIR.getDefaultState());
-							}							 
-						}
-					}	
+					}
 				}
 			}
 		}
-
+		
 		if (GottschCore.logger.isDebugEnabled()) {
 			dump("-pass2", size);
+		}
+		
+		// pass3: go forward again and check for neighbors
+		for (int y = 0; y < layout.length; y++) { // bottom up
+			for (int z = 0; z < layout[y].length; z++) {
+				for (int x = 0; x < layout[y][z].length; x++) {
+					// get the decay block
+					decay = decayBlockInfoList.get(layout[y][z][x]);
+
+					if (decay.getState().getBlock() == Blocks.AIR) {
+						continue;
+					}
+					if (decay.getState().getBlock() == NULL_BLOCK) {
+						continue;
+					}
+					if (!checkForNeighbors(world, y, z, x)) {
+						decay.setState(Blocks.AIR.getDefaultState());
+					}	
+				}
+			}
 		}
 
 		return decayBlockInfoList;
@@ -459,9 +492,9 @@ public class DecayProcessor implements IDecayProcessor {
 		decayIndex = (decayIndex < decayRule.getDecayBlocks().size()) ? decayIndex : decayRule.getDecayBlocks().size()-1;
 
 		// get the block according to style and decay index
-		blockValue = decayIndex > -1 ? decayRule.getDecayBlocks().get(decayIndex) : decayRule.getBlock();
+		blockValue = decayIndex > -1 ? decayRule.getDecayBlocks().get(decayIndex) : null;
 
-		if (blockValue == null || blockValue == "") return blockState;
+		if (blockValue == null || blockValue == "") return state;
 
 		// check for special case "null"
 		if (blockValue.equals(NULL_BLOCK_NAME)) {

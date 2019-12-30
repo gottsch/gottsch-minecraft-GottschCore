@@ -12,20 +12,11 @@ import java.util.List;
  */
 public class DecayRule {
 	private String name;
-	private String block;
 	private int decayIterations;
 	private double decayProbability;
 	private List<String> decayBlocks;
 
 	public DecayRule() {}
-
-	public String getBlock() {
-		return block;
-	}
-
-	public void setBlock(String block) {
-		this.block = block;
-	}
 
 	public int getDecayIterations() {
 		return decayIterations;

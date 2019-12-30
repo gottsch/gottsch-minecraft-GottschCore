@@ -319,11 +319,11 @@ public class GottschTemplate extends Template {
 						
 						// check for null block
 						// if null block, grab blockstate from the world and to a new processedBlockInfo and add to decayProcessor
-						if (processedBlock == NULL_BLOCK) {
-//							GottschCore.logger.debug("null block INSIDE IF to be added for pos -> {}", blockPos);
-							IBlockState worldState = worldIn.getBlockState(blockPos);
-							processedBlockInfo = new BlockInfo(processedBlockInfo.pos, worldState, processedBlockInfo.tileentityData);
-						}
+//						if (processedBlock == NULL_BLOCK) {
+////							GottschCore.logger.debug("null block INSIDE IF to be added for pos -> {}", blockPos);
+//							IBlockState worldState = worldIn.getBlockState(blockPos);
+//							processedBlockInfo = new BlockInfo(processedBlockInfo.pos, worldState, processedBlockInfo.tileentityData);
+//						}
 						
 						IBlockState iblockstate = processedBlockInfo.blockState.withMirror(placementIn.getMirror());
 						IBlockState blockState1 = iblockstate.withRotation(placementIn.getRotation());
@@ -346,6 +346,8 @@ public class GottschTemplate extends Template {
 			List<DecayBlockInfo> decayBlockInfoList = decayProcessor.process(worldIn, new Random(), transformedSize, NULL_BLOCK);
 			
 			for (DecayBlockInfo decay : decayBlockInfoList) {
+				if (decay.getState().getBlock() == NULL_BLOCK) continue;
+				
 				BlockInfo processed = decay.getBlockInfo();
 				BlockPos decayPos = decay.getCoords().toPos();
 				if (processed.tileentityData != null) {
@@ -374,6 +376,8 @@ public class GottschTemplate extends Template {
 			}
 
 			for (DecayBlockInfo decay : decayBlockInfoList) {
+				if (decay.getState().getBlock() == NULL_BLOCK) continue;
+				
 				BlockInfo processed = decay.getBlockInfo();
 				if (replacedBlock == null || replacedBlock != processed.blockState.getBlock()) {
 					BlockPos blockPos1 = transformedBlockPos(placementIn, processed.pos).add(pos);

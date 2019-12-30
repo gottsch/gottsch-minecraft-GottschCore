@@ -4,11 +4,15 @@
 package com.someguyssoftware.gottschcore.property;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFence;
+import net.minecraft.block.BlockFenceGate;
 import net.minecraft.block.BlockLog;
 import net.minecraft.block.BlockOldLog;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockVine;
+import net.minecraft.block.BlockWall;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -26,6 +30,10 @@ public class PropertyHelper {
 	public static IPropertyCopier logPropertyCopier = new LogPropertyCopier();
 	public static IPropertyCopier oldLogPropertyCopier = new OldLogPropertyCopier();
 	public static IPropertyCopier vinePropertyCopier = new VinePropertyCopier();
+	public static IPropertyCopier wallPropertyCopier = new WallPropertyCopier();
+	public static IPropertyCopier fenceGatePropertyCopier = new FenceGatePropertyCopier();
+	public static IPropertyCopier planksPropertyCopier = new PlanksPropertyCopier();
+	
 	// default copier
 	public static IPropertyCopier facingPropertyCopier = new FacingPropertyCopier();
 	
@@ -45,6 +53,10 @@ public class PropertyHelper {
 		registry.register(BlockLog.class, logPropertyCopier);
 		registry.register(BlockOldLog.class, oldLogPropertyCopier);
 		registry.register(BlockVine.class, vinePropertyCopier);
+		registry.register(BlockFence.class, vinePropertyCopier);
+		registry.register(BlockFenceGate.class, fenceGatePropertyCopier);
+		registry.register(BlockWall.class, wallPropertyCopier);
+		registry.register(BlockPlanks.class, planksPropertyCopier);
 	}
 	
 	public static IBlockState copyProperties(IBlockState sourceState, IBlockState destState) {
