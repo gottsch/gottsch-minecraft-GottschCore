@@ -4,16 +4,19 @@ package com.someguyssoftware.gottschcore.block;
  * 
  * Facade Block is:
  * 1) Not a full-sized block - all sides need to be rendered.
- * 2) Has FACING property that has values in the cardinal directions only.
- * 3) Faces NORTH by default
- * 4) Faces the player on placement.
+ * 2) Faces NORTH by default
+ * 3) Faces the player on placement.
  * 5) Its bounding box touches the NORTH face. The other sides may vary.
  * @author Mark Gottschling on Jan 2, 2020
  *
  */
 public class FacadeBlock extends ModBlock {
-  // TODO add FACING property
-  // TODO add AxisAlignedBB for NESW
+  // TODO add AxisAlignedBB propeties for NESW
+  // TODO set render layer = CUTOUT, OPAQUE = false, isFullBlock = false
+  
+    public FacadeBlock(String modID, String name, Block.Properties properties) {
+      super(modID, name, properties);
+    }
   
     /**
      * 
