@@ -1,10 +1,9 @@
-package com.someguyssoftware.gottschcore.mod;
+package com.someguyssoftware.gottschcore.config;
 
 import java.nio.file.Path;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import com.someguyssoftware.gottschcore.config.IConfig;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
