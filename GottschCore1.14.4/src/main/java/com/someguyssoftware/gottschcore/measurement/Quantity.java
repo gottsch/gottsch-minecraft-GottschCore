@@ -3,18 +3,29 @@
  */
 package com.someguyssoftware.gottschcore.measurement;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * A class to hold a minimum and maximum value for a value range.
  * @author Mark Gottschling on Jul 18, 2016
  *
  */
 public class Quantity {
-	@Getter @Setter
 	private double min;
-	@Getter @Setter
+	public double getMin() {
+		return min;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
+	}
+
+	public double getMax() {
+		return max;
+	}
+
+	public void setMax(double max) {
+		this.max = max;
+	}
+
 	private double max;
 	
 	
