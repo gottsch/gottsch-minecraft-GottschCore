@@ -10,7 +10,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.someguyssoftware.gottschcore.GottschCore;
-import com.someguyssoftware.gottschcore.mod.AbstractConfig;
 import com.someguyssoftware.gottschcore.mod.IMod;
 
 import net.minecraftforge.common.ForgeConfigSpec;
