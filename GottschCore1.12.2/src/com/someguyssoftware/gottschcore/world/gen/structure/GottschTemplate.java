@@ -51,7 +51,7 @@ public class GottschTemplate extends Template {
 	private BlockPos size = BlockPos.ORIGIN;
 
 	/*
-	 * A map of block undergroundLocations of all the specials within the template.
+	 * A map of all the specials within the template.
 	 */
 	private final Multimap<Block, ICoords> map = ArrayListMultimap.create();
 
@@ -196,7 +196,12 @@ public class GottschTemplate extends Template {
 				if (processedBlockInfo != null) {
 					Block processedBlock = null;
 					processedBlock = processedBlockInfo.blockState.getBlock();
-
+					
+					// replace block with null block if it is a marker block
+					if (this.map.containsKey(processedBlock)) {
+						processedBlock = NULL_BLOCK;
+					}
+					
 					/* 
 					 * TODO instead of having this huge test, should refactor to fail fast
 					 * ex. if (processBlock == NULL_BLOCK) continue; ...
@@ -329,6 +334,11 @@ public class GottschTemplate extends Template {
 						IBlockState blockState1 = iblockstate.withRotation(placementIn.getRotation());
 
 						////////////////// GottschCore Block Replacement Code //////////////////////
+						if (this.map.containsKey(blockState1.getBlock())) {
+							// replace the marker with the null block
+							blockState1 = NULL_BLOCK.getDefaultState();
+						}
+						
 						if (replacementBlocks != null && replacementBlocks.containsKey(blockState1)) {
 							// replace the structure block with the replacement block
 							blockState1 = replacementBlocks.get(blockState1);

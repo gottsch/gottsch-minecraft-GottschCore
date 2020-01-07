@@ -85,8 +85,6 @@ task deleteOldJar(type: Delete) {
 task copyJar(type: Copy) {
 	from jar
 	into "${dest_folder}"
-	from jar
-	into "${dest_server_folder}"	
 }
 build.dependsOn copyJar
 copyJar.dependsOn deleteOldJar
