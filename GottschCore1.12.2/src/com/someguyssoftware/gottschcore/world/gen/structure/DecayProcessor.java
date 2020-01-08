@@ -128,18 +128,19 @@ public class DecayProcessor implements IDecayProcessor {
 				// TODO check if the block is a *special* block that is registered in the DecayRuleKeyRegistry
 				if (DecayRuleKeyRegistry.getInstance().has(ruleKey)) {
 					ruleKey = DecayRuleKeyRegistry.getInstance().get(ruleKey, String.valueOf(decay.getState().getBlock().getMetaFromState(decay.getState())));
-					GottschCore.logger.debug("block -> {} has a registry key -> {} in the DecayRuleKeyRegistry.", decay.getState().getBlock().getRegistryName().toString(), ruleKey);
+//					GottschCore.logger.debug("block -> {} has a registry key -> {} in the DecayRuleKeyRegistry.", decay.getState().getBlock().getRegistryName().toString(), ruleKey);
 				}
 				else {
 					// TODO set the ruleKey to equal that of the blockRegistryKey
+					ruleKey = DEFAULT_DECAY_RULE_NAME;
 				}
 				
 				decayRule = ruleSet.getDecayRules().get(ruleKey);
 //				GottschCore.logger.debug("ruleKey -> {}", ruleKey);
 				
-				if (decayRule == null) {
-					decayRule = ruleSet.getDecayRules().get(DEFAULT_DECAY_RULE_NAME);
-				}
+//				if (decayRule == null) {
+//					decayRule = ruleSet.getDecayRules().get(DEFAULT_DECAY_RULE_NAME);
+//				}
 				if (decayRule != null) {
 					int decayIndex = getDecayIndex(random, decayRule);
 					// decay the block before any other tests (because it might turn to air)
