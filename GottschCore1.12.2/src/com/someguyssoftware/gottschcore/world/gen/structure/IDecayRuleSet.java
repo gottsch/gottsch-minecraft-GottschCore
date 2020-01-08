@@ -30,4 +30,8 @@ public interface IDecayRuleSet {
 
 	void setDecayRules(Map<String, DecayRule> decayRules);
 
+	String getName();
+
+	void setName(String name);
+
 }

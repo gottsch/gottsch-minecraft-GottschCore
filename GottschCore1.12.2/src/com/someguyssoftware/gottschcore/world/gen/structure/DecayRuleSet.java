@@ -13,6 +13,7 @@ import com.someguyssoftware.gottschcore.measurement.Quantity;
  *
  */
 public class DecayRuleSet implements IDecayRuleSet {
+	private String name;
 	private  Quantity verticalDecayRate;
 	private double initialBlockStrength;
 	private double blockStrengthThreshold;
@@ -88,10 +89,20 @@ public class DecayRuleSet implements IDecayRuleSet {
 
 	@Override
 	public String toString() {
-		return "DecayRuleSet [verticalDecayRate=" + verticalDecayRate + ", initialBlockStrength=" + initialBlockStrength
-				+ ", blockStrengthThreshold=" + blockStrengthThreshold + ", blockStrengthDecayRate="
-				+ blockStrengthDecayRate + ", blockStrengthDistanceDecayRate=" + blockStrengthDistanceDecayRate
-				+ ", decayRules=" + decayRules + "]";
+		return "DecayRuleSet [name=" + name + ", verticalDecayRate=" + verticalDecayRate + ", initialBlockStrength="
+				+ initialBlockStrength + ", blockStrengthThreshold=" + blockStrengthThreshold
+				+ ", blockStrengthDecayRate=" + blockStrengthDecayRate + ", blockStrengthDistanceDecayRate="
+				+ blockStrengthDistanceDecayRate + ", decayRules=" + decayRules + "]";
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 }
