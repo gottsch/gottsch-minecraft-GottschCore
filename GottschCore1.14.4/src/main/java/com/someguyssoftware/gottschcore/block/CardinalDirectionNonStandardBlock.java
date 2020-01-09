@@ -7,7 +7,7 @@ import net.minecraft.block.Block;
  * 1) contains a VoxelShape for each of the cardinal directions (NESW).
  * 2) contains state property (FACING) for the the cardinal direction the block is facing
  */
-public class CardinalDirectionNonStandardBlock extends NonStandardBlock {
+public class CardinalDirectionNonStandardBlock extends NonStandardBlock implements ICardinalDirectionBlock {
 
 	public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 
@@ -45,4 +45,11 @@ public class CardinalDirectionNonStandardBlock extends NonStandardBlock {
     this.SHAPE_WEST = shapes[3];
    }
     
+	public DirectionProperty getFacingProperty() {
+		return FACING;	
+	}
+	
+	public Direction getFacingEnum() {
+		return (Direction)FACING;
+	}
 }
