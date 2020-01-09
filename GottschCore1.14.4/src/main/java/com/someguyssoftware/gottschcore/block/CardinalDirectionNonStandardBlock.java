@@ -6,18 +6,19 @@ import net.minecraft.block.Block;
  * A NonStandardBlock with the additional properties:
  * 1) contains a VoxelShape for each of the cardinal directions (NESW).
  * 2) contains state property (FACING) for the the cardinal direction the block is facing
-public class CardinalDirectionNonStandardBlock extends ModBlock {
+ */
+public class CardinalDirectionNonStandardBlock extends NonStandardBlock {
 
-  public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
+	public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 
 	protected VoxelShape SHAPE_NORTH = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-  protected VoxelShape SHAPE_EAST = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-  protected VoxelShape SHAPE_SOUTH = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-  protected VoxelShape SHAPE_WEST = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+	protected VoxelShape SHAPE_EAST = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+	protected VoxelShape SHAPE_SOUTH = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+	protected VoxelShape SHAPE_WEST = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
  
 	public CardinalDirectionNonStandardBlock(String modID, String name, Block.Properties properties) {
-      super(modID, name, properties);
-    }
+		super(modID, name, properties);
+	}
     
    /**
     * 
