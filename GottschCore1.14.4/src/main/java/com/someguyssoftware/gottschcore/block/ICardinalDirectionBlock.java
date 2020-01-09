@@ -1,12 +1,12 @@
 
 // TODO should there be a lower-level interface for all directional blocks? because whether it is horizontal only or not
-// it is still a PropertyDirection value.
+// it is still a DirectionProperty value.
 public interface ICardinalDirectionBlock {
 
   /**
-   * get the PropertyDirection
+   * get the DirectionProperty
    */
-  public PropertyDirection getFacingProperty();
+  public DirectionProperty getFacingProperty();
   
   public EnumFacing getFacingEnum();
 }
