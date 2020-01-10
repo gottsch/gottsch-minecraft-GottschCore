@@ -1,6 +1,6 @@
 package com.someguyssoftware.gottschcore.block;
 
-public interface INonStandardBlock {
+public interface INonStandardBlock extends IGottschCoreBlock {
 
   public VoxelShape getShape();
   
