@@ -36,7 +36,7 @@ public class AbstractResourceManager implements IResourceManager {
 	
 	/*
 	 * the base folder name on the file system where resources should be located. 
-	 * this location is after the /mod/<modID>/ path 
+	 * this location is after the /<configPath>/<modID>/ path 
 	 */
 	private String baseResourceFolder;
 	

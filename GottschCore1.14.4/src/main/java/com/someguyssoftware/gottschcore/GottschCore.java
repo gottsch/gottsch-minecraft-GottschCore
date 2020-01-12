@@ -25,8 +25,8 @@ import net.minecraftforge.fml.loading.FMLPaths;
 @Mod(value=GottschCore.MODID)
 @ModInfo(
 		modid=GottschCore.MODID,
-		name="GottschCore",
-		version="1.9.0",
+		name=GottschCore.NAME,
+		version=GottschCore.VERSION,
 		minecraftVersion="1.14.4",
 		forgeVersion="28.1.0",
 		updateJsonUrl="https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json")
@@ -37,8 +37,8 @@ public class GottschCore implements IMod {
 
 	// constants
 	public static final String MODID = "gottschcore";
-	//	protected static final String NAME = "GottschCore";
-	//	protected static final String VERSION = "1.9.0";
+	protected static final String NAME = "GottschCore";
+	protected static final String VERSION = "1.9.0";
 	//	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
 	// the version of Minecraft that this mod is developed for
