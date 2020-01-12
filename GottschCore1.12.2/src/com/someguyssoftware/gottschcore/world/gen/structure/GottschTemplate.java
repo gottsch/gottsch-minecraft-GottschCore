@@ -3,6 +3,7 @@ package com.someguyssoftware.gottschcore.world.gen.structure;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -696,6 +697,18 @@ public class GottschTemplate extends Template {
 	}
 
 	/**
+	 * @return the map
+	 */
+	@Deprecated
+	public Multimap<Block, ICoords> getMap() {
+		Multimap<Block, ICoords> map = ArrayListMultimap.create();
+		for (Entry<Block, StructureMarkerContext> e : getMarkerMap().entries()) {
+			map.put(e.getKey(), e.getValue().getCoords());
+		}
+		return map;
+	}
+	
+	/**
 	 * @param size the size to set
 	 */
 	public void setSize(BlockPos size) {
@@ -718,6 +731,30 @@ public class GottschTemplate extends Template {
 		return coords;
 	}
 
+	/**
+	 * 
+	 * @param findBlock
+	 * @return
+	 */
+	@Deprecated
+	public List<ICoords> findCoords(Block findBlock) {
+//		List<ICoords> list = (List<ICoords>) getMap().get(findBlock);
+		List<StructureMarkerContext> contextList = (List<StructureMarkerContext>) getMarkerMap().get(findBlock);
+		List<ICoords> list = contextList.stream().map(e -> e.getCoords()).collect(Collectors.toList());
+		return list;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	public List<ICoords> getMapCoords() {
+//		List<ICoords> coords = getMap().values().stream().collect(Collectors.toList());
+		List<ICoords> coords = getMarkerMap().entries().stream().map(e -> e.getValue().getCoords()).collect(Collectors.toList());
+		return coords;
+	}
+	
 	public Multimap<Block, StructureMarkerContext> getMarkerMap() {
 		return markerMap;
 	}
