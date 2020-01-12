@@ -3,6 +3,7 @@
  */
 package com.someguyssoftware.gottschcore.world;
 
+import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.cube.Cube;
 import com.someguyssoftware.gottschcore.positional.Coords;
 import com.someguyssoftware.gottschcore.positional.ICoords;
@@ -460,9 +461,8 @@ public class WorldInfo {
 			for (int x = 0; x < width; x++) {
 				// get the cube
 				Cube cube = new Cube(world, coords.add(x, 0, z));
-				
-				if (cube.hasState() || cube.equalsMaterial(Material.AIR) || cube.isReplaceable()) {
-					airBlocks++;		
+				if (cube.hasState() && (cube.equalsMaterial(Material.AIR) || cube.isReplaceable())) {
+					airBlocks++;
 				}
 			}
 		}		
@@ -482,7 +482,6 @@ public class WorldInfo {
 	 */
 	public static boolean isAirBase(final World world, final ICoords coords, final int width, final int depth, double percentRequired) {
 		double percent = getAirBasePercent(world, coords.down(1), width, depth);
-		
 		if (percent < percentRequired) {
 			return false;
 		}		
