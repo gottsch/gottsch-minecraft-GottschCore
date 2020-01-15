@@ -1,8 +1,15 @@
 package com.someguyssoftware.gottschcore.block;
 
-public interface IRelativeDirectionalBlock extends IDirectionalBlock {
+import net.minecraft.state.DirectionProperty;
 
-  public PropertyEnum getBase();
-  public void setBase(PropertyEnum base);
+/**
+ * 
+ * @author Mark Gottschling on Jan 11, 2020
+ *
+ */
+public interface IRelativeDirectionalBlock extends IFacingBlock {
+
+  public DirectionProperty getBase();
+  public void setBase(DirectionProperty base);
   
 }

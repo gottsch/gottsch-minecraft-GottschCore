@@ -1,8 +1,13 @@
 package com.someguyssoftware.gottschcore.block;
 
-public interface INonStandardBlock extends IGottschCoreBlock {
+import net.minecraft.util.math.shapes.VoxelShape;
 
-  public VoxelShape getShape();
+/**
+ * 
+ * @author Mark Gottschling on Jan 11, 2020
+ *
+ */
+public interface INonStandardBlock extends IGottschCoreBlock {
   
   public void setShape(VoxelShape shape);
 }

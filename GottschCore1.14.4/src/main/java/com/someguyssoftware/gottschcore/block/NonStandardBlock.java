@@ -15,7 +15,7 @@ import net.minecraft.world.IBlockReader;
  * @author Mark Gottschling on Jan 2, 2020
  *
  */
-public class NonStandardBlock extends ModBlock {
+public class NonStandardBlock extends ModBlock implements INonStandardBlock {
 
 	protected VoxelShape SHAPE_DEFAULT = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
  
@@ -26,16 +26,18 @@ public class NonStandardBlock extends ModBlock {
     /**
      * Gets whether the provided {@link VoxelShape} is opaque
      */
-    public static boolean isOpaque(VoxelShape shape) {
-       return false;
-    }
+//    public static boolean isOpaque(VoxelShape shape) {
+//       return false;
+//    }
     
     /**
      * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
      * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
      */
+    @Override
     public BlockRenderLayer getRenderLayer() {
-       return BlockRenderLayer.CUTOUT;
+//       return BlockRenderLayer.CUTOUT;
+    	return BlockRenderLayer.SOLID;
     }
 	
 	@Override
@@ -50,6 +52,7 @@ public class NonStandardBlock extends ModBlock {
      * @param s
      * @param w
      */
+	@Override
     public void setShape(VoxelShape shape) {
     	this.SHAPE_DEFAULT = shape;
     }
