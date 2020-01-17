@@ -17,7 +17,7 @@ import net.minecraft.util.Rotation;
  * @author Mark Gottschling on Jan 15, 2020
  *
  */
-public abstract class FacingBlock extends ModBlock implements IBasedBlock {
+public abstract class BasedBlock extends ModBlock implements IBasedBlock {
 	
 	/**
 	 * 
@@ -25,7 +25,7 @@ public abstract class FacingBlock extends ModBlock implements IBasedBlock {
 	 * @param name
 	 * @param materialIn
 	 */
-	public FacingBlock(String modID, String name, Block.Properties properties) {
+	public BasedBlock(String modID, String name, Block.Properties properties) {
 		super(modID, name, properties);
 		this.setDefaultState(this.stateContainer.getBaseState().with(BASE, Direction.NORTH));
 	}
@@ -44,7 +44,7 @@ public abstract class FacingBlock extends ModBlock implements IBasedBlock {
 	 */
     @Nullable
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-    	return this.getDefaultState().with(FACING, context.getPlayer().getFacing());
+    	return this.getDefaultState().with(BASE, context.getFace());
     }
     
 	/**
@@ -55,7 +55,7 @@ public abstract class FacingBlock extends ModBlock implements IBasedBlock {
 	 */
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation) {
-		return state.with(BASE, rotation.rotate(getFacing(state)));
+		return state.with(BASE, rotation.rotate(getBase(state)));
 	}
 	
 	/**
