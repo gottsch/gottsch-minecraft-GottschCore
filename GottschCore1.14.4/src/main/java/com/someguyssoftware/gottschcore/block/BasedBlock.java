@@ -17,7 +17,7 @@ import net.minecraft.util.Rotation;
  * @author Mark Gottschling on Jan 15, 2020
  *
  */
-public abstract class BasedBlock extends ModBlock implements IBasedBlock {
+public class BasedBlock extends ModBlock implements IBasedBlock {
 	
 	/**
 	 * 

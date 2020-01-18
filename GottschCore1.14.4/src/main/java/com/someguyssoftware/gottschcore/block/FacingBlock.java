@@ -17,7 +17,7 @@ import net.minecraft.util.Rotation;
  * @author Mark Gottschling on Jan 14, 2020
  *
  */
-public abstract class FacingBlock extends ModBlock implements IFacingBlock {
+public class FacingBlock extends ModBlock implements IFacingBlock {
 	
 	/**
 	 * 
