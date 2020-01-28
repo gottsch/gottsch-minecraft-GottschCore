@@ -26,6 +26,7 @@ import com.someguyssoftware.gottschcore.property.PropertyHelper;
 import com.someguyssoftware.gottschcore.random.RandomHelper;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
@@ -53,6 +54,12 @@ public class DecayProcessor implements IDecayProcessor {
 	/** the decay rule set */
 	private IDecayRuleSet ruleSet;
 	private IMod mod;
+	
+	private boolean backFill = true;
+	private IBlockState backFillBlockLayer1 = Blocks.DIRT.getDefaultState();
+	private IBlockState backFillBlockLayer2 = Blocks.STONE.getDefaultState();
+	
+	private int decayStartY = 0;
 
 	// TODO need to know what the null block is
 	public DecayProcessor(IMod mod, IDecayRuleSet ruleSet) {
@@ -108,9 +115,24 @@ public class DecayProcessor implements IDecayProcessor {
 				continue;
 			}
 
-			// get the "support" blockstate
+			
 			IBlockState supportState = null;
 			if (y == 0) {
+				// determine if back filling needs to occur
+				if (isBackFill()) {
+					ICoords fillCoords = decay.getCoords().down(1);
+					IBlockState fillState = world.getBlockState(fillCoords.toPos());
+					int depth = 1;
+					while (!fillState.getMaterial().isSolid()) {
+						// fill the space with a block
+						world.setBlockState(fillCoords.toPos(), (depth > 3) ? Blocks.STONE.getDefaultState() : Blocks.DIRT.getDefaultState());
+						// move down
+						fillCoords = fillCoords.down(1);
+						fillState = world.getBlockState(fillCoords.toPos());
+						depth++;
+					}
+				}
+				// get the "support" blockstate
 				supportState = world.getBlockState(decay.getCoords().toPos().down());
 			}
 			else {
@@ -194,6 +216,7 @@ public class DecayProcessor implements IDecayProcessor {
 
 		// pass 2
 		double threshold = getRuleSet().getBlockStrengthThreshold();
+		double yStrength = initialStrength;
 		DecayBlockInfo decay = null;
 		for (int y = 0; y < layout.length; y++) { // bottom up
 			for (int z = layout[y].length-1; z >=0; z--) { // backwards z
@@ -210,15 +233,18 @@ public class DecayProcessor implements IDecayProcessor {
 					}
 
 					// update the strength with vertical decay
-					double yStrength = initialStrength - (y * 
-							RandomHelper.randomDouble(random, 
-									getRuleSet().getVerticalDecayRate().getMin(), 
-									getRuleSet().getVerticalDecayRate().getMax()));
-					if (y > 0) {
-						yStrength = Math.min(yStrength, decayBlockInfoList.get(layout[y-1][z][x]).getStrength());
+					if (y >= getDecayStartY()) {
+						yStrength = initialStrength - (y * 
+								RandomHelper.randomDouble(random, 
+										getRuleSet().getVerticalDecayRate().getMin(), 
+										getRuleSet().getVerticalDecayRate().getMax()));
+						
+						if (y > 0) {
+							yStrength = Math.min(yStrength, decayBlockInfoList.get(layout[y-1][z][x]).getStrength());
+						}
+						decay.setStrength(yStrength);
 					}
-					decay.setStrength(yStrength);
-
+					
 					// perform tests
 					if (decay.isWall()) {
 						decay.setDistance(0);
@@ -567,5 +593,45 @@ public class DecayProcessor implements IDecayProcessor {
 
 	public void setRuleSet(IDecayRuleSet ruleSet) {
 		this.ruleSet = ruleSet;
+	}
+
+	@Override
+	public boolean isBackFill() {
+		return backFill;
+	}
+
+	@Override
+	public void setBackFill(boolean backFill) {
+		this.backFill = backFill;
+	}
+
+	@Override
+	public IBlockState getBackFillBlockLayer1() {
+		return backFillBlockLayer1;
+	}
+
+	@Override
+	public void setBackFillBlockLayer1(IBlockState backFillBlockLayer1) {
+		this.backFillBlockLayer1 = backFillBlockLayer1;
+	}
+
+	@Override
+	public IBlockState getBackFillBlockLayer2() {
+		return backFillBlockLayer2;
+	}
+
+	@Override
+	public void setBackFillBlockLayer2(IBlockState backFillBlockLayer2) {
+		this.backFillBlockLayer2 = backFillBlockLayer2;
+	}
+
+	@Override
+	public int getDecayStartY() {
+		return decayStartY;
+	}
+
+	@Override
+	public void setDecayStartY(int decayStartY) {
+		this.decayStartY = decayStartY;
 	}
 }
