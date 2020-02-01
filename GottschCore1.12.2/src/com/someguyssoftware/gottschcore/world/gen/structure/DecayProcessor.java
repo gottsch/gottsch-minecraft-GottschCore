@@ -82,15 +82,12 @@ public class DecayProcessor implements IDecayProcessor {
 
 		Collections.sort(decayBlockInfoList, compareByCoords);
 
-//		GottschCore.logger.debug("size of list -> {}; should be -> {}", decayBlockInfoList.size(), (size.getY()*size.getZ()*size.getX()));
 		// intialize the array with the size of the template
 		layout = new int[size.getY()][size.getZ()][ size.getX()];
 
 		// determine the offsets
 		ICoords offsetCoords = decayBlockInfoList.get(0).getCoords();
 
-//		GottschCore.logger.debug("size of decay matrix -> y{} z{} x{}", size.getY(), size.getZ(), size.getX());
-//		GottschCore.logger.debug("using offset to sort decay blocks -> {}", offsetCoords.toShortString());
 		// set the initial strength
 		double initialStrength = getRuleSet().getInitialBlockStrength();
 
@@ -147,22 +144,17 @@ public class DecayProcessor implements IDecayProcessor {
 			if (decay.getState().getBlock() != Blocks.AIR) {
 				ruleKey = decay.getState().getBlock().getRegistryName().toString();
 				
-				// TODO check if the block is a *special* block that is registered in the DecayRuleKeyRegistry
+				// check if the block is a *special* block that is registered in the DecayRuleKeyRegistry
 				if (DecayRuleKeyRegistry.getInstance().has(ruleKey)) {
 					ruleKey = DecayRuleKeyRegistry.getInstance().get(ruleKey, String.valueOf(decay.getState().getBlock().getMetaFromState(decay.getState())));
 //					GottschCore.logger.debug("block -> {} has a registry key -> {} in the DecayRuleKeyRegistry.", decay.getState().getBlock().getRegistryName().toString(), ruleKey);
 				}
-				else {
-					// TODO set the ruleKey to equal that of the blockRegistryKey
-					ruleKey = DEFAULT_DECAY_RULE_NAME;
-				}
-				
+//				GottschCore.logger.debug("ruleKey -> {}", ruleKey);	
 				decayRule = ruleSet.getDecayRules().get(ruleKey);
-//				GottschCore.logger.debug("ruleKey -> {}", ruleKey);
-				
-//				if (decayRule == null) {
-//					decayRule = ruleSet.getDecayRules().get(DEFAULT_DECAY_RULE_NAME);
-//				}
+				if (decayRule == null) {
+					decayRule = ruleSet.getDecayRules().get(DEFAULT_DECAY_RULE_NAME);
+				}
+
 				if (decayRule != null) {
 					int decayIndex = getDecayIndex(random, decayRule);
 					// decay the block before any other tests (because it might turn to air)
@@ -234,7 +226,7 @@ public class DecayProcessor implements IDecayProcessor {
 
 					// update the strength with vertical decay
 					if (y >= getDecayStartY()) {
-						yStrength = initialStrength - (y * 
+						yStrength = initialStrength - ((y - getDecayStartY()) * 
 								RandomHelper.randomDouble(random, 
 										getRuleSet().getVerticalDecayRate().getMin(), 
 										getRuleSet().getVerticalDecayRate().getMax()));
