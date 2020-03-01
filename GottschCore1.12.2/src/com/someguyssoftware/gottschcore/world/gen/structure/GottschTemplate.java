@@ -1,5 +1,6 @@
 package com.someguyssoftware.gottschcore.world.gen.structure;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import com.someguyssoftware.gottschcore.positional.Coords;
 import com.someguyssoftware.gottschcore.positional.ICoords;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockLever;
+import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -45,17 +49,28 @@ import net.minecraft.world.gen.structure.template.Template;
 
 public class GottschTemplate extends Template {
 	/** blocks in the structure */
-	private final List<GottschTemplate.BlockInfo> blocks = Lists.<GottschTemplate.BlockInfo>newArrayList();
+	private final List<GottschTemplate.BlockInfo> blocks = Lists.newArrayList();
 	/** entities in the structure */
-	private final List<GottschTemplate.EntityInfo> entities = Lists.<GottschTemplate.EntityInfo>newArrayList();
+	private final List<GottschTemplate.EntityInfo> entities = Lists.newArrayList();
 	/** size of the structure */
 	private BlockPos size = BlockPos.ORIGIN;
 
 	/*
 	 * A map of all the specials within the template.
 	 */
-	private final Multimap<Block, StructureMarkerContext> markerMap = ArrayListMultimap.create();
+	private final Multimap<Block, BlockContext> markerMap = ArrayListMultimap.create();
 
+	/*
+	 * A list of block classes to check for post processing
+	 */
+	public static final List<String> postProcessBlockCandidates = Lists.newArrayList();
+	
+	static {
+		postProcessBlockCandidates.add(BlockDoor.class.getSimpleName());
+		postProcessBlockCandidates.add(BlockTorch.class.getSimpleName());
+		postProcessBlockCandidates.add(BlockLever.class.getSimpleName());
+	}
+	
 	@Override
 	public BlockPos getSize() {
 		return this.size;
@@ -183,16 +198,18 @@ public class GottschTemplate extends Template {
 			final Block NULL_BLOCK, 
 			Map<IBlockState, IBlockState> replacementBlocks,
 			int flags) {
+		
 		if ((!this.blocks.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
 			Block replacedBlock = placementIn.getReplacedBlock();
 			StructureBoundingBox structureboundingbox = placementIn.getBoundingBox();
-
+			List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
+			
 			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
-				BlockPos blockpos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
+				BlockPos blockPos = transformedBlockPos(placementIn, blockInfo.pos).add(pos);
 				// Forge: skip processing blocks outside BB to prevent cascading worldgen issues
-				if (structureboundingbox != null && !structureboundingbox.isVecInside(blockpos))
+				if (structureboundingbox != null && !structureboundingbox.isVecInside(blockPos))
 					continue;
-				GottschTemplate.BlockInfo processedBlockInfo = templateProcessor != null ? templateProcessor.processBlock(worldIn, blockpos, blockInfo) : blockInfo;
+				GottschTemplate.BlockInfo processedBlockInfo = templateProcessor != null ? templateProcessor.processBlock(worldIn, blockPos, blockInfo) : blockInfo;
 
 				if (processedBlockInfo != null) {
 					Block processedBlock = null;
@@ -208,54 +225,56 @@ public class GottschTemplate extends Template {
 					 * ex. if (processBlock == NULL_BLOCK) continue; ...
 					 */
 					if ((replacedBlock == null || replacedBlock != processedBlock) && (!placementIn.getIgnoreStructureBlock() || processedBlock != Blocks.STRUCTURE_BLOCK)
-							&& (structureboundingbox == null || structureboundingbox.isVecInside(blockpos))
+							&& (structureboundingbox == null || structureboundingbox.isVecInside(blockPos))
 							&& processedBlock != NULL_BLOCK
 							) {
 						IBlockState iblockstate = processedBlockInfo.blockState.withMirror(placementIn.getMirror());
-						IBlockState iblockstate1 = iblockstate.withRotation(placementIn.getRotation());
+						IBlockState blockState1 = iblockstate.withRotation(placementIn.getRotation());
 
 						////////////////// GottschCore Block Replacement Code //////////////////////
-						if (replacementBlocks != null && replacementBlocks.containsKey(iblockstate1)) {
+						if (replacementBlocks != null && replacementBlocks.containsKey(blockState1)) {
 							// replace the structure block with the replacement block
-							iblockstate1 = replacementBlocks.get(iblockstate1);
+							blockState1 = replacementBlocks.get(blockState1);
 						}
 						//////////////////////////////////////////////////////////////////////
 
 						if (processedBlockInfo.tileentityData != null) {
-							TileEntity tileentity = worldIn.getTileEntity(blockpos);
+							TileEntity tileentity = worldIn.getTileEntity(blockPos);
 
 							if (tileentity != null) {
 								if (tileentity instanceof IInventory) {
 									((IInventory) tileentity).clear();
 								}
-								worldIn.setBlockState(blockpos, Blocks.BARRIER.getDefaultState(), 4);
+								worldIn.setBlockState(blockPos, Blocks.BARRIER.getDefaultState(), 4);
 							}
 						}
 
-						if (worldIn.setBlockState(blockpos, iblockstate1, flags) && processedBlockInfo.tileentityData != null) {
-							TileEntity tileentity2 = worldIn.getTileEntity(blockpos);
-
-							if (tileentity2 != null) {
-								processedBlockInfo.tileentityData.setInteger("x", blockpos.getX());
-								processedBlockInfo.tileentityData.setInteger("y", blockpos.getY());
-								processedBlockInfo.tileentityData.setInteger("z", blockpos.getZ());
-								tileentity2.readFromNBT(processedBlockInfo.tileentityData);
-								tileentity2.mirror(placementIn.getMirror());
-								tileentity2.rotate(placementIn.getRotation());
-							}
+						BlockInfoContext blockInfoContext = new BlockInfoContext(processedBlockInfo, new Coords(blockPos), blockState1);
+						// check if the block is a post processing candidate
+						if (postProcessBlockCandidates.contains(blockState1.getBlock().getClass().getSimpleName())) {
+							// add the block info to the list
+							blockInfoContexts.add(blockInfoContext);
+						}
+						else {
+							addBlockToWorld(worldIn, blockInfoContext, placementIn, flags);
 						}
 					}
 				}
 			}
 
-			for (GottschTemplate.BlockInfo template$blockinfo2 : this.blocks) {
-				if (replacedBlock == null || replacedBlock != template$blockinfo2.blockState.getBlock()) {
-					BlockPos blockpos1 = transformedBlockPos(placementIn, template$blockinfo2.pos).add(pos);
+			// run through all the post process blocks
+			for (BlockInfoContext blockInfoContext : blockInfoContexts) {
+				addBlockToWorld(worldIn, blockInfoContext, placementIn, flags);
+			}
+			
+			for (GottschTemplate.BlockInfo blockInfo2 : this.blocks) {
+				if (replacedBlock == null || replacedBlock != blockInfo2.blockState.getBlock()) {
+					BlockPos blockpos1 = transformedBlockPos(placementIn, blockInfo2.pos).add(pos);
 
 					if (structureboundingbox == null || structureboundingbox.isVecInside(blockpos1)) {
-						worldIn.notifyNeighborsRespectDebug(blockpos1, template$blockinfo2.blockState.getBlock(), false);
+						worldIn.notifyNeighborsRespectDebug(blockpos1, blockInfo2.blockState.getBlock(), false);
 
-						if (template$blockinfo2.tileentityData != null) {
+						if (blockInfo2.tileentityData != null) {
 							TileEntity tileentity1 = worldIn.getTileEntity(blockpos1);
 
 							if (tileentity1 != null) {
@@ -298,6 +317,8 @@ public class GottschTemplate extends Template {
 
 		if ((!this.blocks.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
 			Block replacedBlock = placementIn.getReplacedBlock();
+			List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
+			
 			StructureBoundingBox structureBoundingBox = placementIn.getBoundingBox();
 
 			for (GottschTemplate.BlockInfo blockInfo : this.blocks) {
@@ -311,25 +332,9 @@ public class GottschTemplate extends Template {
 					Block processedBlock = null;
 					processedBlock = processedBlockInfo.blockState.getBlock();
 
-					// NOTE removed - have to process the null so that the decayprocess has a full matrix
-					//					if (processedBlock == NULL_BLOCK) {
-					////						continue;
-					////						// TODO add to layout
-					////						// see below
-					//						GottschCore.logger.debug("null block SHOULD be added for pos -> {}", processedBlockInfo.pos);
-					//					}
-
 					if ((replacedBlock == null || replacedBlock != processedBlock) && (!placementIn.getIgnoreStructureBlock() || processedBlock != Blocks.STRUCTURE_BLOCK)
 							&& (structureBoundingBox == null || structureBoundingBox.isVecInside(blockPos))
 							) {
-
-						// check for null block
-						// if null block, grab blockstate from the world and to a new processedBlockInfo and add to decayProcessor
-						//						if (processedBlock == NULL_BLOCK) {
-						////							GottschCore.logger.debug("null block INSIDE IF to be added for pos -> {}", blockPos);
-						//							IBlockState worldState = worldIn.getBlockState(blockPos);
-						//							processedBlockInfo = new BlockInfo(processedBlockInfo.pos, worldState, processedBlockInfo.tileentityData);
-						//						}
 
 						IBlockState iblockstate = processedBlockInfo.blockState.withMirror(placementIn.getMirror());
 						IBlockState blockState1 = iblockstate.withRotation(placementIn.getRotation());
@@ -372,18 +377,19 @@ public class GottschTemplate extends Template {
 					}
 				}
 
-				if (worldIn.setBlockState(decayPos, decay.getState(), flags) && processed.tileentityData != null) {
-					TileEntity tileentity2 = worldIn.getTileEntity(decayPos);
-
-					if (tileentity2 != null) {
-						processed.tileentityData.setInteger("x", decayPos.getX());
-						processed.tileentityData.setInteger("y", decayPos.getY());
-						processed.tileentityData.setInteger("z", decayPos.getZ());
-						tileentity2.readFromNBT(processed.tileentityData);
-						tileentity2.mirror(placementIn.getMirror());
-						tileentity2.rotate(placementIn.getRotation());
-					}
+				// check if the block is a post processing candidate
+				if (postProcessBlockCandidates.contains(decay.getState().getBlock().getClass().getSimpleName())) {
+					// add the block info to the list
+					blockInfoContexts.add(decay);
 				}
+				else {
+					addBlockToWorld(worldIn, decay, placementIn, flags);
+				}
+			}
+
+			// run through all the post process blocks
+			for (BlockInfoContext blockInfoContext : blockInfoContexts) {
+				addBlockToWorld(worldIn, blockInfoContext, placementIn, flags);
 			}
 
 			for (DecayBlockInfo decay : decayBlockInfoList) {
@@ -409,6 +415,31 @@ public class GottschTemplate extends Template {
 
 			if (!placementIn.getIgnoreEntities()) {
 				this.addEntitiesToWorld(worldIn, pos, placementIn.getMirror(), placementIn.getRotation(), structureBoundingBox);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param world
+	 * @param blockInfoContext
+	 * @param placement
+	 * @param flags
+	 */
+	private void addBlockToWorld(World world, BlockInfoContext blockInfoContext, PlacementSettings placement, int flags) {
+		BlockInfo blockInfo = blockInfoContext.getBlockInfo();
+		BlockPos blockPos = blockInfoContext.getCoords().toPos();
+		
+		if (world.setBlockState(blockPos, blockInfoContext.getState(), flags) && blockInfo.tileentityData != null) {
+			TileEntity tileEntity = world.getTileEntity(blockPos);
+
+			if (tileEntity != null) {
+				blockInfo.tileentityData.setInteger("x", blockPos.getX());
+				blockInfo.tileentityData.setInteger("y", blockPos.getY());
+				blockInfo.tileentityData.setInteger("z", blockPos.getZ());
+				tileEntity.readFromNBT(blockInfo.tileentityData);
+				tileEntity.mirror(placement.getMirror());
+				tileEntity.rotate(placement.getRotation());
 			}
 		}
 	}
@@ -597,22 +628,12 @@ public class GottschTemplate extends Template {
 			IBlockState blockState = template$basicpalette.stateFor(nbttagcompound.getInteger("state"));
 			NBTTagCompound nbttagcompound1 = null;
 
-			// TODO - need two maps, pre/onRead and post/onWrite so that things like chests and spawner and can be inserted
-			// and picked up by the marker scan, and post so that they are replaced on adding to the world like air, which which won't be flagged as a null block.
-			// add a scan/replace for replaceBlocks ie null block, substitutes (air for null, wool for air, etc). skip the nbts if replaced.
-			//			if (replacementBlocks.containsKey(blockState)) {
-			//				// replace the structure block with the replacement block
-			//				blockState = replacementBlocks.get(blockState);
-			//			}			
-
-			//			else { //
 			if (nbttagcompound.hasKey("nbt")) {
 				nbttagcompound1 = nbttagcompound.getCompoundTag("nbt");
 			}
 			else {
 				nbttagcompound1 = null;
 			}
-			//			} //
 
 			this.blocks.add(new GottschTemplate.BlockInfo(blockPos, blockState, nbttagcompound1));
 
@@ -621,7 +642,7 @@ public class GottschTemplate extends Template {
 			if (block != Blocks.AIR && markerBlocks.contains(block)) {
 				// add pos to map
 				GottschCore.logger.debug("template map adding block -> {} with pos -> {}", block.getRegistryName(), blockPos);
-				markerMap.put(block, new StructureMarkerContext(new Coords(blockPos), blockState));
+				markerMap.put(block, new BlockContext(new Coords(blockPos), blockState));
 			}
 		}
 
@@ -702,7 +723,7 @@ public class GottschTemplate extends Template {
 	@Deprecated
 	public Multimap<Block, ICoords> getMap() {
 		Multimap<Block, ICoords> map = ArrayListMultimap.create();
-		for (Entry<Block, StructureMarkerContext> e : getMarkerMap().entries()) {
+		for (Entry<Block, BlockContext> e : getMarkerMap().entries()) {
 			map.put(e.getKey(), e.getValue().getCoords());
 		}
 		return map;
@@ -723,7 +744,7 @@ public class GottschTemplate extends Template {
 	 */
 	public ICoords findCoords(Random random, Block findBlock) {
 		ICoords coords = null; // TODO should this be an empty object or Coords.EMPTY_COORDS
-		List<StructureMarkerContext> contextList = (List<StructureMarkerContext>) getMarkerMap().get(findBlock);
+		List<BlockContext> contextList = (List<BlockContext>) getMarkerMap().get(findBlock);
 		List<ICoords> list = contextList.stream().map(c -> c.getCoords()).collect(Collectors.toList());
 		if (list.isEmpty()) return new Coords(0, 0, 0);
 		if (list.size() == 1) coords = list.get(0);
@@ -739,7 +760,7 @@ public class GottschTemplate extends Template {
 	@Deprecated
 	public List<ICoords> findCoords(Block findBlock) {
 //		List<ICoords> list = (List<ICoords>) getMap().get(findBlock);
-		List<StructureMarkerContext> contextList = (List<StructureMarkerContext>) getMarkerMap().get(findBlock);
+		List<BlockContext> contextList = (List<BlockContext>) getMarkerMap().get(findBlock);
 		List<ICoords> list = contextList.stream().map(e -> e.getCoords()).collect(Collectors.toList());
 		return list;
 	}
@@ -755,7 +776,7 @@ public class GottschTemplate extends Template {
 		return coords;
 	}
 	
-	public Multimap<Block, StructureMarkerContext> getMarkerMap() {
+	public Multimap<Block, BlockContext> getMarkerMap() {
 		return markerMap;
 	}
 }
