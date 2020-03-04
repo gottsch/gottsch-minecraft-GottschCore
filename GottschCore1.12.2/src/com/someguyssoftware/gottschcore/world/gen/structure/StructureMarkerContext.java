@@ -4,32 +4,20 @@ import com.someguyssoftware.gottschcore.positional.ICoords;
 
 import net.minecraft.block.state.IBlockState;
 
-public class StructureMarkerContext {
-	private ICoords coords;
-	private IBlockState state;
-	
-	public StructureMarkerContext() {}
+/**
+ * Kept for legacy compatibility purposes.
+ * 
+ * @author Mark Gottschling on Mar 2, 2020
+ *
+ */
+@Deprecated
+public class StructureMarkerContext extends BlockContext {
+
+	public StructureMarkerContext() {
+		super();
+	}
 
 	public StructureMarkerContext(ICoords coords, IBlockState state) {
-		super();
-		this.coords = coords;
-		this.state = state;
+		super(coords, state);
 	}
-
-	public ICoords getCoords() {
-		return coords;
-	}
-
-	public void setCoords(ICoords coords) {
-		this.coords = coords;
-	}
-
-	public IBlockState getState() {
-		return state;
-	}
-
-	public void setState(IBlockState state) {
-		this.state = state;
-	}
-	
 }

@@ -36,6 +36,16 @@ public class Cube {
 	
 	/**
 	 * 
+	 * @param coords
+	 * @param state
+	 */
+	public Cube(ICoords coords, IBlockState state) {
+		this.coords = coords;
+		this.state = state;
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public IBlockState getState() {

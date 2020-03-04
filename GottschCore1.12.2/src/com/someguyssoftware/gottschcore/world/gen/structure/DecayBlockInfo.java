@@ -11,10 +11,8 @@ import net.minecraft.block.state.IBlockState;
  * @author Mark Gottschling on Dec 9, 2019
  *
  */
-public class DecayBlockInfo {
-	ICoords coords;
-	GottschTemplate.BlockInfo blockInfo;
-	IBlockState state;
+public class DecayBlockInfo extends BlockInfoContext {
+
 	/** strength of the block */
 	private double strength;
 	private int decayIndex;
@@ -27,29 +25,11 @@ public class DecayBlockInfo {
 	 * @param state
 	 */
 	public DecayBlockInfo(GottschTemplate.BlockInfo blockInfo, ICoords coords, IBlockState state) {
-		this.blockInfo = blockInfo;
-		this.coords = coords;
-		this.state = state;
+		super(blockInfo, coords, state);
 		this.strength = 100.0F;
 		this.wall = false;
 		this.decayIndex = -1;
 		this.distance = 0;
-	}
-
-	public GottschTemplate.BlockInfo getBlockInfo() {
-		return blockInfo;
-	}
-
-	public void setBlockInfo(GottschTemplate.BlockInfo blockInfo) {
-		this.blockInfo = blockInfo;
-	}
-
-	public IBlockState getState() {
-		return state;
-	}
-
-	public void setState(IBlockState state) {
-		this.state = state;
 	}
 
 	public double getStrength() {
@@ -82,27 +62,5 @@ public class DecayBlockInfo {
 
 	public void setDecayIndex(int decayIndex) {
 		this.decayIndex = decayIndex;
-	}
-
-	public ICoords getCoords() {
-		return coords;
-	}
-
-	public void setCoords(ICoords coords) {
-		this.coords = coords;
-	}
-	
-	/** convenience methods for comparators */
-	
-	public int getX() {
-		return getCoords().getX();
-	}
-	
-	public int getY() {
-		return getCoords().getY();
-	}
-	
-	public int getZ() {
-		return getCoords().getZ();
 	}
 }

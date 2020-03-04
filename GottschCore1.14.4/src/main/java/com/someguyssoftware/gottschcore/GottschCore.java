@@ -58,7 +58,7 @@ public class GottschCore implements IMod {
 		GottschCoreConfig.loadConfig(GottschCoreConfig.CLIENT_CONFIG, FMLPaths.CONFIGDIR.get().resolve("gottschcore-client.toml"));
 		GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("gottschcore-common.toml"));
 
-		// test accessing the logs
+		// test accessing the logging properties
 		GottschCoreConfig.LOGGING.filename.get();
 	}
 

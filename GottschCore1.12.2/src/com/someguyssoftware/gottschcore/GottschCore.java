@@ -26,48 +26,43 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
  * @author Mark Gottschling on Jul 13, 2017
  *
  */
-@Mod(
-		modid=GottschCore.MODID,
-		name=GottschCore.NAME,
-		version=GottschCore.VERSION,
-		dependencies="required-after:forge@[14.23.5.2768,)",
-		acceptedMinecraftVersions = "[1.12.2]",
-		updateJSON = GottschCore.UPDATE_JSON_URL
-		)
-@Credits(values={"GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017."})
+@Mod(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, dependencies = "required-after:forge@[14.23.5.2768,)", acceptedMinecraftVersions = "[1.12.2]", updateJSON = GottschCore.UPDATE_JSON_URL)
+@Credits(values = { "GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017." })
 public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.11.0";
+	protected static final String VERSION = "1.12.1";
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
 
 	// the version of Minecraft that this mod is developed for
 	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 2);
-	
+
 	/*
-	 * NOTE not used. Mods that used this library should define their own config path.
+	 * NOTE not used. Mods that used this library should define their own config
+	 * path.
 	 */
 	private static final String GOTTSCHCORE_CONFIG_DIR = "gottschcore";
 	private static GottschCoreConfig config;
-	
+
 	// latest version
 	private static BuildVersion latestVersion;
-	
+
 	// logger
 	public static Logger logger = LogManager.getLogger(GottschCore.NAME);
-	
+
 	/**
 	 * Required for Forge
 	 */
 	@Instance(GottschCore.MODID)
 	public static GottschCore instance;
-		
+
 	/**
 	 * 
 	 */
-	public GottschCore() {}
-	
+	public GottschCore() {
+	}
+
 	/**
 	 * 
 	 * @param event
@@ -77,22 +72,23 @@ public class GottschCore extends AbstractMod {
 	public void preInt(final FMLPreInitializationEvent event) {
 		super.preInt(event);
 		// register additional events
-		
-		// create and load the config file		
-		config = new GottschCoreConfig(this, event.getModConfigurationDirectory(), GOTTSCHCORE_CONFIG_DIR, "general.cfg");
+
+		// create and load the config file
+		config = new GottschCoreConfig(this, event.getModConfigurationDirectory(), GOTTSCHCORE_CONFIG_DIR,
+				"general.cfg");
 	}
-	
-    @EventHandler
-    public void serverStarted(final FMLServerStartingEvent event) {
-    	event.registerServerCommand(new ShowVersionCommand(this));
-     }
-    
-    @Override
+
+	@EventHandler
+	public void serverStarted(final FMLServerStartingEvent event) {
+		event.registerServerCommand(new ShowVersionCommand(this));
+	}
+
+	@Override
 	@EventHandler
 	public void postInit(final FMLPostInitializationEvent event) {
-    	super.postInit(event);
+		super.postInit(event);
 	}
-	
+
 	@Override
 	public String getName() {
 		return GottschCore.NAME;
@@ -107,7 +103,7 @@ public class GottschCore extends AbstractMod {
 	public String getVersion() {
 		return GottschCore.VERSION;
 	}
-	
+
 	@Override
 	public IMod getInstance() {
 		return GottschCore.instance;
@@ -117,8 +113,10 @@ public class GottschCore extends AbstractMod {
 	public String getUpdateURL() {
 		return GottschCore.UPDATE_JSON_URL;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.someguyssoftware.gottschcore.IMod#getConfig()
 	 */
 	@Override
@@ -126,7 +124,9 @@ public class GottschCore extends AbstractMod {
 		return GottschCore.config;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.someguyssoftware.gottschcore.IMod#getMinecraftVersion()
 	 */
 	@Override
