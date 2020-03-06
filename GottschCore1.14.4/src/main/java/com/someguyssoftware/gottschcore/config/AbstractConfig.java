@@ -77,7 +77,7 @@ public abstract class AbstractConfig implements IConfig {
 
 			level = builder.comment("The logging level. Set to 'off' to disable logging.",
 					"Values = [trace|debug|info|warn|error|off]").define("level", DEFAULT_LOGGER_LEVEL);
-			size = builder.comment("The size a log file can be before rolling over to a new file.").define("size:",
+			size = builder.comment("The size a log file can be before rolling over to a new file.").define("size",
 					DEFAULT_LOGGER_SIZE);
 			folder = builder.comment("The directory where the logs should be stored.",
 					"This is relative to the Minecraft install path.").define("folder", DEFAULT_LOGGER_FOLDER);
