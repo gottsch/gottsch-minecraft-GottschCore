@@ -170,7 +170,7 @@ public class WorldInfo {
 			}		
 			
 			if (cube.equalsMaterial(Material.AIR) || (cube.isReplaceable() && !cube.isLiquid())
-					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) 
+					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsMaterial(Material.WOOD)  /*cube.equalsBlock(Blocks.LOG) || cube.equalsBlock(Blocks.LOG2) */
 					|| cube.isBurning(world)) {
 				newCoords = newCoords.down(1);
 			}
@@ -220,7 +220,7 @@ public class WorldInfo {
 			}
 			
 			if (cube.equalsMaterial(Material.AIR) || cube.isReplaceable()
-					|| cube.equalsMaterial(Material.LEAVES) ||cube.equalsMaterial(Material.WOOD) 
+					|| cube.equalsMaterial(Material.LEAVES) || cube.equalsMaterial(Material.WOOD) 
 					|| cube.isBurning(world)) {
 				newCoords = newCoords.down(1);
 			}
