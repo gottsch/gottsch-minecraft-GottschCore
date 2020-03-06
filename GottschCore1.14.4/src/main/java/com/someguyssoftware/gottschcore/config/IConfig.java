@@ -8,10 +8,11 @@ package com.someguyssoftware.gottschcore.config;
  *
  */
 public interface IConfig {
-	public static final String MOD_CATEGORY = "01-mod";
-	public static final String LOGGING_CATEGORY = "02-logging";
-	
+	public static final String MOD_CATEGORY = "01 mod";
+	public static final String LOGGING_CATEGORY = "02 logging";
+
 	public static final String DEFAULT_MODS_FOLDER = "mods";
+	public static final String DEFAULT_CONFIG_FOLDER = "config";
 	public static final String DEFAULT_LOGGER_LEVEL = "info";
 	public static final String DEFAULT_LOGGER_FOLDER = "logs";
 	public static final String DEFAULT_LOGGER_FILENAME = "log";
