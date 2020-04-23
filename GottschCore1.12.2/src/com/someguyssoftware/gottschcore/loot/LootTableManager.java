@@ -348,4 +348,8 @@ public class LootTableManager {
 
 		return ctx.poolCount == 1 ? "main" : "pool" + (ctx.poolCount - 1);
 	}
+
+	public static Gson getGsonInstance() {
+		return GSON_INSTANCE;
+	}
 }

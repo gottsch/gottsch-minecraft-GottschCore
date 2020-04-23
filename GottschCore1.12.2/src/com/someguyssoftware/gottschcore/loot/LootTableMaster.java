@@ -9,11 +9,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,8 +26,12 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.io.Resources;
+import com.google.gson.JsonParseException;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
+import com.someguyssoftware.gottschcore.version.BuildVersion;
+import com.someguyssoftware.gottschcore.version.VersionChecker;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
@@ -61,6 +67,8 @@ public class LootTableMaster {
 	public LootTableMaster(IMod mod, String resourcePath, String folderName) {
 		this.mod = mod;
 		this.lootTablesFolderName = folderName;
+		// create a new loot table manager for custom file-system loot tables
+		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getConfigFolder()).toAbsolutePath().toFile());
 	}
 
 	/**
@@ -86,7 +94,7 @@ public class LootTableMaster {
 	 */
 	public void init(WorldServer world) {
 		// create a new loot table manager for custom file-system loot tables
-		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getConfigFolder()).toAbsolutePath().toFile());
+//		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getConfigFolder()).toAbsolutePath().toFile());
 
 		// create a context
 		this.context = new LootContext.Builder(world, lootTableManager).build();
@@ -186,7 +194,6 @@ public class LootTableMaster {
 						createLootTableFolder(modID, location);
 					}
 				} else {
-					// TODO check if the file is actually a sub-directory
 					if (Files.isDirectory(resourceFilePath)) {
 						GottschCore.logger.debug("resource is a folder -> {}", resourceFilePath.toString());
 						continue;
@@ -198,15 +205,25 @@ public class LootTableMaster {
 
 					if (Files.notExists(fileSystemFilePath)) {
 						// copy from resource/classpath to file path
-						InputStream is = LootTableMaster.class.getResourceAsStream(resourceFilePath.toString());
-						try (FileOutputStream fos = new FileOutputStream(fileSystemFilePath.toFile())) {
-							byte[] buf = new byte[2048];
-							int r;
-							while ((r = is.read(buf)) != -1) {
-								fos.write(buf, 0, r);
-							}
-						} catch (IOException e) {
-							GottschCore.logger.error("Error exposing chestsheet resource to file system.", e);
+						copyResourceToFileSystem(resourceFilePath, fileSystemFilePath);
+					}
+					else {
+						boolean isCurrent = false;
+						try {
+							isCurrent = fileSystemHasCurrentVersion(resourceFilePath, fileSystemFilePath);
+						}
+						catch(Exception e) {
+							GottschCore.logger.warn(e.getMessage(), e);
+							continue;
+						}
+						
+						GottschCore.logger.error("is file system loot table current -> {}", isCurrent);
+						if (!isCurrent) {
+							Files.move(
+									fileSystemFilePath, 
+									Paths.get(folder.toString(), resourceFilePath.getFileName().toString() + ".bak").toAbsolutePath(), 
+									StandardCopyOption.REPLACE_EXISTING);
+							copyResourceToFileSystem(resourceFilePath, fileSystemFilePath);
 						}
 					}
 				}
@@ -229,6 +246,66 @@ public class LootTableMaster {
 				GottschCore.logger.debug("An error occurred attempting to close the FileSystem:", e);
 			}
 		}
+	}
+
+	private void copyResourceToFileSystem(Path resourceFilePath, Path fileSystemFilePath) {
+		InputStream is = LootTableMaster.class.getResourceAsStream(resourceFilePath.toString());
+		try (FileOutputStream fos = new FileOutputStream(fileSystemFilePath.toFile())) {
+			byte[] buf = new byte[2048];
+			int r;
+			while ((r = is.read(buf)) != -1) {
+				fos.write(buf, 0, r);
+			}
+			} catch (IOException e) {
+				GottschCore.logger.error("Error exposing resource to file system.", e);
+			}
+	}
+
+	private boolean fileSystemHasCurrentVersion(Path resourceFilePath, Path fileSystemFilePath) throws Exception {
+		boolean result = true;
+		GottschCore.logger.debug("Verifying the most current version for the loot table -> {} ...", fileSystemFilePath.getFileName());
+		
+		// turn file path into a resource location
+		ResourceLocation loc = new ResourceLocation(getMod().getId(), resourceFilePath.toString().replace(".json", ""));
+		
+		// file system loot table								
+		LootTable fsLootTable = getLootTableManager().getLootTableFromLocation(loc);
+		
+		// jar resource loot table
+		URL url = LootTableManager.class.getResource(resourceFilePath.toString());
+		if (url == null) {
+			return false;
+		}
+		
+		String urlStr;
+		try {
+			urlStr = Resources.toString(url, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			// TODO make custom exception
+			throw new Exception(String.format("Couldn't load loot table %s from %s", resourceFilePath, url), e);
+		}
+		
+		LootTable resourceLootTable = null;
+		try {
+			resourceLootTable = LootTableManager.loadLootTable(LootTableManager.getGsonInstance(), loc, urlStr, false, null);
+		} catch (JsonParseException e) {
+			// TODO make custom exception
+			throw new Exception(String.format("Couldn't load loot table %s from %s", resourceFilePath, url), e);
+		}
+		
+		GottschCore.logger.debug("\n\t...file system loot table -> {}\n\t...version -> {}\n\t...resource loot table -> {}\n\t...version -> {}",
+				fileSystemFilePath.toString(),
+				fsLootTable.getVersion(),
+				loc.toString(),
+				resourceLootTable.getVersion());
+		
+		// compare versions
+		if (resourceLootTable != null && fsLootTable != null) {
+			BuildVersion resourceVersion = new BuildVersion(resourceLootTable.getVersion());
+			BuildVersion fsVersion = new BuildVersion(fsLootTable.getVersion());			
+			result = VersionChecker.checkVersion(resourceVersion, fsVersion); // if 1st > 2nd, then false;
+		}
+		return result;
 	}
 
 	/**
