@@ -85,10 +85,11 @@ public abstract class LootEntry {
 			}
 
 			// TODO change - this method is unnecessary - the called method does nothing
-			LootEntry ret = LootTableManager.deserializeJsonLootEntry(s, jsonobject, i, j, alootcondition);
-			if (ret != null) return ret;
+//			LootEntry ret = LootTableManager.deserializeJsonLootEntry(s, jsonobject, i, j, alootcondition);
+//			if (ret != null) return ret;
 
 			if ("item".equals(s)) {
+				// TODO will throw an exception.
 				return LootEntryItem.deserialize(jsonobject, context, i, j, alootcondition);
 			}
 			else if ("loot_table".equals(s)) {
@@ -116,7 +117,6 @@ public abstract class LootEntry {
 				jsonobject.add("conditions", context.serialize(lootEntry.conditions));
 			}
 
-			// TODO change - useless - can be removed
 			String lootEntryType = LootTableManager.getLootEntryType(lootEntry);
 			
 			if (lootEntryType != null) jsonobject.addProperty("type", lootEntryType);

@@ -422,6 +422,7 @@ public class Coords implements ICoords {
 		return x;
 	}
 
+	@Deprecated
 	@Override
 	public ICoords resetX(int x) {
     	return new Coords(x, this.getY(), this.getZ());
@@ -432,6 +433,7 @@ public class Coords implements ICoords {
 		return y;
 	}
 	
+	@Deprecated
 	@Override
 	public ICoords resetY(int y) {
     	return new Coords(this.getX(), y, this.getZ());
@@ -442,6 +444,7 @@ public class Coords implements ICoords {
 		return z;
 	}
 	
+	@Deprecated
 	@Override
 	public ICoords resetZ(int z) {
     	return new Coords(this.getX(), this.getY(), z);

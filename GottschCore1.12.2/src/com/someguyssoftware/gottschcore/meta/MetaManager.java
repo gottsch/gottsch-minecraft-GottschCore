@@ -79,9 +79,9 @@ public class MetaManager extends AbstractResourceManager {
 		// TODO load meta from Json
 		readMeta(location);
 		GottschCore.logger.debug("output from master meta map:");
-		for (Entry<String, IMeta> entry : getMetaMap().entrySet()) {
-			GottschCore.logger.debug("key: {}, value: {}", entry.getKey(), entry.getValue());
-		}
+//		for (Entry<String, IMeta> entry : getMetaMap().entrySet()) {
+//			GottschCore.logger.debug("key: {}, value: {}", entry.getKey(), entry.getValue());
+//		}
 		if (this.getMetaMap().get(key) != null) {
 			GottschCore.logger.debug("Loaded meta file from -> {}", key);
 		}
