@@ -9,10 +9,12 @@ import java.util.Random;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSyntaxException;
 import com.someguyssoftware.gottschcore.loot.conditions.LootCondition;
 import com.someguyssoftware.gottschcore.loot.conditions.LootConditionManager;
 import com.someguyssoftware.gottschcore.loot.functions.LootFunction;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.JsonUtils;
@@ -86,6 +88,8 @@ public class LootEntryItem extends LootEntry {
 		}
 	}
 
+	// ===============================================
+	// ======================== TREASURE 2 MODIFIED
 	/**
 	 * 
 	 * @param object
@@ -97,7 +101,16 @@ public class LootEntryItem extends LootEntry {
 	 */
 	public static LootEntryItem deserialize(JsonObject object, JsonDeserializationContext deserializationContext, int weightIn, int qualityIn, LootCondition[] conditionsIn) {
 		String name = LootTableManager.readLootEntryName(object, "item");
-		Item item = JsonUtils.getItem(object, "name");
+		
+		// this will throw an exception if item not found. create a torch instead
+		Item item = null;
+		try {
+			item = JsonUtils.getItem(object, "name");
+		}
+		catch(JsonSyntaxException e) {
+			item = Item.getItemFromBlock(Blocks.TORCH);
+		}
+		
 		LootFunction[] alootfunction;
 
 		if (object.has("functions")) {
@@ -109,4 +122,7 @@ public class LootEntryItem extends LootEntry {
 
 		return new LootEntryItem(item, weightIn, qualityIn, alootfunction, conditionsIn, name);
 	}
+
+	// ======================== TREASURE 2 MODIFIED END
+	// ===============================================
 }

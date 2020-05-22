@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.someguyssoftware.gottschcore.GottschCore;
 
 import net.minecraft.inventory.IInventory;
@@ -29,7 +30,8 @@ import net.minecraft.util.JsonUtils;
 public class LootTable {
 	public static final LootTable EMPTY_LOOT_TABLE = new LootTable(new LootPool[0]);
 	private final List<LootPool> pools;
-
+	private String version;
+	
 	public LootTable(LootPool[] poolsIn) {
 		this.pools = Lists.newArrayList(poolsIn);
 	}
@@ -192,11 +194,23 @@ public class LootTable {
 	// ======================== FORGE END
 	// ===============================================
 
+	// ===============================================
+	// ======================== TREASURE 2 MODIFIED
 	public static class Serializer implements JsonDeserializer<LootTable>, JsonSerializer<LootTable> {
 		public LootTable deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
 			JsonObject jsonobject = JsonUtils.getJsonObject(element, "loot table");
+			String version = "";
+			try {
+				version = JsonUtils.getString(jsonobject, "version");
+			}
+			catch(JsonSyntaxException e) {
+				// do nothing - leave version as empty
+			}
+
 			LootPool[] alootpool = (LootPool[]) JsonUtils.deserializeClass(jsonobject, "pools", new LootPool[0], context, LootPool[].class);
-			return new LootTable(alootpool);
+			LootTable lootTable = new LootTable(alootpool);
+			lootTable.setVersion(version);
+			return lootTable;
 		}
 
 		public JsonElement serialize(LootTable p_serialize_1_, Type p_serialize_2_, JsonSerializationContext p_serialize_3_) {
@@ -204,6 +218,16 @@ public class LootTable {
 			jsonobject.add("pools", p_serialize_3_.serialize(p_serialize_1_.pools));
 			return jsonobject;
 		}
+	}
+	// ======================== TREASURE 2 MODIFIED END
+	// ===============================================
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 }
