@@ -19,7 +19,6 @@ import net.minecraft.world.World;
  */
 public class Cube {
 
-//	private final World world;
 	private final ICoords coords;
 	private final IBlockState state;
 	
@@ -29,7 +28,6 @@ public class Cube {
 	 * @param coords
 	 */
 	public Cube(World world, ICoords coords) {
-//		this.world = world;
 		this.coords = coords;
 		this.state = world.getBlockState(coords.toPos());
 	}
@@ -57,9 +55,7 @@ public class Cube {
 	 * @return
 	 */
 	public Block toBlock() {
-//		IBlockState blockState = this.world.getBlockState(this.coords.toPos());
 		if (state != null) return state.getBlock();
-//		if (blockState != null) return blockState.getBlock();
 		return null;
 	}
 	
@@ -80,8 +76,6 @@ public class Cube {
 	 * @return
 	 */
 	public boolean hasState() {
-//		IBlockState blockState = world.getBlockState(coords.toPos());
-//		if (blockState == null) return false;
 		if (state == null) return false;
 		return true;
 	}
@@ -156,14 +150,6 @@ public class Cube {
 	public ICoords getCoords() {
 		return coords;
 	}
-
-	// removed in order to make immutable.
-//	/**
-//	 * @param coords the coords to set
-//	 */
-//	public Cube setCoords(ICoords coords) {
-//		return new Cube(this.world, coords);
-//	}
 	
 	@Override
 	public String toString() {

@@ -53,6 +53,7 @@ public class LootPool {
 		List<LootEntry> list = Lists.<LootEntry>newArrayList();
 		int i = 0;
 
+		// TODO change the conditions so that a check for mod exists works properly
 		for (LootEntry lootentry : this.lootEntries) {
 //			Treasure.logger.debug("creating roll for loot entry -> {}", lootentry.entryName );
 			if (LootConditionManager.testAllConditions(lootentry.conditions, rand, context)) {
