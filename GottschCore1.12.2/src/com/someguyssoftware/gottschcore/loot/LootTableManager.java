@@ -107,13 +107,14 @@ public class LootTableManager {
 		public LootTable load(ResourceLocation location) throws Exception {
 			if (location.getResourcePath().contains(".")) {
 				GottschCore.logger.debug("Invalid loot table name '{}' (can't contain periods)", (Object) location);
-				return LootTable.EMPTY_LOOT_TABLE;
+//				return LootTable.EMPTY_LOOT_TABLE;
+				return null;
 			} else {
-//				GottschCore.logger.debug("loading loot table from location -> {}", location);
+				GottschCore.logger.debug("loading loot table from location -> {}", location);
 				LootTable loottable = this.loadLootTable(location);
 
 				if (loottable == null) {
-//					GottschCore.logger.debug("custom location null, loading loot table from builtin -> {}", location);
+					GottschCore.logger.debug("custom location null, loading loot table from builtin -> {}", location);
 					loottable = this.loadBuiltinLootTable(location);
 				}
 

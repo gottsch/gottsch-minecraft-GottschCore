@@ -21,11 +21,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Stream;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
+import org.apache.commons.io.FilenameUtils;
+
 import com.google.common.io.Resources;
 import com.google.gson.JsonParseException;
 import com.someguyssoftware.gottschcore.GottschCore;
@@ -35,7 +34,6 @@ import com.someguyssoftware.gottschcore.version.VersionChecker;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.world.WorldEvent;
 
 /**
  * @author Mark Gottschling on Dec 1, 2018
@@ -51,12 +49,6 @@ public class LootTableMaster {
 	 * customized loot table manager
 	 */
 	private LootTableManager lootTableManager;
-
-	/*
-	 * relative location of loot tables to lootTablesFolderName - in resource path
-	 * or file system
-	 */
-//	private List<String> lootTableFolderLocations; // CHEST_LOOT_TABLE_FOLDER_LOCATIONS // ?? is this needed or passed in?
 
 	private Map<String, List<ResourceLocation>> lootTablesResourceLocationMap = new HashMap<>();
 	private Map<String, List<LootTable>> lootTablesMap = new HashMap<>();
@@ -93,9 +85,6 @@ public class LootTableMaster {
 	 * @param world
 	 */
 	public void init(WorldServer world) {
-		// create a new loot table manager for custom file-system loot tables
-//		this.lootTableManager = new LootTableManager(Paths.get(getMod().getConfig().getConfigFolder()).toAbsolutePath().toFile());
-
 		// create a context
 		this.context = new LootContext.Builder(world, lootTableManager).build();
 	}
@@ -176,8 +165,6 @@ public class LootTableMaster {
 		try {
 			// get the base path of the resource
 			Path resourceBasePath = fs.getPath(resourceRootPath, modID, location);
-			// GottschCore.logger.debug("resource base path -> {}",
-			// resourceBasePath.toString());
 			folder = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
 
 			boolean isFirst = true;
@@ -354,7 +341,6 @@ public class LootTableMaster {
 		// ensure that the requried properties (modID) is not null
 		final String modID = (modIDIn == null || modIDIn.isEmpty()) ? getMod().getId() : modIDIn;
 		final String location= (locationIn != null && !locationIn.equals("")) ? (locationIn + "/") : "";
-//		final String location = locationIn;
 
 		List<ResourceLocation> locs = new ArrayList<>();
 		Path path = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), getLootTablesFolderName(), modID, location).toAbsolutePath();
@@ -368,14 +354,19 @@ public class LootTableMaster {
 
 		try {
 			Files.walk(path).filter(Files::isRegularFile).forEach(f -> {
-				 GottschCore.logger.debug("Custom loot table -> {}", f.toAbsolutePath().toString());
-				ResourceLocation loc = 
-						new ResourceLocation(
-								getMod().getId() + ":" + getLootTablesFolderName() 
-								+ "/" + modID + "/" + location
-										+ f.getFileName().toString().replace(".json", ""));
-				GottschCore.logger.debug("Resource location -> {}", loc);
-				locs.add(loc);
+				 GottschCore.logger.debug("Custom loot table file -> {}", f.toAbsolutePath().toString());
+				 /*
+				  * only add .json files. (not .bak or anything else)
+				  */
+				 if (FilenameUtils.getExtension(f.getFileName().toString()).equals("json")) {
+					ResourceLocation loc = 
+							new ResourceLocation(
+									getMod().getId() + ":" + getLootTablesFolderName() 
+									+ "/" + modID + "/" + location
+											+ f.getFileName().toString().replace(".json", ""));
+					GottschCore.logger.debug("Resource location -> {}", loc);
+					locs.add(loc);
+				 }
 			});
 		} catch (IOException e) {
 			GottschCore.logger.error("Error processing custom loot table:", e);
@@ -383,21 +374,6 @@ public class LootTableMaster {
 
 		return locs;
 	}
-
-//	/**
-//	 * @return the lootTablesResourcePath
-//	 */
-//	public String getLootTablesResourcePath() {
-//		return lootTablesResourcePath;
-//	}
-//
-//	/**
-//	 * @param lootTablesResourcePath
-//	 *            the lootTablesResourcePath to set
-//	 */
-//	public void setLootTablesResourcePath(String lootTablesResourcePath) {
-//		this.lootTablesResourcePath = lootTablesResourcePath;
-//	}
 
 	/**
 	 * @return the lootTablesFolderName
@@ -458,23 +434,6 @@ public class LootTableMaster {
 	protected void setLootTableManager(LootTableManager lootTableManager) {
 		this.lootTableManager = lootTableManager;
 	}
-
-	/**
-	 * @return the lootTableFolderLocations
-	 */
-//	public List<String> getLootTableFolderLocations() {
-//		if (lootTableFolderLocations == null)
-//			lootTableFolderLocations = new ArrayList<>();
-//		return lootTableFolderLocations;
-//	}
-
-	/**
-	 * @param lootTableFolderLocations
-	 *            the lootTableFolderLocations to set
-	 */
-//	public void setLootTableFolderLocations(List<String> lootTableFolderLocations) {
-//		this.lootTableFolderLocations = lootTableFolderLocations;
-//	}
 
 	/**
 	 * @return the lootTablesResourceLocationMap
