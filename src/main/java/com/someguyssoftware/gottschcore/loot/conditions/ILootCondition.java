@@ -1,0 +1,48 @@
+package com.someguyssoftware.gottschcore.loot.conditions;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.someguyssoftware.gottschcore.loot.IParameterized;
+import com.someguyssoftware.gottschcore.loot.LootContext;
+
+import java.util.function.Predicate;
+import net.minecraft.util.ResourceLocation;
+
+@FunctionalInterface
+public interface ILootCondition extends IParameterized, Predicate<LootContext> {
+   public abstract static class AbstractSerializer<T extends ILootCondition> {
+      private final ResourceLocation lootTableLocation;
+      private final Class<T> conditionClass;
+
+      protected AbstractSerializer(ResourceLocation location, Class<T> clazz) {
+         this.lootTableLocation = location;
+         this.conditionClass = clazz;
+      }
+
+      public ResourceLocation getLootTableLocation() {
+         return this.lootTableLocation;
+      }
+
+      public Class<T> getConditionClass() {
+         return this.conditionClass;
+      }
+
+      public abstract void serialize(JsonObject json, T value, JsonSerializationContext context);
+
+      public abstract T deserialize(JsonObject json, JsonDeserializationContext context);
+   }
+
+   @FunctionalInterface
+   public interface IBuilder {
+      ILootCondition build();
+
+      default ILootCondition.IBuilder inverted() {
+         return Inverted.builder(this);
+      }
+
+      default Alternative.Builder alternative(ILootCondition.IBuilder p_216297_1_) {
+         return Alternative.builder(this, p_216297_1_);
+      }
+   }
+}
