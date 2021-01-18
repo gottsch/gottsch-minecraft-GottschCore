@@ -6,7 +6,7 @@ import net.minecraft.block.BlockState;
 
 
 /**
- * 
+ * TODO rename this BlockContext or just use gottschcore.block.BlockContext
  * @author Mark Gottschling on Feb 8, 2020
  *
  */

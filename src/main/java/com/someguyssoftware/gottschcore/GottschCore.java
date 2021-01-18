@@ -31,7 +31,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
  *
  */
 @Mod(value = GottschCore.MODID)
-@ModInfo(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, minecraftVersion = "1.15.2", forgeVersion = "31.2.0", updateJsonUrl = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore1.15.2/master/update.json")
+@ModInfo(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, minecraftVersion = "1.15.2", forgeVersion = "31.2.0", updateJsonUrl = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.15.2-master/update.json")
 @Credits(values = { "GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017." })
 public class GottschCore implements IMod {
 	// logger

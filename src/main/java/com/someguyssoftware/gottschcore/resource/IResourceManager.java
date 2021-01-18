@@ -12,7 +12,7 @@ public interface IResourceManager {
 	 * @param modID
 	 * @param locations list of subpaths in the mod .jar file to the resources (after the mod ID)
 	 */
-	void buildAndExpose(String resourceRootPath, String modID, String resourceBasePath, List<String> locations);
+	void buildAndExpose(String resourceRootPath, String modID, String versionPath, String resourceBasePath, List<String> locations);
 
 	IMod getMod();
 

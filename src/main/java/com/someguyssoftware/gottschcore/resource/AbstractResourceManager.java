@@ -75,11 +75,11 @@ public class AbstractResourceManager implements IResourceManager {
 	/**
 	 * 
 	 */
-	public void buildAndExpose(String resourceRootPath, String modID, String basePath, List<String> resourceRelativePaths) {
+	public void buildAndExpose(String resourceRootPath, String modID, String versionPath, String basePath, List<String> resourceRelativePaths) {
 		resourceRelativePaths.forEach(resourceRelativePath -> {
 			GottschCore.LOGGER.debug("AbstractResourceManager | buildAndExpose | processing relative resource path -> {}", resourceRelativePath);
 			// this represents the entire file path
-			Path fileSystemFilePath = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), basePath, resourceRelativePath);
+			Path fileSystemFilePath = Paths.get(getMod().getConfig().getConfigFolder(), getMod().getId(), versionPath, basePath, resourceRelativePath);
 			GottschCore.LOGGER.debug("AbstractResourceManager | buildAndExpose | file system path -> {}", fileSystemFilePath.toString());
 			try {
 				// check if file already exists
