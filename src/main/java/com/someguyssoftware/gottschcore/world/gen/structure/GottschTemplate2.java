@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
+import com.someguyssoftware.gottschcore.loot.conditions.BlockStateProperty;
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
@@ -63,7 +64,18 @@ public class GottschTemplate2 extends Template {
 	 * A map of all the specials within the template.
 	 */
 	private final Multimap<Block, BlockContext> tagBlockMap = ArrayListMultimap.create();
-	
+
+	/*
+	 * A list of block classes to check for post processing
+	 */
+    public static final List<String> deferredBlocks = Lists.newArrayList();
+    
+    static {
+		deferredBlocks.add(DoorBlock.class.getSimpleName());
+		deferredBlocks.add(TorchBlock.class.getSimpleName());
+		deferredBlocks.add(LeverBlock.class.getSimpleName());
+    }
+    
 	public BlockPos getSize() {
 		return this.size;
 	}
@@ -224,14 +236,29 @@ public class GottschTemplate2 extends Template {
 					BlockPos blockPos = blockInfo.pos;
 					if (boundingBox == null || boundingBox.isVecInside(blockPos)) {
 						IFluidState fluidState = placementIn.func_204763_l() ? worldIn.getFluidState(blockPos) : null;
-						BlockState blockstate = blockInfo.state.mirror(placementIn.getMirror()).rotate(placementIn.getRotation());
+                        BlockState processedBlock = blockInfo.state.mirror(placementIn.getMirror()).rotate(placementIn.getRotation());
+                        /////////////////////////////// GottschCore ///////////////////////////////////
+                        //// replace block with null block if it is a marker block
+                        if (this.tagBlockMap.containsKey(processedBlock)) {
+                            processedBlock = NULL_BLOCK;
+                        }
+                        /////////////////////////// End of GottschCore ///////////////////////////////
+
+
+
 						if (blockInfo.nbt != null) {
 							TileEntity tileentity = worldIn.getTileEntity(blockPos);
 							IClearable.clearObj(tileentity);
 							worldIn.setBlockState(blockPos, Blocks.BARRIER.getDefaultState(), 20);
-						}
+                        }
+                        
+                        /////////////////////////////// GottschCore ///////////////////////////////////
+                        //// 1. Save the block context
+                        //// 2. checkif the block should be deferred
+                        /////////////////////////// End of GottschCore ///////////////////////////////
+                        BlockInfoContext blockInfoContext = new BlockInfoContext(processedBlockInfo, new Coords(pos), blockState);
 
-						if (worldIn.setBlockState(blockPos, blockstate, flags)) {
+						if (worldIn.setBlockState(blockPos, processedBlock, flags)) {
 							i = Math.min(i, blockPos.getX());
 							j = Math.min(j, blockPos.getY());
 							k = Math.min(k, blockPos.getZ());
@@ -251,8 +278,8 @@ public class GottschTemplate2 extends Template {
 								}
 							}
 
-							if (fluidState != null && blockstate.getBlock() instanceof ILiquidContainer) {
-								((ILiquidContainer)blockstate.getBlock()).receiveFluid(worldIn, blockPos, blockstate, fluidState);
+							if (fluidState != null && processedBlock.getBlock() instanceof ILiquidContainer) {
+								((ILiquidContainer)processedBlock.getBlock()).receiveFluid(worldIn, blockPos, processedBlock, fluidState);
 								if (!fluidState.isSource()) {
 									list1.add(blockPos);
 								}
@@ -315,6 +342,7 @@ public class GottschTemplate2 extends Template {
 							BlockState blockstate1 = worldIn.getBlockState(blockpos4);
 							BlockState blockstate3 = Block.getValidBlockForPosition(blockstate1, worldIn, blockpos4);
 							if (blockstate1 != blockstate3) {
+                                ///// TODO this is where the world is updated
 								worldIn.setBlockState(blockpos4, blockstate3, flags & -2 | 16);
 							}
 

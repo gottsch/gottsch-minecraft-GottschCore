@@ -41,7 +41,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.feature.template.Template;
 
-
+@Deprecated
 public class GottschTemplate extends Template {
 	/** blocks in the structure */
 	private final List<GottschTemplate.BlockInfo> blocks = Lists.newArrayList();
