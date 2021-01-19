@@ -207,9 +207,8 @@ public class GottschTemplateManager extends AbstractResourceManager {
 			nbt.putInt("DataVersion", 500);
 		}
 
-		GottschTemplate2 template = new GottschTemplate2();
-		template.read(NBTUtil.update(this.fixer, DefaultTypeReferences.STRUCTURE, nbt, nbt.getInt("DataVersion")));
-//		template.read(this.fixer.process(FixTypes.STRUCTURE, nbt), markerBlocks, replacementBlocks);
+		GottschTemplate template = new GottschTemplate();
+		template.read(NBTUtil.update(this.fixer, DefaultTypeReferences.STRUCTURE, nbt, nbt.getInt("DataVersion")), markerBlocks, replacementBlocks);
 		GottschCore.LOGGER.debug("adding template to map with key -> {}", id);
 		this.templates.put(id, template);
 	}

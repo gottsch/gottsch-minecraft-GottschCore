@@ -158,7 +158,7 @@ public class PlacementSettings {
       return this.field_204765_h;
    }
 
-   public List<GottschTemplate2.BlockInfo> func_227459_a_(List<List<GottschTemplate2.BlockInfo>> p_227459_1_, @Nullable BlockPos p_227459_2_) {
+   public List<GottschTemplate.BlockInfo> func_227459_a_(List<List<GottschTemplate.BlockInfo>> p_227459_1_, @Nullable BlockPos p_227459_2_) {
       int i = p_227459_1_.size();
       return i > 0 ? p_227459_1_.get(this.getRandom(p_227459_2_).nextInt(i)) : Collections.emptyList();
    }

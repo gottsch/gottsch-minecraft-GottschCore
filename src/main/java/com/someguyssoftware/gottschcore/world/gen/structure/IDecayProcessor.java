@@ -11,7 +11,6 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template.BlockInfo;
 
 /**
  * @author Mark Gottschling on Dec 8, 2019
@@ -19,7 +18,7 @@ import net.minecraft.world.gen.feature.template.Template.BlockInfo;
  */
 public interface IDecayProcessor {
 
-	void add(ICoords coords, BlockInfo blockInfo, BlockState state);
+	void add(ICoords coords, GottschTemplate.BlockInfo blockInfo, BlockState state);
 
 	List<DecayBlockInfo> process(World world, Random random, ICoords size, Block nullBlock);
 

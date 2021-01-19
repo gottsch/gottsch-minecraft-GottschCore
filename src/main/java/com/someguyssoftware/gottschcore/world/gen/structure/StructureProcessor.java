@@ -11,7 +11,7 @@ import net.minecraft.world.gen.feature.template.IStructureProcessorType;
 public abstract class StructureProcessor {
    @Nullable
    @Deprecated
-   public GottschTemplate2.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate2.BlockInfo p_215194_3_, GottschTemplate2.BlockInfo blockInfo, PlacementSettings placementSettingsIn) {
+   public GottschTemplate.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn) {
       return blockInfo;
    }
 
@@ -31,7 +31,7 @@ public abstract class StructureProcessor {
     *      PlacementSettings)
     */
    @Nullable
-   public GottschTemplate2.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate2.BlockInfo p_215194_3_, GottschTemplate2.BlockInfo blockInfo, PlacementSettings placementSettingsIn, @Nullable GottschTemplate2 template) {
+   public GottschTemplate.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn, @Nullable GottschTemplate template) {
       return process(worldReaderIn, pos, p_215194_3_, blockInfo, placementSettingsIn);
    }
 
@@ -53,7 +53,7 @@ public abstract class StructureProcessor {
     *      net.minecraft.world.gen.feature.template.Template.BlockInfo,
     *      PlacementSettings)
     */
-   public GottschTemplate2.EntityInfo processEntity(IWorldReader world, BlockPos seedPos, GottschTemplate2.EntityInfo rawEntityInfo, GottschTemplate2.EntityInfo entityInfo, PlacementSettings placementSettings, GottschTemplate2 template) {
+   public GottschTemplate.EntityInfo processEntity(IWorldReader world, BlockPos seedPos, GottschTemplate.EntityInfo rawEntityInfo, GottschTemplate.EntityInfo entityInfo, PlacementSettings placementSettings, GottschTemplate template) {
       return entityInfo;
    }
 
