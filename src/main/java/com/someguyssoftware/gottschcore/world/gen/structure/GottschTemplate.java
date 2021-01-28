@@ -1,16 +1,6 @@
 package com.someguyssoftware.gottschcore.world.gen.structure;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.mojang.datafixers.util.Pair;
-import com.someguyssoftware.gottschcore.GottschCore;
-import com.someguyssoftware.gottschcore.loot.conditions.BlockStateProperty;
-import com.someguyssoftware.gottschcore.spatial.Coords;
-import com.someguyssoftware.gottschcore.spatial.ICoords;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +11,15 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
+import com.someguyssoftware.gottschcore.GottschCore;
+import com.someguyssoftware.gottschcore.spatial.Coords;
+import com.someguyssoftware.gottschcore.spatial.ICoords;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -30,8 +29,6 @@ import net.minecraft.block.LeverBlock;
 import net.minecraft.block.TorchBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.PaintingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IClearable;
 import net.minecraft.nbt.CompoundNBT;
@@ -45,16 +42,12 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.ObjectIntIdentityMap;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.BitSetVoxelShapePart;
 import net.minecraft.util.math.shapes.VoxelShapePart;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.template.Template;
 
 public class GottschTemplate extends Template {
@@ -74,14 +67,14 @@ public class GottschTemplate extends Template {
 	/*
 	 * A list of block classes to check for post processing
 	 */
-    public static final List<String> deferredBlocks = Lists.newArrayList();
-    
-    static {
+	public static final List<String> deferredBlocks = Lists.newArrayList();
+
+	static {
 		deferredBlocks.add(DoorBlock.class.getSimpleName());
 		deferredBlocks.add(TorchBlock.class.getSimpleName());
 		deferredBlocks.add(LeverBlock.class.getSimpleName());
-    }
-    
+	}
+
 	public BlockPos getSize() {
 		return this.size;
 	}
@@ -97,74 +90,74 @@ public class GottschTemplate extends Template {
 	/**
 	 * takes blocks from the world and puts the data from them into this template
 	 */
-//	public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos size, boolean takeEntities, @Nullable Block toIgnore) {
-//		if (size.getX() >= 1 && size.getY() >= 1 && size.getZ() >= 1) {
-//			BlockPos blockpos = startPos.add(size).add(-1, -1, -1);
-//			List<GottschTemplate2.BlockInfo> list = Lists.newArrayList();
-//			List<GottschTemplate2.BlockInfo> list1 = Lists.newArrayList();
-//			List<GottschTemplate2.BlockInfo> list2 = Lists.newArrayList();
-//			BlockPos blockpos1 = new BlockPos(Math.min(startPos.getX(), blockpos.getX()), Math.min(startPos.getY(), blockpos.getY()), Math.min(startPos.getZ(), blockpos.getZ()));
-//			BlockPos blockpos2 = new BlockPos(Math.max(startPos.getX(), blockpos.getX()), Math.max(startPos.getY(), blockpos.getY()), Math.max(startPos.getZ(), blockpos.getZ()));
-//			this.size = size;
-//
-//			for(BlockPos blockpos3 : BlockPos.getAllInBoxMutable(blockpos1, blockpos2)) {
-//				BlockPos blockpos4 = blockpos3.subtract(blockpos1);
-//				BlockState blockstate = worldIn.getBlockState(blockpos3);
-//				if (toIgnore == null || toIgnore != blockstate.getBlock()) {
-//					TileEntity tileentity = worldIn.getTileEntity(blockpos3);
-//					if (tileentity != null) {
-//						CompoundNBT compoundnbt = tileentity.write(new CompoundNBT());
-//						compoundnbt.remove("x");
-//						compoundnbt.remove("y");
-//						compoundnbt.remove("z");
-//						list1.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, compoundnbt));
-//					} else if (!blockstate.isOpaqueCube(worldIn, blockpos3) && !blockstate.isCollisionShapeOpaque(worldIn, blockpos3)) {
-//						list2.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, (CompoundNBT)null));
-//					} else {
-//						list.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, (CompoundNBT)null));
-//					}
-//				}
-//			}
-//
-//			List<GottschTemplate2.BlockInfo> list3 = Lists.newArrayList();
-//			list3.addAll(list);
-//			list3.addAll(list1);
-//			list3.addAll(list2);
-//			this.blocks.clear();
-//			this.blocks.add(list3);
-//			if (takeEntities) {
-//				this.takeEntitiesFromWorld(worldIn, blockpos1, blockpos2.add(1, 1, 1));
-//			} else {
-//				this.entities.clear();
-//			}
-//
-//		}
-//	}
+	//	public void takeBlocksFromWorld(World worldIn, BlockPos startPos, BlockPos size, boolean takeEntities, @Nullable Block toIgnore) {
+	//		if (size.getX() >= 1 && size.getY() >= 1 && size.getZ() >= 1) {
+	//			BlockPos blockpos = startPos.add(size).add(-1, -1, -1);
+	//			List<GottschTemplate2.BlockInfo> list = Lists.newArrayList();
+	//			List<GottschTemplate2.BlockInfo> list1 = Lists.newArrayList();
+	//			List<GottschTemplate2.BlockInfo> list2 = Lists.newArrayList();
+	//			BlockPos blockpos1 = new BlockPos(Math.min(startPos.getX(), blockpos.getX()), Math.min(startPos.getY(), blockpos.getY()), Math.min(startPos.getZ(), blockpos.getZ()));
+	//			BlockPos blockpos2 = new BlockPos(Math.max(startPos.getX(), blockpos.getX()), Math.max(startPos.getY(), blockpos.getY()), Math.max(startPos.getZ(), blockpos.getZ()));
+	//			this.size = size;
+	//
+	//			for(BlockPos blockpos3 : BlockPos.getAllInBoxMutable(blockpos1, blockpos2)) {
+	//				BlockPos blockpos4 = blockpos3.subtract(blockpos1);
+	//				BlockState blockstate = worldIn.getBlockState(blockpos3);
+	//				if (toIgnore == null || toIgnore != blockstate.getBlock()) {
+	//					TileEntity tileentity = worldIn.getTileEntity(blockpos3);
+	//					if (tileentity != null) {
+	//						CompoundNBT compoundnbt = tileentity.write(new CompoundNBT());
+	//						compoundnbt.remove("x");
+	//						compoundnbt.remove("y");
+	//						compoundnbt.remove("z");
+	//						list1.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, compoundnbt));
+	//					} else if (!blockstate.isOpaqueCube(worldIn, blockpos3) && !blockstate.isCollisionShapeOpaque(worldIn, blockpos3)) {
+	//						list2.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, (CompoundNBT)null));
+	//					} else {
+	//						list.add(new GottschTemplate2.BlockInfo(blockpos4, blockstate, (CompoundNBT)null));
+	//					}
+	//				}
+	//			}
+	//
+	//			List<GottschTemplate2.BlockInfo> list3 = Lists.newArrayList();
+	//			list3.addAll(list);
+	//			list3.addAll(list1);
+	//			list3.addAll(list2);
+	//			this.blocks.clear();
+	//			this.blocks.add(list3);
+	//			if (takeEntities) {
+	//				this.takeEntitiesFromWorld(worldIn, blockpos1, blockpos2.add(1, 1, 1));
+	//			} else {
+	//				this.entities.clear();
+	//			}
+	//
+	//		}
+	//	}
 
 	/**
 	 * takes blocks from the world and puts the data them into this template
 	 */
-//	private void takeEntitiesFromWorld(World worldIn, BlockPos startPos, BlockPos endPos) {
-//		List<Entity> list = worldIn.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(startPos, endPos), (p_201048_0_) -> {
-//			return !(p_201048_0_ instanceof PlayerEntity);
-//		});
-//		this.entities.clear();
-//
-//		for(Entity entity : list) {
-//			Vec3d vec3d = new Vec3d(entity.getPosX() - (double)startPos.getX(), entity.getPosY() - (double)startPos.getY(), entity.getPosZ() - (double)startPos.getZ());
-//			CompoundNBT compoundnbt = new CompoundNBT();
-//			entity.writeUnlessPassenger(compoundnbt);
-//			BlockPos blockpos;
-//			if (entity instanceof PaintingEntity) {
-//				blockpos = ((PaintingEntity)entity).getHangingPosition().subtract(startPos);
-//			} else {
-//				blockpos = new BlockPos(vec3d);
-//			}
-//
-//			this.entities.add(new GottschTemplate2.EntityInfo(vec3d, blockpos, compoundnbt));
-//		}
-//
-//	}
+	//	private void takeEntitiesFromWorld(World worldIn, BlockPos startPos, BlockPos endPos) {
+	//		List<Entity> list = worldIn.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(startPos, endPos), (p_201048_0_) -> {
+	//			return !(p_201048_0_ instanceof PlayerEntity);
+	//		});
+	//		this.entities.clear();
+	//
+	//		for(Entity entity : list) {
+	//			Vec3d vec3d = new Vec3d(entity.getPosX() - (double)startPos.getX(), entity.getPosY() - (double)startPos.getY(), entity.getPosZ() - (double)startPos.getZ());
+	//			CompoundNBT compoundnbt = new CompoundNBT();
+	//			entity.writeUnlessPassenger(compoundnbt);
+	//			BlockPos blockpos;
+	//			if (entity instanceof PaintingEntity) {
+	//				blockpos = ((PaintingEntity)entity).getHangingPosition().subtract(startPos);
+	//			} else {
+	//				blockpos = new BlockPos(vec3d);
+	//			}
+	//
+	//			this.entities.add(new GottschTemplate2.EntityInfo(vec3d, blockpos, compoundnbt));
+	//		}
+	//
+	//	}
 
 	public BlockPos calculateConnectedPos(PlacementSettings placementIn, BlockPos p_186262_2_, PlacementSettings p_186262_3_, BlockPos p_186262_4_) {
 		BlockPos blockpos = transformedBlockPos(placementIn, p_186262_2_);
@@ -216,8 +209,7 @@ public class GottschTemplate extends Template {
 		return blockList;
 	}
 
-	
-	// TODO this is the main method to insert code changes to.
+
 	/**
 	 * Non-Decay version.
 	 * Adds blocks and entities from this structure to the given world.
@@ -237,54 +229,54 @@ public class GottschTemplate extends Template {
 				int l = Integer.MIN_VALUE;
 				int i1 = Integer.MIN_VALUE;
 				int j1 = Integer.MIN_VALUE;
-				
+
 				//================= GottschCore =================//
 				List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
 				//============== End of GottschCore ===============//
-				
+
 				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(this, worldIn, pos, placementIn, blockInfoList)) {
 					BlockPos blockPos = blockInfo.pos;
-                    /////////////////////////////// GottschCore ///////////////////////////////////
-                    // replace block with null block if it is a marker block
+					//================= GottschCore =================//
+					// replace block with null block if it is a marker block
 					Block processedBlock = blockInfo.state.getBlock();
-                    if (this.tagBlockMap.containsKey(processedBlock)) {
-                        processedBlock = NULL_BLOCK;
-                    }
-                    
+					if (this.tagBlockMap.containsKey(processedBlock)) {
+						processedBlock = NULL_BLOCK;
+					}
+
 					//	if (boundingBox == null || boundingBox.isVecInside(blockPos)) {
 					if ((boundingBox == null || boundingBox.isVecInside(blockPos)) && processedBlock != NULL_BLOCK) {
-                    /////////////////////////// End of GottschCore /////////////////////////////
-						
+						//============== End of GottschCore ===============//
+
 						IFluidState fluidState = placementIn.func_204763_l() ? worldIn.getFluidState(blockPos) : null;
-                        BlockState processedBlockState = blockInfo.state.mirror(placementIn.getMirror()).rotate(placementIn.getRotation());
-                        GottschCore.LOGGER.debug("processedBlock -> {}", processedBlockState.getBlock().getRegistryName());
-                        /////////////////////////////// GottschCore ///////////////////////////////////
-                        if (replacementBlocks != null && replacementBlocks.containsKey(processedBlockState)) {
-                        	GottschCore.LOGGER.debug("replacing block -> {} for ...", processedBlockState.getBlock().getRegistryName());
-                        	processedBlockState = replacementBlocks.get(processedBlockState);
-                        	GottschCore.LOGGER.debug("... replacement block -> {}", processedBlockState.getBlock().getRegistryName());
-                        }
-                        /////////////////////////// End of GottschCore ////////////////////////////
-                        
+						BlockState processedBlockState = blockInfo.state.mirror(placementIn.getMirror()).rotate(placementIn.getRotation());
+//						GottschCore.LOGGER.debug("processedBlock -> {}", processedBlockState.getBlock().getRegistryName());
+						//================= GottschCore =================//
+						if (replacementBlocks != null && replacementBlocks.containsKey(processedBlockState)) {
+							GottschCore.LOGGER.debug("replacing block -> {} for ...", processedBlockState.getBlock().getRegistryName());
+							processedBlockState = replacementBlocks.get(processedBlockState);
+							GottschCore.LOGGER.debug("... replacement block -> {}", processedBlockState.getBlock().getRegistryName());
+						}
+						//============== End of GottschCore ===============//
+
 						if (blockInfo.nbt != null) {
 							TileEntity tileentity = worldIn.getTileEntity(blockPos);
 							IClearable.clearObj(tileentity);
 							worldIn.setBlockState(blockPos, Blocks.BARRIER.getDefaultState(), 20);
-                        }
-                        
-                        /////////////////////////////// GottschCore ///////////////////////////////////
-                        //// 1. Save the block context
-                        //// 2. checkif the block should be deferred                        
-                        BlockInfoContext blockInfoContext = new BlockInfoContext(blockInfo, new Coords(pos), processedBlockState);
-                        if (deferredBlocks.contains(processedBlockState.getBlock().getClass().getSimpleName())) { // why use the classname? the Block would work - it's a singleton
-                        	blockInfoContexts.add(blockInfoContext);
-                        }
-                        else {
-                        	// TODO run the method that contains the below condition
-                        }
-                        /////////////////////////// End of GottschCore /////////////////////////////
-                        
-                        // TODO this condition will need to be in it's own method in order to handle deferred blocks
+						}
+
+						//================= GottschCore =================//
+						//// 1. Save the block context
+						//// 2. checkif the block should be deferred                        
+						BlockInfoContext blockInfoContext = new BlockInfoContext(blockInfo, new Coords(pos), processedBlockState);
+						if (deferredBlocks.contains(processedBlockState.getBlock().getClass().getSimpleName())) { // why use the classname? the Block would work - it's a singleton
+							blockInfoContexts.add(blockInfoContext);
+						}
+						else {
+							// TODO run the method that contains the below condition
+						}
+						//============== End of GottschCore ===============//
+
+						// TODO this condition will need to be in it's own method in order to handle deferred blocks
 						if (worldIn.setBlockState(blockPos, processedBlockState, flags)) { // this is where it adds to the world the original block
 							i = Math.min(i, blockPos.getX());
 							j = Math.min(j, blockPos.getY());
@@ -369,7 +361,7 @@ public class GottschTemplate extends Template {
 							BlockState blockstate1 = worldIn.getBlockState(blockpos4);
 							BlockState blockstate3 = Block.getValidBlockForPosition(blockstate1, worldIn, blockpos4);
 							if (blockstate1 != blockstate3) {
-                                ///// TODO this is where the world is updated
+								///// TODO this is where the world is updated
 								worldIn.setBlockState(blockpos4, blockstate3, flags & -2 | 16);
 							}
 
@@ -397,22 +389,200 @@ public class GottschTemplate extends Template {
 	}
 
 	/**
-	 * Decay version
-	 * @param worldIn
-	 * @param pos
-	 * @param placementIn
-	 * @param decayProcessor
-	 * @param NULL_BLOCK
-	 * @param replacementBlocks
-	 * @param flags
-	 * @return
+	 * Decay version.
+	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean addBlocksToWorld(IWorld worldIn, BlockPos pos, PlacementSettings placementIn, 
-			@Nullable IDecayProcessor decayProcessor, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, int flags) {
+	public boolean addBlocksToWorld(IWorld worldIn, BlockPos pos, PlacementSettings placementIn, IDecayProcessor decayProcessor, 
+			final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, int flags) {
 
-		return false;
+		GottschCore.LOGGER.debug("pos in -> {}", pos);
+		if (this.blocks.isEmpty()) {
+			return false;
+		} else {
+			List<GottschTemplate.BlockInfo> blockInfoList = placementIn.func_227459_a_(this.blocks, pos);
+			if ((!blockInfoList.isEmpty() || !placementIn.getIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
+				MutableBoundingBox boundingBox = placementIn.getBoundingBox();
+				List<BlockPos> list1 = Lists.newArrayListWithCapacity(placementIn.func_204763_l() ? blockInfoList.size() : 0);
+				List<Pair<BlockPos, CompoundNBT>> list2 = Lists.newArrayListWithCapacity(blockInfoList.size());
+				int i = Integer.MAX_VALUE;
+				int j = Integer.MAX_VALUE;
+				int k = Integer.MAX_VALUE;
+				int l = Integer.MIN_VALUE;
+				int i1 = Integer.MIN_VALUE;
+				int j1 = Integer.MIN_VALUE;
+
+				//================= GottschCore =================//
+				List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
+				//============== End of GottschCore ===============//
+
+				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(this, worldIn, pos, placementIn, blockInfoList)) {
+					BlockPos blockPos = blockInfo.pos;
+//					GottschCore.LOGGER.debug("processed pos -> {}", blockPos);
+					//================= GottschCore =================//
+					// replace block with null block if it is a marker block
+					Block processedBlock = blockInfo.state.getBlock();
+					if (this.tagBlockMap.containsKey(processedBlock)) {
+						processedBlock = NULL_BLOCK;
+					}
+
+					if ((boundingBox == null || boundingBox.isVecInside(blockPos)) && processedBlock != NULL_BLOCK) {
+						//============== End of GottschCore ===============//
+
+						//						IFluidState fluidState = placementIn.func_204763_l() ? worldIn.getFluidState(blockPos) : null;
+						BlockState processedBlockState = blockInfo.state.mirror(placementIn.getMirror()).rotate(placementIn.getRotation());
+//						GottschCore.LOGGER.debug("processedBlock -> {}", processedBlockState.getBlock().getRegistryName());
+
+						//================= GottschCore Replacement Code =================//
+						if (replacementBlocks != null && replacementBlocks.containsKey(processedBlockState)) {
+							GottschCore.LOGGER.debug("replacing block -> {} for ...", processedBlockState.getBlock().getRegistryName());
+							processedBlockState = replacementBlocks.get(processedBlockState);
+							GottschCore.LOGGER.debug("... replacement block -> {}", processedBlockState.getBlock().getRegistryName());
+						}
+
+						// add blockstate to structure map (read pass).
+						decayProcessor.add(new Coords(blockPos), blockInfo, processedBlockState);
+						//============== End of GottschCore ===============//
+					}					
+				} // end of blockInfo processing
+
+
+				// need the transformed size
+				ICoords transformedSize = new Coords(transformedSize(placementIn.getRotation()));
+				List<DecayBlockInfo> decayBlockInfoList = decayProcessor.process(worldIn, new Random(), transformedSize,
+						NULL_BLOCK);
+
+				for (DecayBlockInfo decay : decayBlockInfoList) {
+					if (decay.getState().getBlock() == NULL_BLOCK)
+						continue;
+
+					BlockInfo processed = decay.getBlockInfo();
+					BlockPos decayPos = decay.getCoords().toPos();
+
+					if (processed.nbt != null) {
+						TileEntity tileentity = worldIn.getTileEntity(decayPos);
+						IClearable.clearObj(tileentity);
+						worldIn.setBlockState(decayPos, Blocks.BARRIER.getDefaultState(), 20);
+					}
+
+					// check if deferred block processing
+//					if (deferredBlocks.contains(decay.getState().getBlock().getClass().getSimpleName())) { // why use the classname? the Block would work - it's a singleton
+//						blockInfoContexts.add(decay);
+//					}
+//					else {
+						IFluidState fluidState = placementIn.func_204763_l() ? worldIn.getFluidState(decayPos) : null;
+						if (worldIn.setBlockState(decayPos, decay.getState(), flags)) { // this is where it adds to the world the original block
+							i = Math.min(i, decayPos.getX());
+							j = Math.min(j, decayPos.getY());
+							k = Math.min(k, decayPos.getZ());
+							l = Math.max(l, decayPos.getX());
+							i1 = Math.max(i1, decayPos.getY());
+							j1 = Math.max(j1, decayPos.getZ());
+							list2.add(Pair.of(decayPos, processed.nbt));
+							if (processed.nbt != null) {
+								TileEntity tileEntity = worldIn.getTileEntity(decayPos);
+								if (tileEntity != null) {
+									processed.nbt.putInt("x", decayPos.getX());
+									processed.nbt.putInt("y", decayPos.getY());
+									processed.nbt.putInt("z", decayPos.getZ());
+									tileEntity.read(processed.nbt);
+									tileEntity.mirror(placementIn.getMirror());
+									tileEntity.rotate(placementIn.getRotation());
+								}
+							}
+
+							if (fluidState != null && decay.getState().getBlock() instanceof ILiquidContainer) {
+								((ILiquidContainer)decay.getState().getBlock()).receiveFluid(worldIn, decayPos, decay.getState(), fluidState);
+								if (!fluidState.isSource()) {
+									list1.add(decayPos);
+								}
+							}
+						}
+//					}
+				}
+
+
+				// vanilla
+				boolean flag = true;
+				Direction[] adirection = new Direction[]{Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
+				while(flag && !list1.isEmpty()) {
+					flag = false;
+					Iterator<BlockPos> iterator = list1.iterator();
+
+					while(iterator.hasNext()) {
+						BlockPos blockpos2 = iterator.next();
+						BlockPos blockpos3 = blockpos2;
+						IFluidState ifluidstate2 = worldIn.getFluidState(blockpos2);
+
+						for(int k1 = 0; k1 < adirection.length && !ifluidstate2.isSource(); ++k1) {
+							BlockPos blockpos1 = blockpos3.offset(adirection[k1]);
+							IFluidState ifluidstate1 = worldIn.getFluidState(blockpos1);
+							if (ifluidstate1.getActualHeight(worldIn, blockpos1) > ifluidstate2.getActualHeight(worldIn, blockpos3) || ifluidstate1.isSource() && !ifluidstate2.isSource()) {
+								ifluidstate2 = ifluidstate1;
+								blockpos3 = blockpos1;
+							}
+						}
+
+						if (ifluidstate2.isSource()) {
+							BlockState blockstate2 = worldIn.getBlockState(blockpos2);
+							Block block = blockstate2.getBlock();
+							if (block instanceof ILiquidContainer) {
+								((ILiquidContainer)block).receiveFluid(worldIn, blockpos2, blockstate2, ifluidstate2);
+								flag = true;
+								iterator.remove();
+							}
+						}
+					}
+				}
+
+				if (i <= l) {
+					if (!placementIn.func_215218_i()) {
+						VoxelShapePart voxelshapepart = new BitSetVoxelShapePart(l - i + 1, i1 - j + 1, j1 - k + 1);
+						int l1 = i;
+						int i2 = j;
+						int j2 = k;
+
+						for(Pair<BlockPos, CompoundNBT> pair1 : list2) {
+							BlockPos blockpos5 = pair1.getFirst();
+							voxelshapepart.setFilled(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2, true, true);
+						}
+
+						func_222857_a(worldIn, flags, voxelshapepart, l1, i2, j2);
+					}
+
+					for(Pair<BlockPos, CompoundNBT> pair : list2) {
+						BlockPos blockpos4 = pair.getFirst();
+						if (!placementIn.func_215218_i()) {
+							BlockState blockstate1 = worldIn.getBlockState(blockpos4);
+							BlockState blockstate3 = Block.getValidBlockForPosition(blockstate1, worldIn, blockpos4);
+							if (blockstate1 != blockstate3) {
+								///// TODO this is where the world is updated
+								worldIn.setBlockState(blockpos4, blockstate3, flags & -2 | 16);
+							}
+
+							worldIn.notifyNeighbors(blockpos4, blockstate3.getBlock());
+						}
+
+						if (pair.getSecond() != null) {
+							TileEntity tileentity2 = worldIn.getTileEntity(blockpos4);
+							if (tileentity2 != null) {
+								tileentity2.markDirty();
+							}
+						}
+					}
+				}
+
+				if (!placementIn.getIgnoreEntities()) {
+					this.addEntitiesToWorld(worldIn, pos, placementIn, placementIn.getMirror(), placementIn.getRotation(), placementIn.getCenterOffset(), placementIn.getBoundingBox());
+				}
+
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
-	
+
 	/**
 	 * Wrapper for transformedBlockPos()
 	 * 
@@ -423,7 +593,7 @@ public class GottschTemplate extends Template {
 	public static ICoords transformedCoords(PlacementSettings placement, ICoords coords) {
 		return new Coords(transformedBlockPos(placement, coords.toPos()));
 	}
-	
+
 	public static void func_222857_a(IWorld worldIn, int p_222857_1_, VoxelShapePart voxelShapePartIn, int x, int y, int z) {
 		voxelShapePartIn.forEachFace((p_222856_5_, p_222856_6_, p_222856_7_, p_222856_8_) -> {
 			BlockPos blockPos = new BlockPos(x + p_222856_6_, y + p_222856_7_, z + p_222856_8_);
@@ -442,7 +612,7 @@ public class GottschTemplate extends Template {
 
 		});
 	}
-	
+
 	/**
 	 * 
 	 * @param random
@@ -469,7 +639,7 @@ public class GottschTemplate extends Template {
 	public Multimap<Block, BlockContext> getTagBlockMap() {
 		return tagBlockMap;
 	}
-	
+
 	@Deprecated // FORGE: Add template parameter
 	public static List<GottschTemplate.BlockInfo> processBlockInfos(IWorld worldIn, BlockPos offsetPos, PlacementSettings placementSettingsIn, List<GottschTemplate.BlockInfo> blockInfos) {
 		return processBlockInfos(null, worldIn, offsetPos, placementSettingsIn, blockInfos);
@@ -792,7 +962,7 @@ public class GottschTemplate extends Template {
 	public void read(CompoundNBT compound) {
 		read(compound, new ArrayList<Block>(), new HashMap<BlockState, BlockState>());
 	}
-	
+
 	/**
 	 * 
 	 * @param compound
@@ -857,7 +1027,7 @@ public class GottschTemplate extends Template {
 			}
 
 			list.add(new GottschTemplate.BlockInfo(blockPos, blockState, compoundnbt1));
-			
+
 			//================= GottschCore =================//
 			// check if a marker block
 			Block block = blockState.getBlock();
@@ -868,7 +1038,7 @@ public class GottschTemplate extends Template {
 				tagBlockMap.put(block, new BlockContext(new Coords(blockPos), blockState));
 			}
 			//============== End of GottschCore ===============//
-			
+
 		}
 
 		list.sort(Comparator.comparingInt((p_215384_0_) -> {

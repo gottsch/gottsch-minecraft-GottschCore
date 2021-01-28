@@ -64,4 +64,11 @@ public class DecayBlockInfo extends BlockInfoContext {
 	public void setDecayIndex(int decayIndex) {
 		this.decayIndex = decayIndex;
 	}
+	
+	@Override
+	public String toString() {
+		return "DecayBlockInfo [strength=" + strength + ", decayIndex=" + decayIndex + ", distance=" + distance
+				+ ", wall=" + wall + ", coords=" + coords + ", blockInfo=" + blockInfo + ", state=" + state
+				+ ", postProcess=" + postProcess + "]";
+	}
 }

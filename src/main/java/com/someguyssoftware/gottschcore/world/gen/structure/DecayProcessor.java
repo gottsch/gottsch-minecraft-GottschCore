@@ -17,19 +17,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import org.codehaus.plexus.util.StringUtils;
-
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.property.PropertyHelper;
 import com.someguyssoftware.gottschcore.random.RandomHelper;
+import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.IWorld;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -70,18 +69,35 @@ public class DecayProcessor implements IDecayProcessor {
 	}
 
 	@Override
-	public List<DecayBlockInfo> process(final World world, final Random random, ICoords size, final Block NULL_BLOCK) {
+	public List<DecayBlockInfo> process(final IWorld world, final Random random, ICoords size, final Block NULL_BLOCK) {
 		Comparator<DecayBlockInfo> compareByCoords = Comparator.comparing(DecayBlockInfo::getY)
 				.thenComparing(DecayBlockInfo::getZ).thenComparing(DecayBlockInfo::getX);
 
+		// NOTE sorting the list and getting the element at 0 doesn't guarantee the min position to use for the offset
+		// as null blocks are not added to the list. ex. air on a surface structure  is not added and may be at the min position
 		Collections.sort(decayBlockInfoList, compareByCoords);
 
 		// intialize the array with the size of the template
 		layout = new int[size.getY()][size.getZ()][size.getX()];
 
 		// determine the offsets
-		ICoords offsetCoords = decayBlockInfoList.get(0).getCoords();
+		int minX = decayBlockInfoList.get(0).getCoords().getX();
+		int minY = decayBlockInfoList.get(0).getCoords().getY();
+		int minZ = decayBlockInfoList.get(0).getCoords().getZ();
 
+		for (DecayBlockInfo decay : decayBlockInfoList) {
+			if (decay.getX() < minX) {
+				minX = decay.getX();
+			}
+			if (decay.getY() < minY) {
+				minX = decay.getY();
+			}
+			if (decay.getZ() < minZ) {
+				minX = decay.getZ();
+			}
+		}
+		ICoords offsetCoords = new Coords(minX, minY, minZ);
+		
 		// set the initial strength
 		double initialStrength = getRuleSet().getInitialBlockStrength();
 
@@ -98,8 +114,18 @@ public class DecayProcessor implements IDecayProcessor {
 			int y = decay.getY() - offsetCoords.getY();
 			int z = decay.getZ() - offsetCoords.getZ();
 
-			// update the layout matrix with the index to the decy blockinfo list
-			layout[y][z][x] = decayBlockInfoListIndex;
+			// update the layout matrix with the index to the decay blockinfo list
+			try {
+				layout[y][z][x] = decayBlockInfoListIndex;
+			}
+			catch(Exception e) {
+				GottschCore.LOGGER.debug("decayBlockInfo -> {}", decay);
+				GottschCore.LOGGER.debug("offset -> {}", offsetCoords.toShortString());
+				GottschCore.LOGGER.debug("indexes: x->{}, y->{}, z->{}", x, y, z);
+				GottschCore.LOGGER.debug("size of layout matrix[y][z][x] -> [{}][{}][{}]", size.getY(), size.getZ(), size.getX());
+				GottschCore.LOGGER.error("error copying decay block info list to layout array:", e);
+				return null;
+			}
 			decayBlockInfoListIndex++;
 
 			if (decay.getState().getBlock() == NULL_BLOCK) {
@@ -116,7 +142,7 @@ public class DecayProcessor implements IDecayProcessor {
 					while (!fillState.getMaterial().isSolid()) {
 						// fill the space with a block
 						world.setBlockState(fillCoords.toPos(),
-								(depth > 3) ? Blocks.STONE.getDefaultState() : Blocks.DIRT.getDefaultState());
+								(depth > 3) ? Blocks.STONE.getDefaultState() : Blocks.DIRT.getDefaultState(), 3);
 						// move down
 						fillCoords = fillCoords.down(1);
 						fillState = world.getBlockState(fillCoords.toPos());
@@ -338,7 +364,7 @@ public class DecayProcessor implements IDecayProcessor {
 	 * @param x
 	 * @return
 	 */
-	private boolean checkForNeighbors(World world, int y, int z, int x) {
+	private boolean checkForNeighbors(IWorld world, int y, int z, int x) {
 		BlockState supportState = null;
 		if (y == 0)
 			supportState = world.getBlockState(decayBlockInfoList.get(layout[y][z][x]).getCoords().toPos().down());
@@ -523,7 +549,7 @@ public class DecayProcessor implements IDecayProcessor {
 		// get the block according to style and decay index
 		blockName = decayIndex > -1 ? decayRule.getDecayBlocks().get(decayIndex) : null;
 
-		if (StringUtils.isEmpty(blockName)) {
+		if (blockName == null || blockName.isEmpty()) {
 			return state;
 		}
 

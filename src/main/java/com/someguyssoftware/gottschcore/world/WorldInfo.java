@@ -264,7 +264,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getOceanFloorSurfaceCoords(final World world, final ICoords coords) {
+	public static ICoords getOceanFloorSurfaceCoords(final IWorld world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 

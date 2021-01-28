@@ -10,6 +10,7 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 /**
@@ -20,7 +21,7 @@ public interface IDecayProcessor {
 
 	void add(ICoords coords, GottschTemplate.BlockInfo blockInfo, BlockState state);
 
-	List<DecayBlockInfo> process(World world, Random random, ICoords size, Block nullBlock);
+	List<DecayBlockInfo> process(IWorld world, Random random, ICoords size, Block nullBlock);
 
 	public IDecayRuleSet getRuleSet();
 
