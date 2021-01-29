@@ -21,8 +21,7 @@ import net.minecraft.world.World;
  * @author Mark Gottschling on Feb 1, 2019
  *
  */
-public abstract class AbstractProximityTileEntity extends AbstractModTileEntity
-		implements IProximityTileEntity, ITickableTileEntity {
+public abstract class AbstractProximityTileEntity extends AbstractModTileEntity implements IProximityTileEntity, ITickableTileEntity {
 	private double proximity;
 	private boolean isDead = false;
 
@@ -53,6 +52,9 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity
 			if (nbt.contains("proximity", 8)) {
 				this.proximity = nbt.getDouble("proximity");
 			}
+			else {
+				this.proximity = 5;
+			}
 		} catch (Exception e) {
 			GottschCore.LOGGER.error("Error reading AbstractProximity properties from NBT:", e);
 		}
@@ -75,7 +77,7 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity
 	 */
 	@Override
 	public void tick() {
-		if (WorldInfo.isClientSide()) {
+		if (WorldInfo.isClientSide(getWorld())) {
 			return;
 		}
 
@@ -90,9 +92,9 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity
 
 			double distanceSq = player.getDistanceSq((double) getPos().getX(), (double) getPos().getY(),
 					(double) getPos().getZ());
-
+			GottschCore.LOGGER.info("distanceSq -> {} to proximity TE @ -> {}; proximitySq -> {}", distanceSq, getPos(), proximitySq);
 			if (!isTriggered && !this.isDead && (distanceSq < proximitySq)) {
-				GottschCore.LOGGER.debug("PTE proximity was met.");
+				GottschCore.LOGGER.info("PTE proximity was met.");
 				isTriggered = true;
 				// exectute action
 				execute(this.getWorld(), new Random(), new Coords(this.getPos()), new Coords(player.getPosition()));

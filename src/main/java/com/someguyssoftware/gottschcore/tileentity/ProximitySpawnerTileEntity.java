@@ -33,7 +33,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 	private ResourceLocation mobName;
 	private Quantity mobNum;
-	private Double spawnRange = 1D;
 
 	/**
 	 * 
@@ -78,12 +77,6 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 				min = nbt.getInt("mobNumMax");
 			}
 			this.mobNum = new Quantity(min, max);
-
-			if (nbt.contains("spawnRange")) {
-				Double spawnRange = nbt.getDouble("spawnRange");
-				setSpawnRange(spawnRange);
-			}
-
 		} catch (Exception e) {
 			GottschCore.LOGGER.error("Error reading ProximitySpanwer properties from NBT:", e);
 		}
@@ -101,7 +94,6 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 		tag.putString("mobName", getMobName().toString());
 		tag.putInt("mobNumMin", getMobNum().getMinInt());
 		tag.putInt("mobNumMax", getMobNum().getMaxInt());
-		tag.putDouble("spawnRange", getSpawnRange());
 		return tag;
 	}
 
@@ -111,7 +103,7 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
     private void defaultMobSpawnerSettings() {
         setMobName(new ResourceLocation("minecraft", "zombie"));
         setMobNum(new Quantity(1, 1));
-        setSpawnRange(5.0D);
+        setProximity(5.0D);
     }
     
 	/**
@@ -156,6 +148,7 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 	 * 
 	 */
 	private void selfDestruct() {
+		GottschCore.LOGGER.debug("te self-destructing @ {}", getPos()); 
 		this.setDead(true);
 		this.getWorld().setBlockState(getPos(), Blocks.AIR.getDefaultState());
 		this.getWorld().removeTileEntity(getPos());
@@ -187,14 +180,6 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 	 */
 	public void setMobNum(Quantity mobNum) {
 		this.mobNum = mobNum;
-	}
-
-	public Double getSpawnRange() {
-		return spawnRange;
-	}
-
-	public void setSpawnRange(Double spawnRange) {
-		this.spawnRange = spawnRange;
 	}
 
 }

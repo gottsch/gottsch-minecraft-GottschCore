@@ -46,9 +46,10 @@ public class WorldInfo {
 	}
 
 	/**
+	 * 
 	 * Convenience companion method to isServerSide()
 	 */
-	public static boolean isClientSide() {
+	public static boolean isClientDistribution() {
 		return FMLEnvironment.dist == Dist.CLIENT;
 	}
 
