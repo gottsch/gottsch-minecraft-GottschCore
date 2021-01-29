@@ -491,7 +491,45 @@ public class WorldInfo {
 		}
 		return true;
 	}
+	
+	public static boolean isLiquidBase(final IWorld world, final ICoords coords, final int width, final int depth,
+			double percentRequired) {
+		double percent = getLiquidBasePercent(world, coords.down(1), width, depth);
+		if (percent < percentRequired) {
+			return false;
+		}
+		return true;
+	}
 
+	/**
+	 * Gets the percent of blocks in an area (WxD) that are liquid.
+	 * 
+	 * @param world
+	 * @param coords
+	 * @param width
+	 * @param depth
+	 * @return
+	 */
+	public static double getLiquidBasePercent(final IWorld world, final ICoords coords, final int width, final int depth) {
+		double percent = 0.0D;
+		int liquidBlocks = 0;
+
+		// process all z, x in base y to count the number of allowable blocks in the
+		// world platform
+		for (int z = 0; z < depth; z++) {
+			for (int x = 0; x < width; x++) {
+				// get the blockContext
+				BlockContext blockContext = new BlockContext(world, coords.add(x, 0, z));
+				if (blockContext.hasState() && blockContext.isLiquid()) {
+					liquidBlocks++;
+				}
+			}
+		}
+		double base = depth * width;
+		percent = (liquidBlocks / base) * 100.0D;
+		return percent;
+	}
+	
 	/**
 	 * 
 	 * @param world
