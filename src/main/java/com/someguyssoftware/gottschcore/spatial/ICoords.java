@@ -1,6 +1,7 @@
 package com.someguyssoftware.gottschcore.spatial;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
@@ -224,12 +225,19 @@ public interface ICoords {
 	 * @param n
 	 * @return
 	 */
-	@Deprecated
 	ICoords add(Heading heading, int n);
+	
+	/**
+	 * 
+	 * @param direction
+	 * @param n
+	 * @return
+	 */
+	ICoords add(Direction direction, int n);
 
 	ICoords rotate(double xlen, double zlen, double degrees);
 
-	ICoords offset(net.minecraft.util.Direction facing);
+	ICoords offset(Direction facing);
 
 	ICoords withY(ICoords coords);
 
@@ -242,4 +250,5 @@ public interface ICoords {
 	ICoords withZ(ICoords coords);
 
 	ICoords withZ(int z);
+
 }

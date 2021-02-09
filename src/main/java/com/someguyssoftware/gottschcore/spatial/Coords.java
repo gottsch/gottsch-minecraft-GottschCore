@@ -8,6 +8,7 @@ import javax.annotation.concurrent.Immutable;
 import com.someguyssoftware.gottschcore.GottschCore;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -116,7 +117,7 @@ public class Coords implements ICoords {
 	 * Offset this Coords 1 block in the given direction
 	 */
 	@Override
-	public ICoords offset(net.minecraft.util.Direction facing) {
+	public ICoords offset(Direction facing) {
 		switch (facing) {
 		case NORTH:
 		default:
@@ -133,6 +134,8 @@ public class Coords implements ICoords {
 			return this.down(1);
 		}
 	}
+	
+	// TODO add offset(Heading)
 
 	/**
 	 * Calculate squared distance to the given coordinates
@@ -264,6 +267,17 @@ public class Coords implements ICoords {
 		default:
 			return this;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param direction
+	 * @param n
+	 * @return
+	 */
+	@Override
+	public ICoords add(Direction direction, int n) {
+		return add(Heading.fromDirection(direction), n);
 	}
 
 	@Override

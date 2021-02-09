@@ -7,6 +7,7 @@ import com.someguyssoftware.gottschcore.block.BlockContext;
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -63,11 +64,26 @@ public class WorldInfo {
 		return world.isRemote;
 	}
 
-	/*
-	 * ========================================= Find the topmost block position
-	 * methods =========================================
+	/**
+	 * 
+	 * @param world
+	 * @param coords
+	 * @param state
 	 */
-
+	public static void setBlockState(IWorld world, ICoords coords, BlockState state) {
+		world.setBlockState(coords.toPos(), state, 3);
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param context
+	 */
+	public static void setBlockState(IWorld world, BlockContext context) {
+		world.setBlockState(context.getCoords().toPos(), context.getState(), 3);
+	}
+	
+	// ========================================= Find the topmost block position methods =========================================
 	/**
 	 * Finds the topmost block position at an Coords position in the world. Wrapper
 	 * for BlockPos version.
