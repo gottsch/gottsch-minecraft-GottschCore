@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -106,14 +106,27 @@ jar {
     }
 }
 
+// an array containing destination paths
+def destinations = ["${dest_folder}", "${mods_folder}"]
+println destinations[0]
+
 task deleteOldJar(type: Delete) {
         delete fileTree("${dest_folder}") {
             include "**/${mod_name}-mc${mc_version}-f${forge_version}.*"
         }
     }
-task copyJar(type: Copy) {
-	from jar
-	into "${dest_folder}"
+    
+task copyJar() {
+	// iterate over the array with destination paths
+ 	destinations.each { destination ->
+        // for every destination define new CopySpec
+        println destination
+        copy {
+            from jar
+            into destination
+        }
+    }
 }
+
 build.dependsOn copyJar
 copyJar.dependsOn deleteOldJar
