@@ -158,7 +158,8 @@ public class WorldInfo {
 	}
 
 	/*
-	 * ========================================= Surface location methods
+	 * ========================================= 
+	 * Surface location methods
 	 * =========================================
 	 */
 
@@ -171,7 +172,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getSurfaceCoords(final World world, final ICoords coords) {
+	public static ICoords getSurfaceCoords(final IWorld world, final ICoords coords) {
 
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
