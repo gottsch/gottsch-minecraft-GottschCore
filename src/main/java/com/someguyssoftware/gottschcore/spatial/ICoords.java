@@ -197,13 +197,13 @@ public interface ICoords {
 		Integer y = null;
 		Integer z = null;
 		ICoords coords = null;
-		if (nbt.hasUniqueId("x")) {
+		if (nbt.contains("x")) {
 			x = nbt.getInt("x");
 		}
-		if (nbt.hasUniqueId("y")) {
+		if (nbt.contains("y")) {
 			y = nbt.getInt("y");
 		}
-		if (nbt.hasUniqueId("z")) {
+		if (nbt.contains("z")) {
 			z = nbt.getInt("z");
 		}
 		if (x != null && y != null && z != null) {

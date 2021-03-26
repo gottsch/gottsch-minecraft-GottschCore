@@ -36,14 +36,6 @@ public class ModBlock extends Block {
 	
 	/**
 	 * 
-	 */
-	@Override
-	public boolean isNormalCube(BlockState state, IBlockReader world, BlockPos pos) {
-		return normalCube;
-	}
-	
-	/**
-	 * 
 	 * @param normalCube
 	 */
 	protected void setNormalCube(boolean normalCube) {

@@ -16,20 +16,20 @@ import net.minecraft.state.properties.StairsShape;
  *
  */
 public class StairsPropertyCopier implements IPropertyCopier {
-    public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = HorizontalBlock.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
     public static final EnumProperty<StairsShape> SHAPE = BlockStateProperties.STAIRS_SHAPE;
 
 	@Override
 	public BlockState copy(BlockState source, BlockState dest) {
 		if (dest.getProperties().contains(FACING)) {
-			dest = dest.with(FACING, source.get(FACING));
+			dest = dest.setValue(FACING, source.getValue(FACING));
 		}
 		if (dest.getProperties().contains(HALF)) {
-			dest = dest.with(HALF, source.get(HALF));
+			dest = dest.setValue(HALF, source.getValue(HALF));
 		}
 		if (dest.getProperties().contains(SHAPE)) {
-			dest = dest.with(SHAPE, source.get(SHAPE));
+			dest = dest.setValue(SHAPE, source.getValue(SHAPE));
 		}
 		return dest;
 	}

@@ -17,7 +17,7 @@ public class FacingPropertyCopier implements IPropertyCopier {
 	@Override
 	public BlockState copy(BlockState source, BlockState dest) {
 		if (dest.getProperties().contains(FACING)) {
-			dest = dest.with(FACING, source.get(FACING));
+			dest = dest.setValue(FACING, source.getValue(FACING));
 		}
 		return dest;
 	}

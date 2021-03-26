@@ -10,6 +10,7 @@ import com.someguyssoftware.gottschcore.measurement.Quantity;
 import com.someguyssoftware.gottschcore.random.RandomHelper;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -52,8 +53,8 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 	 * 
 	 */
 	@Override
-	public void read(CompoundNBT nbt) {
-		super.read(nbt);
+	public void load(BlockState state, CompoundNBT nbt) {
+		super.load(state, nbt);
 		try {
 			// read the custom name
 			if (nbt.contains("mobName", 8)) {
@@ -86,8 +87,8 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 	 * 
 	 */
 	@Override
-	public CompoundNBT write(CompoundNBT tag) {
-		super.write(tag);
+	public CompoundNBT save(CompoundNBT tag) {
+		super.save(tag);
 		if (getMobName() == null || StringUtils.isNullOrEmpty(getMobName().toString())) {        	
             defaultMobSpawnerSettings();
         }
@@ -122,13 +123,14 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 				return;
 			}
 
-			entity.setLocationAndAngles((double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D,
-					MathHelper.wrapDegrees(world.rand.nextFloat() * 360.0F), 0.0F);
+			// TODO refactor all of this - look at AbstractSpawner
+			entity.moveTo((double) getBlockPos().getX() + 0.5D, (double) getBlockPos().getY(), (double) getBlockPos().getZ() + 0.5D,
+					MathHelper.wrapDegrees(world.random.nextFloat() * 360.0F), 0.0F);
 
 			if (entity instanceof MobEntity) {
 				MobEntity mobEntity = (MobEntity) entity;
 
-				if (mobEntity.isNotColliding(world)) {
+				if (mobEntity.collidingisColliding(world)) {
 					mobEntity.rotationYawHead = mobEntity.rotationYaw;
 					mobEntity.renderYawOffset = mobEntity.rotationYaw;
 

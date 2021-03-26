@@ -16,6 +16,7 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.DataFixer;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.resource.AbstractResourceManager;
@@ -30,7 +31,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.DefaultTypeReferences;
 import net.minecraft.world.gen.feature.template.Template;
-import com.mojang.datafixers.DataFixer;
 
 /**
  * @author Mark Gottschling on Feb 3, 2019
@@ -93,8 +93,8 @@ public class GottschTemplateManager extends AbstractResourceManager {
         // TODO rename this to preWriteReplacementMap();
         // default replacement scan map
         replacementMap = Maps.newHashMap();
-        replacementMap.put(Blocks.WHITE_WOOL.getDefaultState(), Blocks.AIR.getDefaultState());
-        replacementMap.put(Blocks.BLACK_STAINED_GLASS.getDefaultState(), Blocks.SPAWNER.getDefaultState());    
+        replacementMap.put(Blocks.WHITE_WOOL.defaultBlockState(), Blocks.AIR.defaultBlockState());
+        replacementMap.put(Blocks.BLACK_STAINED_GLASS.defaultBlockState(), Blocks.SPAWNER.defaultBlockState());    
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		}
 
 		GottschTemplate template = new GottschTemplate();
-		template.read(NBTUtil.update(this.fixer, DefaultTypeReferences.STRUCTURE, nbt, nbt.getInt("DataVersion")), markerBlocks, replacementBlocks);
+		template.load(NBTUtil.update(this.fixer, DefaultTypeReferences.STRUCTURE, nbt, nbt.getInt("DataVersion")), markerBlocks, replacementBlocks);
 		GottschCore.LOGGER.debug("adding template to map with key -> {}", id);
 		this.templates.put(id, template);
 	}

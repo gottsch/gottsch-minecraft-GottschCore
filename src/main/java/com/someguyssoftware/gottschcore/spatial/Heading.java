@@ -62,7 +62,7 @@ public enum Heading {
 	 * @return
 	 */
 	public int getIndex() {
-		return direction.getIndex();
+		return direction.get3DDataValue();
 	}
 
 	/**
@@ -71,7 +71,7 @@ public enum Heading {
 	 * @return
 	 */
 	public static Heading getByIndex(int index) {
-		return mapByDirection.get(Direction.byIndex(index % values().length));
+		return mapByDirection.get(Direction.from3DDataValue(index % values().length));
 	}
 
 	/**

@@ -5,6 +5,7 @@ package com.someguyssoftware.gottschcore.tileentity;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -27,7 +28,7 @@ public abstract class AbstractModTileEntity extends TileEntity {
 	@Override
 	@Nullable
 	public SUpdateTileEntityPacket getUpdatePacket() {
-		return new SUpdateTileEntityPacket(getPos(), 0, getUpdateTag());
+		return new SUpdateTileEntityPacket(getBlockPos(), 0, getUpdateTag());
 	}
 
 	/**
@@ -35,7 +36,7 @@ public abstract class AbstractModTileEntity extends TileEntity {
 	 */
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		read(pkt.getNbtCompound());
+		save(pkt.getTag());
 	}
 
 	/*
@@ -44,7 +45,7 @@ public abstract class AbstractModTileEntity extends TileEntity {
 	 */
 	@Override
 	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
+		return save(new CompoundNBT());
 	}
 
 	/*
@@ -52,7 +53,7 @@ public abstract class AbstractModTileEntity extends TileEntity {
 	 * transmit from server to client
 	 */
 	@Override
-	public void handleUpdateTag(CompoundNBT tag) {
-		this.read(tag);
+	public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+		this.load(state, tag);
 	}
 }

@@ -99,7 +99,7 @@ public class LoginEventHandler {
 					.append(mod.getName() + " ").append(TextFormatting.WHITE).append("version is available: ")
 					.append(TextFormatting.GOLD).append(mod.getVersion().toString());
 
-			event.getPlayer().sendMessage(new StringTextComponent(builder.toString()));
+			event.getPlayer().sendMessage(new StringTextComponent(builder.toString()), event.getPlayer().getUUID());
 		}
 	}
 

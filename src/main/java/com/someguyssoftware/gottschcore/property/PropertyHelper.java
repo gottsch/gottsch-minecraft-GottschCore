@@ -6,13 +6,7 @@ package com.someguyssoftware.gottschcore.property;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.FenceBlock;
-import net.minecraft.block.FenceGateBlock;
-import net.minecraft.block.LogBlock;
 import net.minecraft.block.SlabBlock;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.VineBlock;
-import net.minecraft.block.WallBlock;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.util.Direction;
 

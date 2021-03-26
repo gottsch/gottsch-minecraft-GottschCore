@@ -32,14 +32,15 @@ public class ModFallingBlock extends ModBlock {
 	}
 
 	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		worldIn.getPendingBlockTicks().scheduleTick(pos, this, this.tickRate(worldIn));
+		worldIn.getBlockTicks().scheduleTick(pos, this, this.tickRate(worldIn));
 	}
 	
+	@Override
 	public void tick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
-		if (worldIn.isAirBlock(pos.down()) || canFallThrough(worldIn.getBlockState(pos.down())) && pos.getY() >= 0) {
+		if (worldIn.isEmptyBlock(pos.below()) || canFallThrough(worldIn.getBlockState(pos.below())) && pos.getY() >= 0) {
 			FallingBlockEntity fallingblockentity = new FallingBlockEntity(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, worldIn.getBlockState(pos));
 			this.onStartFalling(fallingblockentity);
-			worldIn.addEntity(fallingblockentity);
+			worldIn.addFreshEntity(fallingblockentity);
 		}
 	}
 

@@ -40,13 +40,17 @@ import com.someguyssoftware.gottschcore.version.BuildVersion;
 import com.someguyssoftware.gottschcore.version.VersionChecker;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameterSets;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.LootTableManager;
+import net.minecraft.loot.RandomValueRange;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameterSets;
-import net.minecraft.world.storage.loot.LootTableManager;
-import net.minecraft.world.storage.loot.RandomValueRange;
+import net.minecraft.world.storage.SaveFormat;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 /**
  * @author Mark Gottschling on Dec 1, 2020
@@ -85,9 +89,17 @@ public class LootTableMaster2 implements ILootTableMaster {
 	 */
 	@Override
 	public void init(ServerWorld world) {
-		Path path = Paths.get(world.getSaveHandler().getWorldDirectory().getPath(), "datapacks");
-		setWorldDataBaseFolder(path.toFile());
-		this.context = new LootContext.Builder(world).build(LootParameterSets.GENERIC);
+		Object save = ObfuscationReflectionHelper.getPrivateValue(MinecraftServer.class, world.getServer(), "storageSource");
+		
+		if (save instanceof SaveFormat.LevelSave) {
+			Path path = ((SaveFormat.LevelSave) save).getWorldDir().resolve("datapacks");
+			setWorldDataBaseFolder(path.toFile());
+			this.context = new LootContext.Builder(world).create(LootParameterSets.ALL_PARAMS);
+		}
+		else {
+			// WHAT TO DO
+		}
+
 	}
 
 	@Override
@@ -569,16 +581,20 @@ public class LootTableMaster2 implements ILootTableMaster {
 		for (LootTableShell injectLootTableShell : list) {
 			LOGGER.debug("injectable resource -> {}", injectLootTableShell.getResourceLocation());
 			// get the vanilla managed loot table
-			net.minecraft.world.storage.loot.LootTable injectLootTable = world.getServer().getLootTableManager().getLootTableFromLocation(injectLootTableShell.getResourceLocation());
+			LootTable injectLootTable = world.getServer().getLootTables().get(injectLootTableShell.getResourceLocation());
 			if (injectLootTable != null) {
 				// add loot from tables to itemStacks
-				itemStacks.addAll(injectLootTable.generate(lootContext));
+				itemStacks.addAll(injectLootTable.getRandomItems(lootContext));
 				LOGGER.debug("size of item stacks after inject -> {}", itemStacks.size());
 			}
 		}
 		return itemStacks;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public File getWorldDataBaseFolder() {
 		return worldDataBaseFolder;
 	}

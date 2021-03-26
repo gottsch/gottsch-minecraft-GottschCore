@@ -27,14 +27,14 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	 */
 	public FacingBlock(String modID, String name, Block.Properties properties) {
 		super(modID, name, properties);
-		this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH));
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
 	
 	/**
 	 * 
 	 */
 	@Override
-	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 	}
 
@@ -44,7 +44,7 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	 */
     @Nullable
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-    	return this.getDefaultState().with(FACING, context.getPlayer().getHorizontalFacing().getOpposite());
+    	return this.defaultBlockState().setValue(FACING, context.getPlayer().getDirection().getOpposite());
     }
     
 	/**
@@ -55,7 +55,7 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	 */
 	@Override
 	public BlockState rotate(BlockState state, Rotation rot) {
-		return state.with(FACING, rot.rotate(getFacing(state)));
+		return state.setValue(FACING, rot.rotate(getFacing(state)));
 	}
 	
 	/**
@@ -65,6 +65,6 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	 */
 	@Override
 	public Direction getFacing(BlockState state) {
-		return state.get(FACING);
+		return state.getValue(FACING);
 	}
 }

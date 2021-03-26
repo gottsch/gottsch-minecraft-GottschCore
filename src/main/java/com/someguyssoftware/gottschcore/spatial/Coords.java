@@ -12,7 +12,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 
 /**
  * 
@@ -55,11 +56,19 @@ public class Coords implements ICoords {
 	}
 
 	/**
-	 * Copy constructor from Vec3d
+	 * Copy constructor from Vec3i
 	 * 
 	 * @param vec
 	 */
-	public Coords(Vec3d vec) {
+	public Coords(Vector3i vec) {
+		this(MathHelper.floor(vec.getX()), MathHelper.floor(vec.getY()), MathHelper.floor(vec.getZ()));
+	}
+	
+	/**
+	 * Copy constructor from Vec3d
+	 * @param vec
+	 */
+	public Coords(Vector3d vec) {
 		this(MathHelper.floor(vec.x), MathHelper.floor(vec.y), MathHelper.floor(vec.z));
 	}
 

@@ -10,6 +10,7 @@ import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 import com.someguyssoftware.gottschcore.world.WorldInfo;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
@@ -45,8 +46,8 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 	 * 
 	 */
 	@Override
-	public void read(CompoundNBT nbt) {
-		super.read(nbt);
+	public void load(BlockState state, CompoundNBT nbt) {
+		super.load(state, nbt);
 		try {
 			// read the custom name
 			if (nbt.contains("proximity", 8)) {
@@ -64,8 +65,8 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 	 * 
 	 */
 	@Override
-	public CompoundNBT write(CompoundNBT nbt) {
-		super.write(nbt);
+	public CompoundNBT save(CompoundNBT nbt) {
+		super.save(nbt);
 		nbt.putDouble("proximity", getProximity());
 		return nbt;
 	}
@@ -77,7 +78,7 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 	 */
 	@Override
 	public void tick() {
-		if (WorldInfo.isClientSide(getWorld())) {
+		if (WorldInfo.isClientSide(getLevel())) {
 			return;
 		}
 
@@ -88,16 +89,16 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 			proximitySq = 1;
 
 		// for each player
-		for (PlayerEntity player : getWorld().getPlayers()) {
+		for (PlayerEntity player : getLevel().players()) {
 
-			double distanceSq = player.getDistanceSq((double) getPos().getX(), (double) getPos().getY(),
-					(double) getPos().getZ());
-			GottschCore.LOGGER.info("distanceSq -> {} to proximity TE @ -> {}; proximitySq -> {}", distanceSq, getPos(), proximitySq);
+			double distanceSq = player.distanceToSqr((double) getBlockPos().getX(), (double) getBlockPos().getY(),
+					(double) getBlockPos().getZ());
+			GottschCore.LOGGER.info("distanceSq -> {} to proximity TE @ -> {}; proximitySq -> {}", distanceSq, getBlockPos(), proximitySq);
 			if (!isTriggered && !this.isDead && (distanceSq < proximitySq)) {
 				GottschCore.LOGGER.info("PTE proximity was met.");
 				isTriggered = true;
 				// exectute action
-				execute(this.getWorld(), new Random(), new Coords(this.getPos()), new Coords(player.getPosition()));
+				execute(this.getLevel(), new Random(), new Coords(this.getBlockPos()), new Coords(player.blockPosition()));
 
 				// NOTE: does not self-destruct that is up to the execute action to perform
 			}

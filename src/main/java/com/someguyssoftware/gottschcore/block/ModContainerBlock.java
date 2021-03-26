@@ -51,15 +51,16 @@ public abstract class ModContainerBlock extends ModBlock implements ITileEntityP
 	 * @deprecated call via {@link IBlockState#onBlockEventReceived(World,BlockPos,int,int)} whenever possible.
 	 * Implementing/overriding is fine.
 	 */
-	public boolean eventReceived(BlockState state, World worldIn, BlockPos pos, int id, int param) {
-		super.eventReceived(state, worldIn, pos, id, param);
-		TileEntity tileentity = worldIn.getTileEntity(pos);
-		return tileentity == null ? false : tileentity.receiveClientEvent(id, param);
+	@Override
+	public boolean triggerEvent(BlockState state, World world, BlockPos pos, int id, int param) {
+		super.triggerEvent(state, world, pos, id, param);
+		TileEntity tileEntity = world.getBlockEntity(pos);
+		return tileEntity == null ? false : tileEntity.triggerEvent(id, param);
 	}
 
 	@Nullable
 	public INamedContainerProvider getContainer(BlockState state, World worldIn, BlockPos pos) {
-		TileEntity tileentity = worldIn.getTileEntity(pos);
+		TileEntity tileentity = worldIn.getBlockEntity(pos);
 		return tileentity instanceof INamedContainerProvider ? (INamedContainerProvider)tileentity : null;
 	}
 }

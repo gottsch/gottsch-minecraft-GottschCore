@@ -3,7 +3,7 @@
  */
 package com.someguyssoftware.gottschcore.loot;
 
-import net.minecraft.world.storage.loot.RandomValueRange;
+import net.minecraft.loot.RandomValueRange;
 
 /**
  * @author Mark Gottschling on Dec 1, 2020

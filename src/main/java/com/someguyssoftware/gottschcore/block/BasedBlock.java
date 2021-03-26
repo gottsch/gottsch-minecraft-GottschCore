@@ -18,7 +18,7 @@ import net.minecraft.util.Rotation;
  *
  */
 public class BasedBlock extends ModBlock implements IBasedBlock {
-	
+
 	/**
 	 * 
 	 * @param modID
@@ -27,26 +27,25 @@ public class BasedBlock extends ModBlock implements IBasedBlock {
 	 */
 	public BasedBlock(String modID, String name, Block.Properties properties) {
 		super(modID, name, properties);
-		this.setDefaultState(this.stateContainer.getBaseState().with(BASE, Direction.NORTH));
+		this.registerDefaultState(this.stateDefinition.any().setValue(BASE, Direction.NORTH));
 	}
-	
+
 	/**
 	 * 
 	 */
 	@Override
-	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(BASE);
 	}
 
-    
 	/**
 	 * 
 	 */
-    @Nullable
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-    	return this.getDefaultState().with(BASE, context.getFace());
-    }
-    
+	@Nullable
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
+		return this.defaultBlockState().setValue(BASE, context.getHorizontalDirection());
+	}
+
 	/**
 	 * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
 	 * blockstate.
@@ -55,9 +54,9 @@ public class BasedBlock extends ModBlock implements IBasedBlock {
 	 */
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation) {
-		return state.with(BASE, rotation.rotate(getBase(state)));
+		return state.setValue(BASE, rotation.rotate(getBase(state)));
 	}
-	
+
 	/**
 	 * 
 	 * @param state
@@ -65,6 +64,6 @@ public class BasedBlock extends ModBlock implements IBasedBlock {
 	 */
 	@Override
 	public Direction getBase(BlockState state) {
-		return state.get(BASE);
+		return state.getValue(BASE);
 	}
 }

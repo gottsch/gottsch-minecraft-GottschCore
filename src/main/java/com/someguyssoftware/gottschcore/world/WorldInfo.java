@@ -10,6 +10,7 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ public class WorldInfo {
 	}
 
 	public static boolean isServerSide(World world) {
-		return !world.isRemote;
+		return !world.isClientSide();
 	}
 
 	/**
@@ -61,7 +62,7 @@ public class WorldInfo {
 	 * @return
 	 */
 	public static boolean isClientSide(World world) {
-		return world.isRemote;
+		return world.isClientSide();
 	}
 
 	/**
@@ -70,8 +71,8 @@ public class WorldInfo {
 	 * @param coords
 	 * @param state
 	 */
-	public static void setBlockState(IWorld world, ICoords coords, BlockState state) {
-		world.setBlockState(coords.toPos(), state, 3);
+	public static void setBlockState(World world, ICoords coords, BlockState state) {
+		world.setBlock(coords.toPos(), state, 3);
 	}
 	
 	/**
@@ -79,8 +80,8 @@ public class WorldInfo {
 	 * @param world
 	 * @param context
 	 */
-	public static void setBlockState(IWorld world, BlockContext context) {
-		world.setBlockState(context.getCoords().toPos(), context.getState(), 3);
+	public static void setBlockState(World world, BlockContext context) {
+		world.setBlock(context.getCoords().toPos(), context.getState(), 3);
 	}
 	
 	// ========================================= Find the topmost block position methods =========================================
@@ -92,8 +93,8 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static int getHeightValue(final IWorld world, final ICoords coords) {
-		return world.getHeight(Heightmap.Type.WORLD_SURFACE, coords.toPos()).getY();
+	public static int getHeight(final IWorld world, final ICoords coords) {
+		return world.getHeight();
 	}
 
 	/**
@@ -103,15 +104,10 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	private static int getHeightValue(final IWorld world, final BlockPos pos) {
-		BlockPos p = world.getHeight(Heightmap.Type.WORLD_SURFACE, pos);
+	private static int getHeight(final IWorld world, final BlockPos pos) {
+		BlockPos p = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, pos);
 		return p.getY();
 	}
-
-	/*
-	 * ========================================= Determine valid height (y-pos)
-	 * methods =========================================
-	 */
 
 	/**
 	 * 
@@ -150,8 +146,8 @@ public class WorldInfo {
 	 * @param blockPos
 	 * @return
 	 */
-	private static boolean isValidY(final World world, final BlockPos blockPos) {
-		if ((blockPos.getY() < MIN_HEIGHT || blockPos.getY() > world.getActualHeight())) {
+	private static boolean isValidY(final IWorld world, final BlockPos blockPos) {
+		if ((blockPos.getY() < MIN_HEIGHT || blockPos.getY() > world.getHeight())) {
 			return false;
 		}
 		return true;
@@ -559,7 +555,7 @@ public class WorldInfo {
 		int diff = 0;
 
 		// get a valid surface coords (whether on land or sea)
-		ySurface = getHeightValue(world, coords);
+		ySurface = getHeight(world, coords);
 //		GottschCore.logger.debug("ySurface:" + ySurface);
 		ICoords surfaceCoords = getSurfaceCoords(world, coords.resetY(ySurface));
 		if (surfaceCoords == null) {
@@ -579,8 +575,8 @@ public class WorldInfo {
 	 * @return
 	 */
 	public static ICoords getClosestPlayerCoords(World world, ICoords sourceCoords) {
-		PlayerEntity player = world.getClosestPlayer(sourceCoords.getX(), sourceCoords.getY(), sourceCoords.getZ());
-		ICoords playerCoords = new Coords(player.getPosition());
+		PlayerEntity player = world.getNearestPlayer(sourceCoords.getX(), sourceCoords.getY(), sourceCoords.getZ(), 64.0, EntityPredicates.NO_CREATIVE_OR_SPECTATOR);
+		ICoords playerCoords = new Coords(player.position());
 		return playerCoords;
 	}
 }

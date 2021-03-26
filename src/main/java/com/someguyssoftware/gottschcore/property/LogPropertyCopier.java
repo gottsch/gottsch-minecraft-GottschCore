@@ -19,7 +19,7 @@ public class LogPropertyCopier implements IPropertyCopier {
     @Override
 	public BlockState copy(BlockState source, BlockState dest) {
 		if (dest.getProperties().contains(AXIS)) {
-			dest = dest.with(AXIS, source.get(AXIS));
+			dest = dest.setValue(AXIS, source.getValue(AXIS));
 		}
 
 		return dest;

@@ -4,12 +4,11 @@
 package com.someguyssoftware.gottschcore.biome;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.common.BiomeDictionary.Type;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -18,6 +17,33 @@ import net.minecraftforge.registries.ForgeRegistries;
  */
 public class BiomeHelper {
 
+	public static List<String> biomeNames;
+	
+	static {
+		biomeNames = Arrays.asList(new String[] {
+				"ocean","deep_ocean","frozen_ocean","deep_frozen_ocean","cold_ocean","deep_cold_ocean",
+				"lukewarm_ocean","deep_lukewarm_ocean","warm_ocean","deep_warm_ocean",
+				"river","frozen_river","beach","stone_shore","snowy_beach","forest","wooded_hills","flower_forest",
+				"birch_forest","birch_forest_hills","tall_birch_forest","tall_birch_hills","dark_forest","dark_forest_hills",
+				"jungle","jungle_hills","modified_jungle","jungle_edge","modified_jungle_edge","bamboo_jungle",
+				"bamboo_jungle_hills","taiga","taiga_hills","taiga_mountains","snowy_taiga","snowy_taiga_hills",
+				"snowy_taiga_mountains","giant_tree_taiga","giant_tree_taiga_hills","giant_spruce_taiga",
+				"giant_spruce_taiga_hills","mushroom_fields","mushroom_field_shore","swamp","swamp_hills",
+				"savanna","savanna_plateau","shattered_savanna","shattered_savanna_plateau","plains",
+				"sunflower_plains","desert","desert_hills","desert_lakes","snowy_tundra","snowy_mountains",
+				"ice_spikes","mountains","wooded_mountains","gravelly_mountains","modified_gravelly_mountains",
+				"mountain_edge","badlands","badlands_plateau","modified_badlands_plateau","wooded_badlands_plateau",
+				"modified_wooded_badlands_plateau","eroded_badlands","nether","the_end","small_end_islands",
+				"end_midlands","end_highlands","end_barrens","the_void"
+		});
+	}
+	
+	public enum Result {
+		OK,
+		WHITE_LISTED,
+		BLACK_LISTED
+	};
+	
 	/**
 	 * 
 	 * @param biomes
@@ -25,96 +51,37 @@ public class BiomeHelper {
 	 */
 	public static List<Biome> loadBiomesList(String[] biomes) {
 		List<Biome> list = new ArrayList<>();
-		for (String biomeName : biomes) {
-			Biome biome = ForgeRegistries.BIOMES.getValue(new ResourceLocation(biomeName));
-			if (!list.contains(biome)) {
-				list.add(biome);
+		if (biomes != null) {
+			for (String biomeName : biomes) {
+				Biome biome = ForgeRegistries.BIOMES.getValue(new ResourceLocation(biomeName));
+				if (!list.contains(biome)) {
+					list.add(biome);
+				}
 			}
 		}
 		return list;
 	}
 
-	/**
-	 * 
-	 * @param biomeTypeNames
-	 * @param typeHolders
-	 */
-	public static void loadBiomeList(List<? extends String> biomeTypeNames, List<BiomeTypeHolder> typeHolders) {
-		BiomeTypeHolder holder = null;
-		Object t = null;
-
-		for (String s : biomeTypeNames) {
-			holder = null;
-			// check against Forge BiomeTypeMap
-			if ((t = BiomeTypeMap.getByName(s.trim().toUpperCase())) != null) {
-				holder = new BiomeTypeHolder(0, t);
-			}
-			// check against all registered BiomeDictionaries
-			else {
-				for (IBiomeDictionary d : BiomeDictionaryManager.getInstance().getAll()) {
-					t = d.getTypeByName(s.toUpperCase());
-					holder = new BiomeTypeHolder(1, t);
-					break;
-				}
-			}
-			if (holder != null) {
-				typeHolders.add(holder);
-			}
-		}
-	}
-
-	/**
-	 * Load the Biome Type Holders with all the biome types.
-	 * 
-	 * @param biome
-	 * @param whiteList
-	 * @param blackList
-	 * @return
-	 */
-	public static boolean isBiomeAllowed(Biome biome, List<BiomeTypeHolder> whiteList,
-			List<BiomeTypeHolder> blackList) {
-		/*
-		 * check the white list first. if white list is not null && not empty but biome
-		 * is NOT in the list, then return false
-		 */
-		if (whiteList != null && whiteList.size() > 0) {
-			for (BiomeTypeHolder holder : whiteList) {
-				// check which dictionary to use
-				if (holder.getDictionaryId() == 0) {
-					if (BiomeDictionary.hasType(biome, (Type) holder.getBiomeType())) {
-						return true;
-					}
-				} else {
-					// check against all registered BiomeDictionaries
-					for (IBiomeDictionary d : BiomeDictionaryManager.getInstance().getAll()) {
-						if (d.isBiomeOfType(biome, (IBiomeType) holder.getBiomeType())) {
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		} else if (blackList != null && blackList.size() > 0) {
-			// check the black list
-			for (BiomeTypeHolder holder : blackList) {
-				// check which dictionary to use
-				if (holder.getDictionaryId() == 0) {
-					if (BiomeDictionary.hasType(biome, (Type) holder.getBiomeType())) {
-						return false;
-					}
-				} else {
-					// check against all registered BiomeDictionaries
-					for (IBiomeDictionary d : BiomeDictionaryManager.getInstance().getAll()) {
-						if (d.isBiomeOfType(biome, (IBiomeType) holder.getBiomeType())) {
-							return false;
-						}
-					}
-				}
-			}
-			return true;
-		} else {
-			// neither white list nor black list have values = all biomes are valid
-			return true;
-		}
+	public static Result isBiomeAllowed(Biome biome, List<String> whiteList, List<String> blackList) {
+        if (whiteList != null && whiteList.size() > 0) {
+        	for (String biomeName : whiteList) {
+	        	if (biomeName.equals(biome.getRegistryName().toString())) {
+	        		return Result.WHITE_LISTED;
+	        	}
+	        }
+        	// added in 1.15. If white list has values and biome is not in it, then by definition, it is black listed.
+        	return Result.BLACK_LISTED;
+        }
+        
+        if (blackList != null && blackList.size() > 0) {
+        	for (String biomeName : blackList) {
+        		if (biomeName.equals(biome.getRegistryName().toString())) {
+        			return Result.BLACK_LISTED;
+        		}
+        	}
+        }
+        
+    	// neither white list nor black list have values = all biomes are valid
+    	return Result.OK;
 	}
 }
