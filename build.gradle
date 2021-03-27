@@ -108,7 +108,6 @@ jar {
 
 // an array containing destination paths
 def destinations = ["${dest_folder}", "${mods_folder}"]
-println destinations[0]
 
 task deleteOldJar(type: Delete) {
         delete fileTree("${dest_folder}") {
