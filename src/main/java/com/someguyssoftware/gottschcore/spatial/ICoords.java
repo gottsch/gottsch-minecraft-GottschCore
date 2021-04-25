@@ -4,6 +4,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations.
@@ -250,5 +251,7 @@ public interface ICoords {
 	ICoords withZ(ICoords coords);
 
 	ICoords withZ(int z);
+
+	public Vector3d toVec3d();
 
 }

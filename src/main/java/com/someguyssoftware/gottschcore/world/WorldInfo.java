@@ -11,10 +11,13 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EntityPredicates;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -30,14 +33,17 @@ public class WorldInfo {
 	public static final int CHUNK_RADIUS = 8;
 	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
 
+	public static final ResourceLocation OVERWORLD = new ResourceLocation("overworld");
+	public static final ResourceLocation THE_NETHER = new ResourceLocation("the_nether");
+	public static final ResourceLocation THE_END = new ResourceLocation("the_end");
+	
 	public enum SURFACE {
 		LAND, WATER, LAVA, OTHER, INVALID
 	};
 
-	/*
-	 * ========================================= Find the game side.
-	 * =========================================
-	 */
+
+	// ========================================= Find the game side =========================================
+
 
 	public static boolean isServerSide() {
 		return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
@@ -65,6 +71,63 @@ public class WorldInfo {
 		return world.isClientSide();
 	}
 
+	// ===========
+	/**
+	 * 
+	 * @param world
+	 * @return
+	 */
+	public static ResourceLocation getDimension(World world) {
+		return world.dimension().location();
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param dimension
+	 * @return
+	 */
+	public static boolean isCurrentDimension(World world, ResourceLocation dimension) {
+		return getDimension(world).equals(dimension);
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @return
+	 */
+	public static boolean isSurfaceWorld(World world) {
+		return isCurrentDimension(world, OVERWORLD);
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param pos
+	 * @return
+	 */
+	public static boolean isSurfaceWorld(World world, BlockPos pos) {
+		return world.getBiome(pos).getBiomeCategory() != Biome.Category.NETHER && world.getBiome(pos).getBiomeCategory() != Biome.Category.THEEND;
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @return
+	 */
+	public static boolean isTheNether(World world) {
+		return isCurrentDimension(world, THE_NETHER);
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @return
+	 */
+	public static boolean isTheEnd(World world) {
+		return isCurrentDimension(world, THE_END);
+	}
+	
 	/**
 	 * 
 	 * @param world
@@ -82,6 +145,16 @@ public class WorldInfo {
 	 */
 	public static void setBlockState(World world, BlockContext context) {
 		world.setBlock(context.getCoords().toPos(), context.getState(), 3);
+	}
+	
+	/**
+	 * mc1.16.5 version.
+	 * @param world
+	 * @param coords
+	 * @param state
+	 */
+	public static void setBlock(IWorld world, ICoords coords, BlockState state) {
+		world.setBlock(coords.toPos(), state, 3);
 	}
 	
 	// ========================================= Find the topmost block position methods =========================================

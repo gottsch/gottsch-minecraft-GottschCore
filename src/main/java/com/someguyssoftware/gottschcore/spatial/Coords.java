@@ -348,6 +348,11 @@ public class Coords implements ICoords {
 	public ChunkPos toChunkPos() {
 		return new ChunkPos(toPos());
 	}
+	
+	@Override
+	public Vector3d toVec3d() {
+		return new Vector3d(getX(), getY(), getZ());
+	}
 
 	/**
 	 * 
