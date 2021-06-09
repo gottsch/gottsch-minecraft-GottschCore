@@ -31,27 +31,22 @@ public class ModFallingBlock extends ModBlock {
 		super(modID, name, properties);
 	}
 
-	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		worldIn.getBlockTicks().scheduleTick(pos, this, this.tickRate(worldIn));
-	}
-	
-	@Override
-	public void tick(BlockState state, ServerWorld worldIn, BlockPos pos, Random rand) {
+	/**
+	 * 
+	 * @param state
+	 * @param worldIn
+	 * @param pos
+	 * @param rand
+	 */
+	public void fall(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
 		if (worldIn.isEmptyBlock(pos.below()) || canFallThrough(worldIn.getBlockState(pos.below())) && pos.getY() >= 0) {
 			FallingBlockEntity fallingblockentity = new FallingBlockEntity(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, worldIn.getBlockState(pos));
-			this.onStartFalling(fallingblockentity);
+			this.falling(fallingblockentity, random);
 			worldIn.addFreshEntity(fallingblockentity);
 		}
 	}
 
-	protected void onStartFalling(FallingBlockEntity fallingEntity) {
-	}
-
-	/**
-	 * How many world ticks before ticking
-	 */
-	public int tickRate(IWorldReader worldIn) {
-		return 2;
+	protected void falling(FallingBlockEntity fallingEntity, Random random) {
 	}
 
 	public static boolean canFallThrough(BlockState state) {

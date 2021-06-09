@@ -23,7 +23,7 @@ import net.minecraft.world.World;
  * @author Mark Gottschling onJan 2, 2018
  *
  */
-public abstract class ModContainerBlock extends ModBlock implements ITileEntityProvider {
+public abstract class ModContainerBlock extends ModBlock /*implements ITileEntityProvider*/ {
 
 	/**
 	 * 

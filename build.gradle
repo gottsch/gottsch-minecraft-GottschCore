@@ -110,10 +110,14 @@ jar {
 def destinations = ["${dest_folder}", "${mods_folder}"]
 
 task deleteOldJar(type: Delete) {
-        delete fileTree("${dest_folder}") {
-            include "**/${mod_name}-mc${mc_version}-f${forge_version}.*"
+	destinations.each { destination ->
+		print 'deleting... '
+		println destination
+        delete fileTree(destination) {
+            include "**/${mod_name}-*.jar"
         }
     }
+}
     
 task copyJar() {
 	// iterate over the array with destination paths
@@ -127,5 +131,7 @@ task copyJar() {
     }
 }
 
-build.dependsOn copyJar
-copyJar.dependsOn deleteOldJar
+deleteOldJar
+copyJar.dependsOn minecraft
+//build.dependsOn copyJar
+//copyJar.dependsOn deleteOldJar

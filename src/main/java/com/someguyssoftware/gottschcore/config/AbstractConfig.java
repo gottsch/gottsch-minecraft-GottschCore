@@ -16,7 +16,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 public abstract class AbstractConfig implements IConfig {
 //	protected final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 //	protected final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
-
+	
 	public static Mod MOD;
 	public static Logging LOGGING;
 
@@ -47,19 +47,19 @@ public abstract class AbstractConfig implements IConfig {
 		 * @param builder
 		 */
 		public Mod(final ForgeConfigSpec.Builder builder) {
-			builder.comment("General mod properties").push(MOD_CATEGORY);
+			builder.comment(CATEGORY_DIV, " Mod properties", CATEGORY_DIV).push(MOD_CATEGORY);
 			enabled = builder.comment("Enables/Disables mod.").define("enabled", true);
 			folder = builder
-					.comment("The directory where mods are located", "This is relative to the Minecraft install path.")
+					.comment(" The directory where mods are located", "This is relative to the Minecraft install path.")
 					.define("modFolder", DEFAULT_MODS_FOLDER);
 			configFolder = builder
-					.comment("The directory where configs are located.", "Resource files will be located here as well.",
-							"This is relative to the Minecraft install path.")
+					.comment(" The directory where configs are located.", "Resource files will be located here as well.",
+							" This is relative to the Minecraft install path.")
 					.define("configFolder", DEFAULT_CONFIG_FOLDER);
 			enableVersionChecker = builder.comment("Enables/Disables version checking.").define("enableVersionChecker",
 					true);
 
-			latestVersionReminder = builder.comment("Remind the user of the latest version update.")
+			latestVersionReminder = builder.comment(" Remind the user of the latest version update.")
 					.define("enableLatestVersionReminder", true);
 
 			builder.pop();
@@ -78,16 +78,16 @@ public abstract class AbstractConfig implements IConfig {
 		public ConfigValue<String> filename;
 
 		public Logging(final ForgeConfigSpec.Builder builder) {
-			builder.comment("Logging properties").push(LOGGING_CATEGORY);
+			builder.comment(CATEGORY_DIV, " Logging properties", CATEGORY_DIV).push(LOGGING_CATEGORY);
 
-			level = builder.comment("The logging level. Set to 'off' to disable logging.",
-					"Values = [trace|debug|info|warn|error|off]").define("level", DEFAULT_LOGGER_LEVEL);
-			size = builder.comment("The size a log file can be before rolling over to a new file.").define("size",
+			level = builder.comment(" The logging level. Set to 'off' to disable logging.",
+					" Values = [trace|debug|info|warn|error|off]").define("level", DEFAULT_LOGGER_LEVEL);
+			size = builder.comment(" The size a log file can be before rolling over to a new file.").define("size",
 					DEFAULT_LOGGER_SIZE);
-			folder = builder.comment("The directory where the logs should be stored.",
-					"This is relative to the Minecraft install path.").define("folder", DEFAULT_LOGGER_FOLDER);
+			folder = builder.comment(" The directory where the logs should be stored.",
+					" This is relative to the Minecraft install path.").define("folder", DEFAULT_LOGGER_FOLDER);
 
-			filename = builder.comment("The base filename of the  log file.").define("filename",
+			filename = builder.comment(" The base filename of the  log file.").define("filename",
 					DEFAULT_LOGGER_FILENAME);
 			builder.pop();
 		}
