@@ -27,7 +27,7 @@ public class BasedBlock extends ModBlock implements IBasedBlock {
 	 */
 	public BasedBlock(String modID, String name, Block.Properties properties) {
 		super(modID, name, properties);
-		this.registerDefaultState(this.stateDefinition.any().setValue(BASE, Direction.NORTH));
+		this.registerDefaultState(this.stateDefinition.any().setValue(BASE, Direction.UP));
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class BasedBlock extends ModBlock implements IBasedBlock {
 	 */
 	@Nullable
 	public BlockState getStateForPlacement(BlockItemUseContext context) {
-		return this.defaultBlockState().setValue(BASE, context.getHorizontalDirection());
+		return this.defaultBlockState().setValue(BASE, context.getClickedFace());
 	}
 
 	/**

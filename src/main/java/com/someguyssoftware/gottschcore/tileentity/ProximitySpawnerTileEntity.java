@@ -1,8 +1,7 @@
-/**
- * 
- */
 package com.someguyssoftware.gottschcore.tileentity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -13,30 +12,24 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DungeonHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * @author Mark Gottschling on Jul 12, 2019
  *
  */
 public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
+	private static final String MOB_NAME = "mobName";
+
 	private ResourceLocation mobName;
 	private Quantity mobNum;
 
@@ -62,8 +55,8 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 		super.load(state, nbt);
 		try {
 			// read the custom name
-			if (nbt.contains("mobName", 8)) {
-				this.mobName = new ResourceLocation(nbt.getString("mobName"));
+			if (nbt.contains(MOB_NAME, 8)) {
+				this.mobName = new ResourceLocation(nbt.getString(MOB_NAME));
 			} else {
 				// select a random mob
 				EntityType<?> entityType = DungeonHooks.getRandomDungeonMob(new Random());
@@ -80,7 +73,7 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 				min = nbt.getInt("mobNumMin");
 			}
 			if (nbt.contains("mobNumMax")) {
-				min = nbt.getInt("mobNumMax");
+				max = nbt.getInt("mobNumMax");
 			}
 			this.mobNum = new Quantity(min, max);
 		} catch (Exception e) {
@@ -123,6 +116,20 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 
 		int mobCount = RandomHelper.randomInt(random, getMobNum().getMinInt(), getMobNum().getMaxInt());
 
+		// get a list of adjacent unoccupied blocks
+		List<BlockPos> availableSpawnBlocks = new ArrayList<>();
+		BlockPos proximityPos = getBlockPos();
+		// TODO update to Coords
+		if (world.getBlockState(proximityPos.north()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.north());
+		if (world.getBlockState(proximityPos.east()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.east());
+		if (world.getBlockState(proximityPos.south()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.south());
+		if (world.getBlockState(proximityPos.west()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.west());
+
+		if (world.getBlockState(proximityPos.offset(1, 0, 1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(1, 0, 1));
+		if (world.getBlockState(proximityPos.offset(1, 0, -1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(1, 0, -1));
+		if (world.getBlockState(proximityPos.offset(-1, 0, 1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(-1, 0, 1));
+		if (world.getBlockState(proximityPos.offset(-1, 0, -1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(-1, 0, -1));
+
 		for (int i = 0; i < mobCount; i++) {
 			Optional<EntityType<?>> entityType = EntityType.byString(getMobName().toString());
 			if (!entityType.isPresent()) {
@@ -130,29 +137,15 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 				selfDestruct();
 				return;
 			}			
+			GottschCore.LOGGER.debug("got entityType -> {}", getMobName());
+			// select a random spawn coords
+			BlockPos spawnPos = availableSpawnBlocks.get(random.nextInt(availableSpawnBlocks.size()));
 
-			double x = getBlockPos().getX() + 0.5D;
-			double y = getBlockPos().getY();
-			double z =getBlockPos().getZ() + 0.5D;
-			
-			if (world.noCollision(entityType.get().getAABB(x, y, z))) {
-				ServerWorld serverWorld = (ServerWorld)world;
-				if (EntitySpawnPlacementRegistry.checkSpawnRules(entityType.get(), serverWorld, SpawnReason.SPAWNER, new BlockPos(x, y, z), world.getRandom())) {
-					Entity entity = entityType.get().create(serverWorld);
-					if (entity == null) {
-						GottschCore.LOGGER.debug("unable to create entity -> {}", getMobName());
-						selfDestruct();
-						return;
-					}
-
-					entity.moveTo(entity.getX(), entity.getY(), entity.getZ(), world.random.nextFloat() * 360.0F, 0.0F);
-
-					if (!serverWorld.addFreshEntity(entity)) {
-						GottschCore.LOGGER.debug("unable to spawn entity in world -> {}", getMobName());
-						selfDestruct();
-						return;
-					}
-				}
+			if (entityType.get().spawn((ServerWorld)world, null, null, spawnPos, SpawnReason.SPAWN_EGG, true, true) != null) {
+				GottschCore.LOGGER.debug("should've created entity(s) at -> {}", getBlockPos());
+			}
+			else {
+				GottschCore.LOGGER.debug("spawn failed");
 			}
 		}
 		// self destruct

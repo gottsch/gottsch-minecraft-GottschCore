@@ -56,6 +56,9 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 			else {
 				this.proximity = 5;
 			}
+			if (nbt.contains("isDead")) {
+				this.isDead = nbt.getBoolean("isDead");
+			}
 		} catch (Exception e) {
 			GottschCore.LOGGER.error("Error reading AbstractProximity properties from NBT:", e);
 		}
@@ -68,6 +71,7 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 	public CompoundNBT save(CompoundNBT nbt) {
 		super.save(nbt);
 		nbt.putDouble("proximity", getProximity());
+		nbt.putBoolean("isDead", isDead());
 		return nbt;
 	}
 
@@ -93,9 +97,7 @@ public abstract class AbstractProximityTileEntity extends AbstractModTileEntity 
 
 			double distanceSq = player.distanceToSqr((double) getBlockPos().getX(), (double) getBlockPos().getY(),
 					(double) getBlockPos().getZ());
-			GottschCore.LOGGER.info("distanceSq -> {} to proximity TE @ -> {}; proximitySq -> {}", distanceSq, getBlockPos(), proximitySq);
 			if (!isTriggered && !this.isDead && (distanceSq < proximitySq)) {
-				GottschCore.LOGGER.info("PTE proximity was met.");
 				isTriggered = true;
 				// exectute action
 				execute(this.getLevel(), new Random(), new Coords(this.getBlockPos()), new Coords(player.blockPosition()));
