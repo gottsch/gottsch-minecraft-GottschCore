@@ -3,6 +3,7 @@
  */
 package com.someguyssoftware.gottschcore.world;
 
+import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.block.BlockContext;
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
@@ -13,9 +14,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,7 +40,7 @@ public class WorldInfo {
 	public static final ResourceLocation OVERWORLD = new ResourceLocation("overworld");
 	public static final ResourceLocation THE_NETHER = new ResourceLocation("the_nether");
 	public static final ResourceLocation THE_END = new ResourceLocation("the_end");
-	
+
 	public enum SURFACE {
 		LAND, WATER, LAVA, OTHER, INVALID
 	};
@@ -80,7 +84,7 @@ public class WorldInfo {
 	public static ResourceLocation getDimension(World world) {
 		return world.dimension().location();
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -90,7 +94,7 @@ public class WorldInfo {
 	public static boolean isCurrentDimension(World world, ResourceLocation dimension) {
 		return getDimension(world).equals(dimension);
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -99,7 +103,7 @@ public class WorldInfo {
 	public static boolean isSurfaceWorld(World world) {
 		return isCurrentDimension(world, OVERWORLD);
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -109,7 +113,7 @@ public class WorldInfo {
 	public static boolean isSurfaceWorld(World world, BlockPos pos) {
 		return world.getBiome(pos).getBiomeCategory() != Biome.Category.NETHER && world.getBiome(pos).getBiomeCategory() != Biome.Category.THEEND;
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -118,7 +122,7 @@ public class WorldInfo {
 	public static boolean isTheNether(World world) {
 		return isCurrentDimension(world, THE_NETHER);
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -127,7 +131,7 @@ public class WorldInfo {
 	public static boolean isTheEnd(World world) {
 		return isCurrentDimension(world, THE_END);
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -137,7 +141,7 @@ public class WorldInfo {
 	public static void setBlockState(World world, ICoords coords, BlockState state) {
 		world.setBlock(coords.toPos(), state, 3);
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -146,7 +150,7 @@ public class WorldInfo {
 	public static void setBlockState(World world, BlockContext context) {
 		world.setBlock(context.getCoords().toPos(), context.getState(), 3);
 	}
-	
+
 	/**
 	 * mc1.16.5 version.
 	 * @param world
@@ -156,7 +160,7 @@ public class WorldInfo {
 	public static void setBlock(IWorld world, ICoords coords, BlockState state) {
 		world.setBlock(coords.toPos(), state, 3);
 	}
-	
+
 	// ========================================= Find the topmost block position methods =========================================
 	/**
 	 * Finds the topmost block position at an Coords position in the world. Wrapper
@@ -266,15 +270,15 @@ public class WorldInfo {
 		return newCoords;
 	}
 
-//	/**
-//	 * 
-//	 * @param world
-//	 * @param pos
-//	 * @return
-//	 */
-//	public static ICoords getSurfaceCoords(final World world, final BlockPos pos) {
-//		return getSurfaceCoords(world, new Coords(pos));
-//	}
+	//	/**
+	//	 * 
+	//	 * @param world
+	//	 * @param pos
+	//	 * @return
+	//	 */
+	//	public static ICoords getSurfaceCoords(final World world, final BlockPos pos) {
+	//		return getSurfaceCoords(world, new Coords(pos));
+	//	}
 
 	/**
 	 * Gets the first valid dry land surface position (not on/under water or lava)
@@ -284,25 +288,23 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getDryLandSurfaceCoords(final IWorld world, final ICoords coords) {
+	@Deprecated
+	public static ICoords getDryLandSurfaceCoords(final IServerWorld world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 
 		while (!isSurfaceBlock) {
 			// get the blockContext that is 1 below current position
 			BlockContext blockContext = new BlockContext(world, newCoords.down(1));
-
 			// exit if not valid Y coordinate
 			if (!isValidY(blockContext.getCoords())) {
 				return EMPTY_COORDS;
 			}
-
 			// test if the block at position is water, lava or ice
 			if (blockContext.equalsMaterial(Material.WATER) || blockContext.equalsMaterial(Material.LAVA)
 					|| blockContext.equalsMaterial(Material.ICE)) {
 				return EMPTY_COORDS;
 			}
-
 			if (blockContext.equalsMaterial(Material.AIR) || blockContext.isReplaceable()
 					|| blockContext.equalsMaterial(Material.LEAVES) || blockContext.equalsMaterial(Material.WOOD)
 					|| blockContext.isBurning()) {
@@ -312,6 +314,30 @@ public class WorldInfo {
 			}
 		}
 		return newCoords;
+	}
+
+	/**
+	 * 
+	 * @param world
+	 * @param generator
+	 * @param coords
+	 * @return
+	 */
+	public static ICoords getDryLandSurfaceCoords(final IServerWorld world, final ChunkGenerator generator, final ICoords coords) {
+		// grab height of land. Will stop at first non-air block
+		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
+		// the spawn coords is 1 ablove the land height
+		ICoords spawnCoords = coords.withY(landHeight + 1);
+		
+		// grabs column of blocks at given position
+		IBlockReader columnOfBlocks = generator.getBaseColumn(coords.getX(), coords.getZ());
+		// get the top block of the column (1 below the spawn)
+		BlockState topBlock = columnOfBlocks.getBlockState(coords.withY(landHeight).toPos());
+		// test for non-solid state
+		if (!topBlock.getFluidState().isEmpty()) {
+			return EMPTY_COORDS;
+		}
+		return spawnCoords;
 	}
 
 	/**
@@ -377,6 +403,30 @@ public class WorldInfo {
 			}
 		}
 		return newCoords;
+	}
+	
+	/**
+	 * 
+	 * @param world
+	 * @param generator
+	 * @param coords
+	 * @return
+	 */
+	public static ICoords getOceanFloorSurfaceCoords(final IServerWorld world, final ChunkGenerator generator, final ICoords coords) {
+		// grab height of land. Will stop at first non-air block
+		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.OCEAN_FLOOR_WG);
+		// the spawn coords is 1 ablove the land height
+		ICoords spawnCoords = coords.withY(landHeight + 1);
+		
+		// grabs column of blocks at given position
+		IBlockReader columnOfBlocks = generator.getBaseColumn(coords.getX(), coords.getZ());
+		// get the top block of the column (1 below the spawn)
+		BlockState topBlock = columnOfBlocks.getBlockState(coords.withY(landHeight).toPos());
+		// test for non-solid state
+		if (!topBlock.getFluidState().isEmpty()) {
+			return EMPTY_COORDS;
+		}
+		return spawnCoords;
 	}
 
 	/**
@@ -578,7 +628,7 @@ public class WorldInfo {
 		}
 		return true;
 	}
-	
+
 	public static boolean isLiquidBase(final IWorld world, final ICoords coords, final int width, final int depth,
 			double percentRequired) {
 		double percent = getLiquidBasePercent(world, coords.down(1), width, depth);
@@ -616,7 +666,7 @@ public class WorldInfo {
 		percent = (liquidBlocks / base) * 100.0D;
 		return percent;
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -629,7 +679,7 @@ public class WorldInfo {
 
 		// get a valid surface coords (whether on land or sea)
 		ySurface = getHeight(world, coords);
-//		GottschCore.logger.debug("ySurface:" + ySurface);
+		//		GottschCore.logger.debug("ySurface:" + ySurface);
 		ICoords surfaceCoords = getSurfaceCoords(world, coords.resetY(ySurface));
 		if (surfaceCoords == null) {
 			return INVALID_SURFACE_POS;

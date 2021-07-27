@@ -548,6 +548,7 @@ public class DecayProcessor implements IDecayProcessor {
 			return NULL_BLOCK.defaultBlockState();
 		}
 
+		// TODO remove @ OR translate and remove
 		try {
 			blockState = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(blockName)).defaultBlockState();
 		} catch (Exception e) {

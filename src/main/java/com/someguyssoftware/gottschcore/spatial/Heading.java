@@ -5,7 +5,9 @@ package com.someguyssoftware.gottschcore.spatial;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import net.minecraft.util.Direction;
 
@@ -232,5 +234,14 @@ public enum Heading {
 
 	public Direction getDirection() {
 		return direction;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<String> getNames() {
+		List<String> names = EnumSet.allOf(Heading.class).stream().map(x -> x.name()).collect(Collectors.toList());
+		return names;
 	}
 }

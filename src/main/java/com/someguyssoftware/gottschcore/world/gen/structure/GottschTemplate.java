@@ -40,10 +40,12 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.DoubleNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.NBTUtil;
+import net.minecraft.state.properties.StructureMode;
 import net.minecraft.tileentity.LockableLootTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ObjectIntIdentityMap;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.shapes.BitSetVoxelShapePart;
@@ -87,6 +89,16 @@ public class GottschTemplate extends Template {
 
 	public BlockPos getSize() {
 		return this.size;
+	}
+
+	public BlockPos getSize(Rotation rotation) {
+		switch(rotation) {
+		case COUNTERCLOCKWISE_90:
+		case CLOCKWISE_90:
+			return new BlockPos(this.size.getZ(), this.size.getY(), this.size.getX());
+		default:
+			return this.size;
+		}
 	}
 
 	public void setAuthor(String authorIn) {
@@ -166,7 +178,7 @@ public class GottschTemplate extends Template {
 	 * Non-Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(World world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
+	public boolean placeInWorld(IServerWorld world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
 		if (this.palettes.isEmpty()) {
 			return false;
 		} else {
@@ -345,7 +357,7 @@ public class GottschTemplate extends Template {
 	 * Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(World world, BlockPos blockPos, BlockPos pos2, PlacementSettings placement, IDecayProcessor decayProcessor, 
+	public boolean placeInWorld(IServerWorld world, BlockPos blockPos, BlockPos pos2, PlacementSettings placement, IDecayProcessor decayProcessor, 
 			final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
 
 		if (this.palettes.isEmpty()) {
@@ -400,9 +412,11 @@ public class GottschTemplate extends Template {
 				//================= GottschCore Code =================//
 				// need the transformed size
 				ICoords transformedSize = new Coords(getSize(placement.getRotation()));
+
+				GottschCore.LOGGER.debug("transformed size -> {}", transformedSize.toShortString());
 				List<DecayBlockInfo> decayBlockInfoList = decayProcessor.process(world, new Random(), transformedSize,
 						NULL_BLOCK);
-
+				GottschCore.LOGGER.debug("decayBlockInfoList.size={}", decayBlockInfoList.size());
 				for (DecayBlockInfo decay : decayBlockInfoList) {
 					if (decay.getState().getBlock() == NULL_BLOCK)
 						continue;
@@ -685,6 +699,15 @@ public class GottschTemplate extends Template {
 			//================= GottschCore =================//
 			// check if a marker block
 			Block block = blockState.getBlock();
+			// TODO could check if block has nbt that is marker block
+			/*
+            if (GottschTemplateNew$blockinfo.nbt != null) {
+                StructureMode structuremode = StructureMode.valueOf(GottschTemplateNew$blockinfo.nbt.getString("mode"));
+                if (structuremode == StructureMode.DATA) {
+                   GottschTemplateNew$blockinfo.nbt.getString("metadata"); // --> gets the name of the data
+                }
+             }
+			 */
 			if (block != Blocks.AIR && markerBlocks.contains(block)) {
 				// add pos to map
 				GottschCore.LOGGER.debug("template map adding block -> {} with pos -> {}", block.getRegistryName(),
@@ -697,7 +720,7 @@ public class GottschTemplate extends Template {
 		List<GottschTemplate.BlockInfo> list3 = buildInfoList(list2, list, list1);
 		this.palettes.add(new GottschTemplate.Palette(list3));
 	}
-	
+
 	static class BasicPalette implements Iterable<BlockState> {
 		public static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.defaultBlockState();
 		private final ObjectIntIdentityMap<BlockState> ids = new ObjectIntIdentityMap<>(16);
@@ -779,7 +802,7 @@ public class GottschTemplate extends Template {
 			});
 		}
 	}
-	
+
 	/**
 	 * Wrapper for transform(BlockPos, Mirror, Rotation, BlockPos)
 	 * 
@@ -790,7 +813,7 @@ public class GottschTemplate extends Template {
 	public static ICoords transform(PlacementSettings placement, ICoords coords) {
 		return new Coords(transform(coords.toPos(), placement.getMirror(), placement.getRotation(), placement.getRotationPivot()));		
 	}
-	
+
 	/**
 	 * 
 	 * @param random

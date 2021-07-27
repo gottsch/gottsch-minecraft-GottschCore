@@ -114,7 +114,7 @@ task deleteOldJar(type: Delete) {
 		print 'deleting... '
 		println destination
         delete fileTree(destination) {
-            include "**/${mod_name}-*.jar"
+            include "**/${mod_name}-f${forge_version}*.jar"
         }
     }
 }
