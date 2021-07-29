@@ -17,8 +17,8 @@ public abstract class AbstractConfig implements IConfig {
 //	protected final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 //	protected final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
 	
-	public static Mod MOD;
-	public static Logging LOGGING;
+//	public static Mod MOD;
+//	public static Logging LOGGING;
 
 	static {
 //		MOD = new Mod(COMMON_BUILDER);
