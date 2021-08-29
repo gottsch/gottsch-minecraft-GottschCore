@@ -22,6 +22,9 @@ public class GottschCoreConfig extends AbstractConfig {
 	protected static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 	public static ForgeConfigSpec COMMON_CONFIG;
 
+	public static final Mod MOD;
+	public static final Logging LOGGING;
+	
 	static {
 		MOD = new Mod(COMMON_BUILDER);
 		LOGGING = new Logging(COMMON_BUILDER);
