@@ -14,6 +14,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -141,7 +143,8 @@ public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
 			// select a random spawn coords
 			BlockPos spawnPos = availableSpawnBlocks.get(random.nextInt(availableSpawnBlocks.size()));
 
-			if (entityType.get().spawn((ServerWorld)world, null, null, spawnPos, SpawnReason.SPAWN_EGG, true, true) != null) {
+			// NOTE added APPLE itemstack because mixin mods where looking for that to be there.
+			if (entityType.get().spawn((ServerWorld)world, new ItemStack(Items.APPLE), null, spawnPos, SpawnReason.COMMAND, true, true) != null) {
 				GottschCore.LOGGER.debug("should've created entity(s) at -> {}", getBlockPos());
 			}
 			else {
