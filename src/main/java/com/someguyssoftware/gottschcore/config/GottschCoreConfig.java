@@ -100,4 +100,34 @@ public class GottschCoreConfig extends AbstractConfig {
 	public void setConfigFolder(String configFolder) {
 		GottschCoreConfig.MOD.configFolder.set(configFolder);
 	}
+	
+	@Override
+	public String getLogsFolder() {
+		return GottschCoreConfig.LOGGING.folder.get();
+	}
+	
+	@Override
+	public void setLogsFolder(String folder) {
+		GottschCoreConfig.LOGGING.folder.set(folder);
+	}
+	
+	@Override
+	public String getLoggerSize() {
+		return GottschCoreConfig.LOGGING.size.get();
+	}
+	
+	@Override
+	public void setLoggerSize(String size) {
+		GottschCoreConfig.LOGGING.size.set(size);
+	}
+	
+	@Override
+	public String getLoggerLevel() {
+		return GottschCoreConfig.LOGGING.level.get();
+	}
+	
+	@Override
+	public void setLoggerLevel(String level) {
+		GottschCoreConfig.LOGGING.level.set(level);
+	}
 }

@@ -1,5 +1,7 @@
 package com.someguyssoftware.gottschcore;
 
+import java.nio.file.Paths;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +42,7 @@ public class GottschCore implements IMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.4.0";
+	protected static final String VERSION = "1.4.5";
 
 	public static GottschCore instance;
 	private static GottschCoreConfig config;
@@ -56,9 +58,6 @@ public class GottschCore implements IMod {
 
 		GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG,
 				FMLPaths.CONFIGDIR.get().resolve("gottschcore-common.toml"));
-
-		// TODO research overridding the log4j.json/xml to see if custom logging can be
-		// added
 	}
 
 	/**
@@ -67,8 +66,7 @@ public class GottschCore implements IMod {
 	 * @param event
 	 */
 	private void setup(final FMLCommonSetupEvent event) {
-		// TODO create logging
-		addRollingFileAppender(GottschCore.NAME, null);
+		config.addRollingFileAppender(GottschCore.NAME, GottschCore.config);
 	}
 
 	@Override
@@ -86,50 +84,49 @@ public class GottschCore implements IMod {
 		return GottschCore.config;
 	}
 	
-	/**
-	 * TODO need the ILoggerConfig or just IConfig
-	 * @param modName
-	 * @param object
-	 */
-	public static void addRollingFileAppender(String modName, Object object) {
-
-		String appenderName = modName + "Appender";
-		String loggerFolder = "logs/gottschcore/";
-		if (!loggerFolder.endsWith("/")) {
-			loggerFolder += "/";
-		}
-
-		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-		final Configuration config = ctx.getConfiguration();
-
-		// create a sized-based trigger policy, using config setting for size.
-		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(/*modConfig.getLoggerSize()*/"1000K");
-		// create the pattern for log statements
-		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %p %c | %F:%L | %m%n")
-				.withAlwaysWriteExceptions(true).build();
-
-		// create a rolling file appender
-		Appender appender = RollingFileAppender.newBuilder()
-				.withFileName(loggerFolder + /*modConfig.getLoggerFilename()*/"gottschcore" + ".log")
-				.withFilePattern(loggerFolder + /*modConfig.getLoggerFilename()*/"gottschcore" + "-%d{yyyy-MM-dd-HH_mm_ss}.log")
-				.withAppend(true).setName(appenderName).withBufferedIo(true).withImmediateFlush(true)
-				.withPolicy(policy)
-				.setLayout(layout)
-				.setIgnoreExceptions(true).withAdvertise(false).setConfiguration(config).build();
-
-		appender.start();
-		config.addAppender(appender);
-		
-		// create a appender reference
-		AppenderRef ref = AppenderRef.createAppenderRef("File", null, null);
-		AppenderRef[] refs = new AppenderRef[] {ref};
-		
-		Level level = Level.getLevel(GottschCoreConfig.LOGGING.level.get().toUpperCase());
-		LoggerConfig loggerConfig = LoggerConfig.createLogger(false, level, modName, "true", refs, null, config, null );
-		loggerConfig.addAppender(appender, null, null);
-		config.addLogger(modName, loggerConfig);
-		
-		// update logger with new appenders
-		ctx.updateLoggers();
-	}
+//	/**
+//	 * @param modName
+//	 * @param object
+//	 */
+//	public static void addRollingFileAppender(String modName, IConfig modConfig) {
+//
+//		String appenderName = modName + "Appender";
+//		String loggerFolder = Paths.get(modConfig.getLogsFolder()).toString(); //"logs/gottschcore/";
+//		if (!loggerFolder.endsWith("/")) {
+//			loggerFolder += "/";
+//		}
+//
+//		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+//		final Configuration config = ctx.getConfiguration();
+//
+//		// create a sized-based trigger policy, using config setting for size.
+//		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(modConfig.getLoggerSize()/*"1000K"*/);
+//		// create the pattern for log statements
+//		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %p %c | %F:%L | %m%n")
+//				.withAlwaysWriteExceptions(true).build();
+//
+//		// create a rolling file appender
+//		Appender appender = RollingFileAppender.newBuilder()
+//				.withFileName(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore"*/  ".log")
+//				.withFilePattern(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore" +*/ "-%d{yyyy-MM-dd-HH_mm_ss}.log")
+//				.withAppend(true).setName(appenderName).withBufferedIo(true).withImmediateFlush(true)
+//				.withPolicy(policy)
+//				.setLayout(layout)
+//				.setIgnoreExceptions(true).withAdvertise(false).setConfiguration(config).build();
+//
+//		appender.start();
+//		config.addAppender(appender);
+//		
+//		// create a appender reference
+//		AppenderRef ref = AppenderRef.createAppenderRef("File", null, null);
+//		AppenderRef[] refs = new AppenderRef[] {ref};
+//		
+//		Level level = Level.getLevel(modConfig.getLoggerLevel().toUpperCase());
+//		LoggerConfig loggerConfig = LoggerConfig.createLogger(false, level, modName, "true", refs, null, config, null );
+//		loggerConfig.addAppender(appender, null, null);
+//		config.addLogger(modName, loggerConfig);
+//		
+//		// update logger with new appenders
+//		ctx.updateLoggers();
+//	}
 }

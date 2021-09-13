@@ -1,6 +1,18 @@
 package com.someguyssoftware.gottschcore.config;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.rolling.SizeBasedTriggeringPolicy;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
@@ -14,22 +26,7 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
  *
  */
 public abstract class AbstractConfig implements IConfig {
-//	protected final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
-//	protected final ForgeConfigSpec.Builder CLIENT_BUILDER = new ForgeConfigSpec.Builder();
-	
-//	public static Mod MOD;
-//	public static Logging LOGGING;
 
-	static {
-//		MOD = new Mod(COMMON_BUILDER);
-//		LOGGING = new Logging(COMMON_BUILDER);
-	}
-
-//	public AbstractConfig() {
-//		MOD = new Mod(COMMON_BUILDER);
-//		LOGGING = new Logging(COMMON_BUILDER);
-//	}
-	
 	/**
 	 * 
 	 * @author Mark Gottschling on Nov 16, 2019
@@ -87,8 +84,8 @@ public abstract class AbstractConfig implements IConfig {
 			folder = builder.comment(" The directory where the logs should be stored.",
 					" This is relative to the Minecraft install path.").define("folder", DEFAULT_LOGGER_FOLDER);
 
-			filename = builder.comment(" The base filename of the  log file.").define("filename",
-					DEFAULT_LOGGER_FILENAME);
+//			filename = builder.comment(" The base filename of the  log file.").define("filename",
+//					DEFAULT_LOGGER_FILENAME);
 			builder.pop();
 		}
 	}
@@ -104,5 +101,51 @@ public abstract class AbstractConfig implements IConfig {
 
 		configData.load();
 		spec.setConfig(configData);
+	}
+	
+	/**
+	 * @param modName
+	 * @param object
+	 */
+	public void addRollingFileAppender(String modName, IConfig modConfig) {
+
+		String appenderName = modName + "Appender";
+		String loggerFolder = Paths.get(modConfig.getLogsFolder()).toString(); //"logs/gottschcore/";
+		if (!loggerFolder.endsWith("/")) {
+			loggerFolder += "/";
+		}
+
+		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+		final Configuration config = ctx.getConfiguration();
+
+		// create a sized-based trigger policy, using config setting for size.
+		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(modConfig.getLoggerSize()/*"1000K"*/);
+		// create the pattern for log statements
+		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %p %c | %F:%L | %m%n")
+				.withAlwaysWriteExceptions(true).build();
+
+		// create a rolling file appender
+		Appender appender = RollingFileAppender.newBuilder()
+				.withFileName(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore"*/  ".log")
+				.withFilePattern(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore" +*/ "-%d{yyyy-MM-dd-HH_mm_ss}.log")
+				.withAppend(true).setName(appenderName).withBufferedIo(true).withImmediateFlush(true)
+				.withPolicy(policy)
+				.setLayout(layout)
+				.setIgnoreExceptions(true).withAdvertise(false).setConfiguration(config).build();
+
+		appender.start();
+		config.addAppender(appender);
+		
+		// create a appender reference
+		AppenderRef ref = AppenderRef.createAppenderRef("File", null, null);
+		AppenderRef[] refs = new AppenderRef[] {ref};
+		
+		Level level = Level.getLevel(modConfig.getLoggerLevel().toUpperCase());
+		LoggerConfig loggerConfig = LoggerConfig.createLogger(false, level, modName, "true", refs, null, config, null );
+		loggerConfig.addAppender(appender, null, null);
+		config.addLogger(modName, loggerConfig);
+		
+		// update logger with new appenders
+		ctx.updateLoggers();
 	}
 }

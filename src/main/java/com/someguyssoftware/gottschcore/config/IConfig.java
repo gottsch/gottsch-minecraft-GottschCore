@@ -16,7 +16,6 @@ public interface IConfig {
 	public static final String DEFAULT_CONFIG_FOLDER = "config";
 	public static final String DEFAULT_LOGGER_LEVEL = "info";
 	public static final String DEFAULT_LOGGER_FOLDER = "logs";
-	public static final String DEFAULT_LOGGER_FILENAME = "log";
 	public static final String DEFAULT_LOGGER_SIZE = "1000K";
 
 	/**
@@ -72,4 +71,16 @@ public interface IConfig {
 	 * @param configFolder
 	 */
 	void setConfigFolder(String configFolder);
+	
+	public String getLogsFolder();
+	
+	public void setLogsFolder(String logsFolder);
+	
+	public String getLoggerSize();
+	
+	public void setLoggerSize(String size);
+	
+	public String getLoggerLevel();
+	
+	public void setLoggerLevel(String level);
 }
