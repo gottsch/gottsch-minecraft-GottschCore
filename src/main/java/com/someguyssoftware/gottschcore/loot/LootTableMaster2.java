@@ -1,5 +1,21 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.loot;
 
@@ -32,25 +48,23 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.version.BuildVersion;
 import com.someguyssoftware.gottschcore.version.VersionChecker;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTableManager;
-import net.minecraft.loot.RandomValueRange;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.SaveFormat;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.loot.Deserializers;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 /**
  * @author Mark Gottschling on Dec 1, 2020
@@ -61,9 +75,11 @@ public class LootTableMaster2 implements ILootTableMaster {
 
 	public static final String LOOT_TABLES_FOLDER = "loot_tables";
 
-	private static final Gson GSON_INSTANCE = (new GsonBuilder())
-			.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer()).create();
+//	private static final Gson GSON_INSTANCE = (new GsonBuilder())
+//			.registerTypeAdapter(NumberProvider.class, new NumberProvider.Serializer()).create();
 
+	private static final Gson GSON_INSTANCE = Deserializers.createLootTableSerializer().create();
+	
 	private final IMod mod;
 	private File worldDataBaseFolder;
 	private LootContext context;
@@ -88,13 +104,13 @@ public class LootTableMaster2 implements ILootTableMaster {
 	 * @param world
 	 */
 	@Override
-	public void init(ServerWorld world) {
+	public void init(ServerLevel world) {
 		Object save = ObfuscationReflectionHelper.getPrivateValue(MinecraftServer.class, world.getServer(), "storageSource");
 		
-		if (save instanceof SaveFormat.LevelSave) {
-			Path path = ((SaveFormat.LevelSave) save).getWorldDir().resolve("datapacks");
+		if (save instanceof LevelStorageSource.LevelStorageAccess) {
+			Path path = ((LevelStorageSource.LevelStorageAccess) save).getWorldDir().resolve("datapacks");
 			setWorldDataBaseFolder(path.toFile());
-			this.context = new LootContext.Builder(world).create(LootParameterSets.ALL_PARAMS);
+			this.context = new LootContext.Builder(world).create(LootContextParamSets.ALL_PARAMS);
 		}
 		else {
 			// WHAT TO DO
@@ -134,7 +150,7 @@ public class LootTableMaster2 implements ILootTableMaster {
 	 * @param location
 	 */
 	@Override
-	public void register(ServerWorld world, String modID, List<String> locations) {
+	public void register(ServerLevel world, String modID, List<String> locations) {
 		// TODO copy files from config location to world data location if not there already
 		
 //		for (String location : locations) {
@@ -393,7 +409,7 @@ public class LootTableMaster2 implements ILootTableMaster {
 		ResourceLocation loc = new ResourceLocation(getMod().getId(), resourceFilePath.toString().replace(".json", ""));
 		
 		// jar resource loot table
-		URL url = LootTableManager.class.getResource(resourceFilePath.toString());
+		URL url = LootTables.class.getResource(resourceFilePath.toString());
 		if (url == null) {
 			GottschCore.LOGGER.debug("Unable to get resource -> {}", resourceFilePath.toString());
 			return false;
@@ -574,7 +590,7 @@ public class LootTableMaster2 implements ILootTableMaster {
 	 * @param lootContext
 	 * @return
 	 */
-	public List<ItemStack> getInjectedLootItems(World world, Random random, List<LootTableShell> list,
+	public List<ItemStack> getInjectedLootItems(Level world, Random random, List<LootTableShell> list,
 			LootContext lootContext) {
 		List<ItemStack> itemStacks = new ArrayList<>();
 		

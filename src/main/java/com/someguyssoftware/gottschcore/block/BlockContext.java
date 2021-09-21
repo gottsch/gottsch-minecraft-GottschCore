@@ -1,18 +1,33 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.block;
 
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 /**
  * @author Mark Gottschling on Mar 10, 2020
@@ -27,7 +42,7 @@ public class BlockContext {
 	 * @param world
 	 * @param coords
 	 */
-	public BlockContext(IWorld world, ICoords coords) {
+	public BlockContext(LevelAccessor world, ICoords coords) {
 		this.coords = coords;
 		this.state = world.getBlockState(coords.toPos());
 	}
@@ -38,7 +53,7 @@ public class BlockContext {
 	 * @param world
 	 * @param pos
 	 */
-	public BlockContext(IWorld world, BlockPos pos) {
+	public BlockContext(LevelAccessor world, BlockPos pos) {
 		this(world, new Coords(pos));
 	}
 
@@ -79,7 +94,7 @@ public class BlockContext {
 	 * @param coords
 	 * @return
 	 */
-	public static Block toBlock(final World world, final ICoords coords) {
+	public static Block toBlock(final LevelAccessor world, final ICoords coords) {
 		BlockState blockState = world.getBlockState(coords.toPos());
 		if (blockState != null)
 			return blockState.getBlock();
@@ -165,7 +180,7 @@ public class BlockContext {
 	 * @return
 	 */
 	public boolean isBurning() {
-		return toBlock().isBurning(getState(), (IBlockReader) null, this.coords.toPos());
+		return toBlock().isBurning(getState(), (BlockGetter) null, this.coords.toPos());
 	}
 
 	/**

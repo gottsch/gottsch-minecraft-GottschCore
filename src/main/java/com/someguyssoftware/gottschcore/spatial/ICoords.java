@@ -1,10 +1,11 @@
 package com.someguyssoftware.gottschcore.spatial;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.vector.Vector3d;
+import com.mojang.math.Vector3d;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.ChunkPos;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations.
@@ -193,19 +194,19 @@ public interface ICoords {
 	 * 
 	 * @param parentNBT
 	 */
-	public static ICoords readFromNBT(CompoundNBT nbt) {
+	public static ICoords readFromNBT(CompoundTag tag) {
 		Integer x = null;
 		Integer y = null;
 		Integer z = null;
 		ICoords coords = null;
-		if (nbt.contains("x")) {
-			x = nbt.getInt("x");
+		if (tag.contains("x")) {
+			x = tag.getInt("x");
 		}
-		if (nbt.contains("y")) {
-			y = nbt.getInt("y");
+		if (tag.contains("y")) {
+			y = tag.getInt("y");
 		}
-		if (nbt.contains("z")) {
-			z = nbt.getInt("z");
+		if (tag.contains("z")) {
+			z = tag.getInt("z");
 		}
 		if (x != null && y != null && z != null) {
 			coords = new Coords(x, y, z);
@@ -218,7 +219,7 @@ public interface ICoords {
 	 * @param nbt
 	 * @return
 	 */
-	CompoundNBT writeToNBT(CompoundNBT nbt);
+	CompoundTag writeToNBT(CompoundTag nbt);
 
 	/**
 	 * 

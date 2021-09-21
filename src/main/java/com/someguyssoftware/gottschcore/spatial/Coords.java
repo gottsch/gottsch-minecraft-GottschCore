@@ -1,19 +1,35 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.spatial;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.mojang.math.Vector3d;
 import com.someguyssoftware.gottschcore.GottschCore;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
 
 /**
  * 
@@ -60,8 +76,8 @@ public class Coords implements ICoords {
 	 * 
 	 * @param vec
 	 */
-	public Coords(Vector3i vec) {
-		this(MathHelper.floor(vec.getX()), MathHelper.floor(vec.getY()), MathHelper.floor(vec.getZ()));
+	public Coords(Vec3i vec) {
+		this(Mth.floor(vec.getX()), Mth.floor(vec.getY()), Mth.floor(vec.getZ()));
 	}
 	
 	/**
@@ -69,7 +85,7 @@ public class Coords implements ICoords {
 	 * @param vec
 	 */
 	public Coords(Vector3d vec) {
-		this(MathHelper.floor(vec.x), MathHelper.floor(vec.y), MathHelper.floor(vec.z));
+		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
 	}
 
 	/**
@@ -459,19 +475,19 @@ public class Coords implements ICoords {
 
 	/**
 	 * 
-	 * @param nbt
+	 * @param tag
 	 * @return
 	 */
 	@Override
-	public CompoundNBT writeToNBT(CompoundNBT nbt) {
+	public CompoundTag writeToNBT(CompoundTag tag) {
 		try {
-			nbt.putInt("x", getX());
-			nbt.putInt("y", getY());
-			nbt.putInt("z", getZ());
+			tag.putInt("x", getX());
+			tag.putInt("y", getY());
+			tag.putInt("z", getZ());
 		} catch (Exception e) {
-			GottschCore.LOGGER.error("Unable to write state to NBT:", e);
+			GottschCore.LOGGER.error("Unable to write state to tag:", e);
 		}
-		return nbt;
+		return tag;
 	}
 
 	@Override

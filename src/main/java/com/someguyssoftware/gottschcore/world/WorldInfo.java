@@ -11,16 +11,18 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -53,7 +55,7 @@ public class WorldInfo {
 		return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
 	}
 
-	public static boolean isServerSide(World world) {
+	public static boolean isServerSide(Level world) {
 		return !world.isClientSide();
 	}
 
@@ -66,12 +68,12 @@ public class WorldInfo {
 	}
 
 	/**
-	 * Convenience companion method to isServerSide(World world)
+	 * Convenience companion method to isServerSide(Level world)
 	 * 
 	 * @param world
 	 * @return
 	 */
-	public static boolean isClientSide(World world) {
+	public static boolean isClientSide(Level world) {
 		return world.isClientSide();
 	}
 
@@ -81,7 +83,7 @@ public class WorldInfo {
 	 * @param world
 	 * @return
 	 */
-	public static ResourceLocation getDimension(World world) {
+	public static ResourceLocation getDimension(Level world) {
 		return world.dimension().location();
 	}
 
@@ -91,7 +93,7 @@ public class WorldInfo {
 	 * @param dimension
 	 * @return
 	 */
-	public static boolean isCurrentDimension(World world, ResourceLocation dimension) {
+	public static boolean isCurrentDimension(Level world, ResourceLocation dimension) {
 		return getDimension(world).equals(dimension);
 	}
 
@@ -100,7 +102,7 @@ public class WorldInfo {
 	 * @param world
 	 * @return
 	 */
-	public static boolean isSurfaceWorld(World world) {
+	public static boolean isSurfaceWorld(Level world) {
 		return isCurrentDimension(world, OVERWORLD);
 	}
 
@@ -110,7 +112,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static boolean isSurfaceWorld(World world, BlockPos pos) {
+	public static boolean isSurfaceWorld(Level world, BlockPos pos) {
 		return world.getBiome(pos).getBiomeCategory() != Biome.Category.NETHER && world.getBiome(pos).getBiomeCategory() != Biome.Category.THEEND;
 	}
 
@@ -119,7 +121,7 @@ public class WorldInfo {
 	 * @param world
 	 * @return
 	 */
-	public static boolean isTheNether(World world) {
+	public static boolean isTheNether(Level world) {
 		return isCurrentDimension(world, THE_NETHER);
 	}
 
@@ -128,7 +130,7 @@ public class WorldInfo {
 	 * @param world
 	 * @return
 	 */
-	public static boolean isTheEnd(World world) {
+	public static boolean isTheEnd(Level world) {
 		return isCurrentDimension(world, THE_END);
 	}
 
@@ -138,7 +140,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @param state
 	 */
-	public static void setBlockState(World world, ICoords coords, BlockState state) {
+	public static void setBlockState(Level world, ICoords coords, BlockState state) {
 		world.setBlock(coords.toPos(), state, 3);
 	}
 
@@ -147,7 +149,7 @@ public class WorldInfo {
 	 * @param world
 	 * @param context
 	 */
-	public static void setBlockState(World world, BlockContext context) {
+	public static void setBlockState(Level world, BlockContext context) {
 		world.setBlock(context.getCoords().toPos(), context.getState(), 3);
 	}
 
@@ -157,7 +159,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @param state
 	 */
-	public static void setBlock(IWorld world, ICoords coords, BlockState state) {
+	public static void setBlock(ILevel world, ICoords coords, BlockState state) {
 		world.setBlock(coords.toPos(), state, 3);
 	}
 
@@ -170,7 +172,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static int getHeight(final IWorld world, final ICoords coords) {
+	public static int getHeight(final ILevel world, final ICoords coords) {
 		return world.getHeight();
 	}
 
@@ -181,7 +183,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	private static int getHeight(final IWorld world, final BlockPos pos) {
+	private static int getHeight(final ILevel world, final BlockPos pos) {
 		BlockPos p = world.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, pos);
 		return p.getY();
 	}
@@ -213,7 +215,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static boolean isValidY(final World world, final ICoords coords) {
+	public static boolean isValidY(final Level world, final ICoords coords) {
 		return isValidY(world, coords.toPos());
 	}
 
@@ -223,7 +225,7 @@ public class WorldInfo {
 	 * @param blockPos
 	 * @return
 	 */
-	private static boolean isValidY(final IWorld world, final BlockPos blockPos) {
+	private static boolean isValidY(final ILevel world, final BlockPos blockPos) {
 		if ((blockPos.getY() < MIN_HEIGHT || blockPos.getY() > world.getHeight())) {
 			return false;
 		}
@@ -245,7 +247,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getSurfaceCoords(final IWorld world, final ICoords coords) {
+	public static ICoords getSurfaceCoords(final ILevel world, final ICoords coords) {
 
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
@@ -276,7 +278,7 @@ public class WorldInfo {
 	//	 * @param pos
 	//	 * @return
 	//	 */
-	//	public static ICoords getSurfaceCoords(final World world, final BlockPos pos) {
+	//	public static ICoords getSurfaceCoords(final Level world, final BlockPos pos) {
 	//		return getSurfaceCoords(world, new Coords(pos));
 	//	}
 
@@ -289,7 +291,7 @@ public class WorldInfo {
 	 * @return
 	 */
 	@Deprecated
-	public static ICoords getDryLandSurfaceCoords(final IServerWorld world, final ICoords coords) {
+	public static ICoords getDryLandSurfaceCoords(final IServerLevel world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 
@@ -323,7 +325,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getDryLandSurfaceCoords(final IServerWorld world, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getDryLandSurfaceCoords(final IServerLevel world, final ChunkGenerator generator, final ICoords coords) {
 		// grab height of land. Will stop at first non-air block
 		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 		// the spawn coords is 1 ablove the land height
@@ -348,7 +350,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getAnyLandSurfaceCoords(final World world, final ICoords coords) {
+	public static ICoords getAnyLandSurfaceCoords(final Level world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 
@@ -377,7 +379,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getOceanFloorSurfaceCoords(final IWorld world, final ICoords coords) {
+	public static ICoords getOceanFloorSurfaceCoords(final ILevel world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 
@@ -412,7 +414,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getOceanFloorSurfaceCoords(final IServerWorld world, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getOceanFloorSurfaceCoords(final IServerLevel world, final ChunkGenerator generator, final ICoords coords) {
 		// grab height of land. Will stop at first non-air block
 		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.OCEAN_FLOOR_WG);
 		// the spawn coords is 1 ablove the land height
@@ -435,7 +437,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static SURFACE getSurface(World world, ICoords coords) {
+	public static SURFACE getSurface(Level world, ICoords coords) {
 		// go down to surface
 		ICoords surfaceCoords = getSurfaceCoords(world, coords);
 
@@ -469,7 +471,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static boolean isSurfaceOnLand(World world, ICoords coords) {
+	public static boolean isSurfaceOnLand(Level world, ICoords coords) {
 		if (getSurface(world, coords) == SURFACE.LAND)
 			return true;
 		return false;
@@ -482,7 +484,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static boolean isSurfaceOnWater(World world, ICoords coords) {
+	public static boolean isSurfaceOnWater(Level world, ICoords coords) {
 		if (getSurface(world, coords) == SURFACE.WATER)
 			return true;
 		return false;
@@ -503,7 +505,7 @@ public class WorldInfo {
 	 * @param airPercentRequired
 	 * @return
 	 */
-	public static boolean isValidAboveGroundBase(final IWorld world, final ICoords coords, final int width,
+	public static boolean isValidAboveGroundBase(final ILevel world, final ICoords coords, final int width,
 			final int depth, final double groundPercentRequired, final double airPercentRequired) {
 		return isSolidBase(world, coords, width, depth, groundPercentRequired)
 				&& isAirBase(world, coords.up(1), width, depth, airPercentRequired);
@@ -522,7 +524,7 @@ public class WorldInfo {
 	 * @param airPercentRequired2
 	 * @return
 	 */
-	public static boolean isValidAboveGroundBase(final World world, final ICoords coords, final int width,
+	public static boolean isValidAboveGroundBase(final Level world, final ICoords coords, final int width,
 			final int depth, final double groundPercentRequired, final double airPercentRequired1,
 			final double airPercentRequired2) {
 		return isSolidBase(world, coords, width, depth, groundPercentRequired)
@@ -539,7 +541,7 @@ public class WorldInfo {
 	 * @param percentRequired
 	 * @return
 	 */
-	public static boolean isSolidBase(final IWorld world, final ICoords coords, final int width, final int depth,
+	public static boolean isSolidBase(final ILevel world, final ICoords coords, final int width, final int depth,
 			final double percentRequired) {
 		double percent = getSolidBasePercent(world, coords.down(1), width, depth);
 
@@ -557,12 +559,12 @@ public class WorldInfo {
 	 * @param depth
 	 * @return
 	 */
-	public static double getSolidBasePercent(final IWorld world, final ICoords coords, final int width,
+	public static double getSolidBasePercent(final ILevel world, final ICoords coords, final int width,
 			final int depth) {
 		int platformSize = 0;
 
 		// process all z, x in base y (-1) to count the number of allowable blocks in
-		// the world platform
+		// the Level platform
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the blockContext
@@ -590,7 +592,7 @@ public class WorldInfo {
 	 * @param depth
 	 * @return
 	 */
-	public static double getAirBasePercent(final IWorld world, final ICoords coords, final int width, final int depth) {
+	public static double getAirBasePercent(final ILevel world, final ICoords coords, final int width, final int depth) {
 		double percent = 0.0D;
 		int airBlocks = 0;
 
@@ -620,7 +622,7 @@ public class WorldInfo {
 	 * @param percentRequired
 	 * @return
 	 */
-	public static boolean isAirBase(final IWorld world, final ICoords coords, final int width, final int depth,
+	public static boolean isAirBase(final ILevel world, final ICoords coords, final int width, final int depth,
 			double percentRequired) {
 		double percent = getAirBasePercent(world, coords.down(1), width, depth);
 		if (percent < percentRequired) {
@@ -629,7 +631,7 @@ public class WorldInfo {
 		return true;
 	}
 
-	public static boolean isLiquidBase(final IWorld world, final ICoords coords, final int width, final int depth,
+	public static boolean isLiquidBase(final ILevel world, final ICoords coords, final int width, final int depth,
 			double percentRequired) {
 		double percent = getLiquidBasePercent(world, coords.down(1), width, depth);
 		if (percent < percentRequired) {
@@ -647,7 +649,7 @@ public class WorldInfo {
 	 * @param depth
 	 * @return
 	 */
-	public static double getLiquidBasePercent(final IWorld world, final ICoords coords, final int width, final int depth) {
+	public static double getLiquidBasePercent(final ILevel world, final ICoords coords, final int width, final int depth) {
 		double percent = 0.0D;
 		int liquidBlocks = 0;
 
@@ -673,7 +675,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static int getDifferenceWithSurface(World world, ICoords coords) {
+	public static int getDifferenceWithSurface(Level world, ICoords coords) {
 		int ySurface = 0;
 		int diff = 0;
 
@@ -697,8 +699,8 @@ public class WorldInfo {
 	 * @param sourceCoords
 	 * @return
 	 */
-	public static ICoords getClosestPlayerCoords(World world, ICoords sourceCoords) {
-		PlayerEntity player = world.getNearestPlayer(sourceCoords.getX(), sourceCoords.getY(), sourceCoords.getZ(), 64.0, EntityPredicates.NO_CREATIVE_OR_SPECTATOR);
+	public static ICoords getClosestPlayerCoords(Level world, ICoords sourceCoords) {
+		Player player = world.getNearestPlayer(sourceCoords.getX(), sourceCoords.getY(), sourceCoords.getZ(), 64.0, EntityPredicates.NO_CREATIVE_OR_SPECTATOR);
 		ICoords playerCoords = new Coords(player.position());
 		return playerCoords;
 	}

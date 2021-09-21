@@ -1,10 +1,20 @@
+/**
+ * 
+ */
 package com.someguyssoftware.gottschcore.loot;
 
 import com.google.common.collect.Sets;
+
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.Collections;
 import java.util.Set;
-import net.minecraft.util.ResourceLocation;
 
+/**
+ * 
+ * @author Mark Gottschling on Sep 17, 2021
+ *
+ */
 public class LootTables {
    private static final Set<ResourceLocation> LOOT_TABLES = Sets.newHashSet();
    private static final Set<ResourceLocation> READ_ONLY_LOOT_TABLES = Collections.unmodifiableSet(LOOT_TABLES);

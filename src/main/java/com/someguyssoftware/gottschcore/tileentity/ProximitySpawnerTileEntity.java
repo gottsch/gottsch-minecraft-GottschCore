@@ -29,7 +29,7 @@ import net.minecraftforge.common.DungeonHooks;
  * @author Mark Gottschling on Jul 12, 2019
  *
  */
-public class ProximitySpawnerTileEntity extends AbstractProximityTileEntity {
+public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 	private static final String MOB_NAME = "mobName";
 
 	private ResourceLocation mobName;

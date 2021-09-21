@@ -17,12 +17,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
-package com.someguyssoftware.gottschcore.property;
+package com.someguyssoftware.gottschcore.block;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
-public interface IPropertyCopier {
+/**
+ * 
+ * @author Mark Gottschling on Sep 17, 2021
+ *
+ */
+public abstract class AbstractProximityBlock extends BaseEntityBlock {
 
-	BlockState copy(BlockState source, BlockState dest);
+	/**
+	 * 
+	 * @param behaviourProperties
+	 */
+	public AbstractProximityBlock(BlockBehaviour.Properties behaviourProperties) {
+		super(behaviourProperties);
+	}
+
+	@Override
+	public abstract BlockEntity newBlockEntity(BlockPos pos, BlockState state);
 
 }
