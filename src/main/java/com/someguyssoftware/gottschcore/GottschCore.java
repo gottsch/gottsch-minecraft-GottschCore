@@ -32,8 +32,8 @@ public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.14.0";
-	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/master/GottschCore1.12.2/update.json";
+	protected static final String VERSION = "1.14.1";
+	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.12.2-master/update.json";
 
 	// the version of Minecraft that this mod is developed for
 	private static final BuildVersion MINECRAFT_VERSION = new BuildVersion(1, 12, 2);

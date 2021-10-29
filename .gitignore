@@ -1,4 +1,6 @@
 /*
+gradle.log
+!.classpath
 !/src/
 !.gitignore
 !gradlew*
@@ -10,3 +12,4 @@
 !.gitattributes
 !*.json
 !*.gradlew
+!/models/
