@@ -72,4 +72,20 @@ public interface IConfig {
 	 * @param configFolder
 	 */
 	void setConfigFolder(String configFolder);
+	
+	/**
+	 * 
+	 * @return
+	 */
+	default public String getLogsFolder() {
+		return DEFAULT_LOGGER_FOLDER;
+	}
+	
+	default public String getLogSize() {
+		return DEFAULT_LOGGER_SIZE;
+	}
+	
+	default public String getLoggingLevel() {
+		return DEFAULT_LOGGER_SIZE;
+	}
 }

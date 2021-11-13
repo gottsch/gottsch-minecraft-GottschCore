@@ -146,6 +146,16 @@ public class Coords implements ICoords {
 	
 	// TODO add offset(Heading)
 
+	@Override
+	public ICoords offset(ICoords coords) {
+		return offset(coords.getX(), coords.getY(), coords.getZ());
+	}
+	
+	@Override
+	public ICoords offset(int x, int y, int z) {
+		return new Coords(toPos().offset(x, y, z));
+	}
+	
 	/**
 	 * Calculate squared distance to the given coordinates
 	 * 
@@ -319,6 +329,11 @@ public class Coords implements ICoords {
 		return new Coords(this.getX(), this.getY(), z);
 	}
 
+	@Override
+	public ICoords delta(BlockPos pos) {
+		return delta(new Coords(pos));
+	}
+	
 	/**
 	 * Delta between this and input ie. this.[xyz] - input.[xyz]
 	 * 
@@ -331,6 +346,11 @@ public class Coords implements ICoords {
 		return c;
 	}
 
+	@Override
+	public ICoords negate() {
+		return new Coords(-this.getX(), -this.getY(), -this.getZ());
+	}
+	
 	/**
 	 * 
 	 * @return new BlockPos instance
@@ -352,6 +372,11 @@ public class Coords implements ICoords {
 	@Override
 	public Vector3d toVec3d() {
 		return new Vector3d(getX(), getY(), getZ());
+	}
+	
+	@Override
+	public Vector3i toVec3i() {
+		return new Vector3i(getX(), getY(), getZ());
 	}
 
 	/**
@@ -464,6 +489,11 @@ public class Coords implements ICoords {
 	 */
 	@Override
 	public CompoundNBT writeToNBT(CompoundNBT nbt) {
+		return save(nbt);
+	}
+	
+	@Override
+	public CompoundNBT save(CompoundNBT nbt) {
 		try {
 			nbt.putInt("x", getX());
 			nbt.putInt("y", getY());
@@ -474,6 +504,27 @@ public class Coords implements ICoords {
 		return nbt;
 	}
 
+	/**
+	 * Remember Coords are immutable so it returns a new Coords.
+	 */
+	@Override
+	public ICoords load(CompoundNBT nbt) {
+		Integer x = null;
+		Integer y = null;
+		Integer z = null;
+		if (nbt.contains("x")) {
+			x = nbt.getInt("x");
+		}
+		if (nbt.contains("y")) {
+			y = nbt.getInt("y");
+		}
+		if (nbt.contains("z")) {
+			z = nbt.getInt("z");
+		}
+		ICoords coords = new Coords(x, y, z);		
+		return coords;
+	}
+	
 	@Override
 	public int getX() {
 		return x;
