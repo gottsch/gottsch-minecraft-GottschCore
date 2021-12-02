@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.Block;
  *
  */
 public class ModBlock extends Block {
-	private boolean normalCube = true;
 	
 	/**
 	 * 
@@ -29,13 +28,5 @@ public class ModBlock extends Block {
 	 */
 	public void setBlockName(String modID, String name) {
 		setRegistryName(modID, name);
-	}
-	
-	/**
-	 * 
-	 * @param normalCube
-	 */
-	protected void setNormalCube(boolean normalCube) {
-		this.normalCube = normalCube;
 	}
 }

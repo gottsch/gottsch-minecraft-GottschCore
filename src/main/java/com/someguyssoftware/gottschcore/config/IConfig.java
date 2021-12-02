@@ -18,15 +18,15 @@ public interface IConfig {
 	public static final String DEFAULT_LOGGER_FOLDER = "logs";
 	public static final String DEFAULT_LOGGER_SIZE = "1000K";
 
-	/**
-	 * @return
-	 */
-	public boolean isEnableVersionChecker();
-
-	/**
-	 * @param enableVersionChecker
-	 */
-	void setEnableVersionChecker(boolean enableVersionChecker);
+//	/**
+//	 * @return
+//	 */
+//	public boolean isEnableVersionChecker();
+//
+//	/**
+//	 * @param enableVersionChecker
+//	 */
+//	void setEnableVersionChecker(boolean enableVersionChecker);
 
 	/**
 	 * @return

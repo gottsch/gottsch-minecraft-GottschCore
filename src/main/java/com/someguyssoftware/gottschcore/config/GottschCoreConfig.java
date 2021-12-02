@@ -1,5 +1,21 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.config;
 
@@ -9,8 +25,7 @@ import com.someguyssoftware.gottschcore.mod.IMod;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.config.ModConfig.Reloading;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
@@ -42,24 +57,24 @@ public class GottschCoreConfig extends AbstractConfig {
 	}
 
 	@SubscribeEvent
-	public static void onLoad(final ModConfig.Loading configEvent) {
+	public static void onLoad(final ModConfigEvent.Loading configEvent) {
 		GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG,
 				FMLPaths.CONFIGDIR.get().resolve(mod.getId() + "-common.toml"));
 	}
 
 	@SubscribeEvent
-	public static void onReload(final Reloading configEvent) {
+	public static void onReload(final ModConfigEvent.Reloading configEvent) {
 	}
 
-	@Override
-	public boolean isEnableVersionChecker() {
-		return GottschCoreConfig.MOD.enableVersionChecker.get();
-	}
-
-	@Override
-	public void setEnableVersionChecker(boolean enableVersionChecker) {
-		GottschCoreConfig.MOD.enableVersionChecker.set(enableVersionChecker);
-	}
+//	@Override
+//	public boolean isEnableVersionChecker() {
+//		return GottschCoreConfig.MOD.enableVersionChecker.get();
+//	}
+//
+//	@Override
+//	public void setEnableVersionChecker(boolean enableVersionChecker) {
+//		GottschCoreConfig.MOD.enableVersionChecker.set(enableVersionChecker);
+//	}
 
 	@Override
 	public boolean isLatestVersionReminder() {

@@ -1,25 +1,33 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.block;
 
-import java.util.Random;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.FallingBlock;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.item.FallingBlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 /**
  * @author Mark Gottschling on Mar 2, 2018
  *
  */
-public class ModFallingBlock extends ModBlock {
+public class ModFallingBlock extends FallingBlock {
 
 	/**
 	 * 
@@ -27,8 +35,18 @@ public class ModFallingBlock extends ModBlock {
 	 * @param name
 	 * @param properties
 	 */
-	public ModFallingBlock(String modID, String name, Block.Properties properties) {
-		super(modID, name, properties);
+	public ModFallingBlock(String modID, String name, AirBlock.Properties properties) {
+		super(properties);
+		setBlockName(modID, name);
+	}
+
+	/**
+	 * 
+	 * @param modID
+	 * @param name
+	 */
+	public void setBlockName(String modID, String name) {
+		setRegistryName(modID, name);
 	}
 
 	/**
@@ -38,26 +56,25 @@ public class ModFallingBlock extends ModBlock {
 	 * @param pos
 	 * @param rand
 	 */
-	public void fall(BlockState state, ServerWorld worldIn, BlockPos pos, Random random) {
-		if (worldIn.isEmptyBlock(pos.below()) || canFallThrough(worldIn.getBlockState(pos.below())) && pos.getY() >= 0) {
-			FallingBlockEntity fallingblockentity = new FallingBlockEntity(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, worldIn.getBlockState(pos));
-			this.falling(fallingblockentity, random);
-			worldIn.addFreshEntity(fallingblockentity);
-		}
-	}
+//	   public void tick(BlockState blockState, ServerLevel level, BlockPos pos, Random random) {
+//		      if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
+//		         FallingBlockEntity fallingblockentity = new FallingBlockEntity(level, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, level.getBlockState(pos));
+//		         this.falling(fallingblockentity);
+//		         level.addFreshEntity(fallingblockentity);
+//		      }
+//		   }
+//	   
+//	   protected void falling(FallingBlockEntity blockEntity) {
+//	   }
+//
+//	   public static boolean isFree(BlockState state) {
+//		      Material material = state.getMaterial();
+//		      return state.isAir() || state.is(BlockTags.FIRE) || material.isLiquid() || material.isReplaceable();
+//		   }
 
-	protected void falling(FallingBlockEntity fallingEntity, Random random) {
-	}
-
-	public static boolean canFallThrough(BlockState state) {
-		Block block = state.getBlock();
-		Material material = state.getMaterial();
-		return state.isAir() || block == Blocks.FIRE || material.isLiquid() || material.isReplaceable();
-	}
-
-	public void onEndFalling(World worldIn, BlockPos pos, BlockState fallingState, BlockState hitState) {
-	}
-
-	public void onBroken(World worldIn, BlockPos pos) {
-	}
+//	public void onEndFalling(World worldIn, BlockPos pos, BlockState fallingState, BlockState hitState) {
+//	}
+//
+//	public void onBroken(World worldIn, BlockPos pos) {
+//	}
 }
