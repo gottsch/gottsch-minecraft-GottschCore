@@ -6,7 +6,7 @@ package com.someguyssoftware.gottschcore.world.gen.structure;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * @author Mark Gottschling on Dec 23, 2019

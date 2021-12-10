@@ -1,5 +1,21 @@
-/**
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
  * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
 package com.someguyssoftware.gottschcore.world.gen.structure;
 
@@ -24,11 +40,11 @@ import com.someguyssoftware.gottschcore.random.RandomHelper;
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.IWorld;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -69,7 +85,7 @@ public class DecayProcessor implements IDecayProcessor {
 	}
 
 	@Override
-	public List<DecayBlockInfo> process(final IWorld world, final Random random, ICoords size, final Block NULL_BLOCK) {
+	public List<DecayBlockInfo> process(final Level world, final Random random, ICoords size, final Block NULL_BLOCK) {
 		Comparator<DecayBlockInfo> compareByCoords = Comparator.comparing(DecayBlockInfo::getY)
 				.thenComparing(DecayBlockInfo::getZ).thenComparing(DecayBlockInfo::getX);
 
@@ -354,7 +370,7 @@ public class DecayProcessor implements IDecayProcessor {
 	 * @param x
 	 * @return
 	 */
-	private boolean checkForNeighbors(IWorld world, int y, int z, int x) {
+	private boolean checkForNeighbors(Level world, int y, int z, int x) {
 		BlockState supportState = null;
 		if (y == 0)
 			supportState = world.getBlockState(decayBlockInfoList.get(layout[y][z][x]).getCoords().down(1).toPos());

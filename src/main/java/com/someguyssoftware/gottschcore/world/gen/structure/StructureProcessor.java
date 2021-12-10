@@ -1,14 +1,33 @@
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
+ * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
+ */
 package com.someguyssoftware.gottschcore.world.gen.structure;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
 
 public abstract class StructureProcessor {
    @Nullable
    @Deprecated
-   public GottschTemplate.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn) {
+   public GottschTemplate.BlockInfo process(LevelAccessor worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn) {
       return blockInfo;
    }
 
@@ -28,7 +47,7 @@ public abstract class StructureProcessor {
     *      PlacementSettings)
     */
    @Nullable
-   public GottschTemplate.BlockInfo process(IWorldReader worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn, @Nullable GottschTemplate template) {
+   public GottschTemplate.BlockInfo process(LevelAccessor worldReaderIn, BlockPos pos, GottschTemplate.BlockInfo p_215194_3_, GottschTemplate.BlockInfo blockInfo, PlacementSettings placementSettingsIn, @Nullable GottschTemplate template) {
       return process(worldReaderIn, pos, p_215194_3_, blockInfo, placementSettingsIn);
    }
 
@@ -50,7 +69,7 @@ public abstract class StructureProcessor {
     *      net.minecraft.world.gen.feature.template.Template.BlockInfo,
     *      PlacementSettings)
     */
-   public GottschTemplate.EntityInfo processEntity(IWorldReader world, BlockPos seedPos, GottschTemplate.EntityInfo rawEntityInfo, GottschTemplate.EntityInfo entityInfo, PlacementSettings placementSettings, GottschTemplate template) {
+   public GottschTemplate.EntityInfo processEntity(LevelAccessor world, BlockPos seedPos, GottschTemplate.EntityInfo rawEntityInfo, GottschTemplate.EntityInfo entityInfo, PlacementSettings placementSettings, GottschTemplate template) {
       return entityInfo;
    }
 

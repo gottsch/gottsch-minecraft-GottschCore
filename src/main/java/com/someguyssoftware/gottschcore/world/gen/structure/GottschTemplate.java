@@ -25,25 +25,38 @@ import com.someguyssoftware.gottschcore.spatial.ICoords;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.IdMapper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.TorchBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
 
 /**
@@ -98,16 +111,14 @@ public class GottschTemplate extends StructureTemplate {
 		return this.author;
 	}
 
-
 	private static void addToLists(GottschTemplate.BlockInfo blockInfo, List<GottschTemplate.BlockInfo> blockInfos, List<GottschTemplate.BlockInfo> p_237149_2_, List<GottschTemplate.BlockInfo> p_237149_3_) {
 		if (blockInfo.nbt != null) {
 			p_237149_2_.add(blockInfo);
-		} else if (!blockInfo.state.getBlock().hasDynamicShape() && blockInfo.state.isCollisionShapeFullBlock(EmptyBlockReader.INSTANCE, BlockPos.ZERO)) {
+		} else if (!blockInfo.state.getBlock().hasDynamicShape() && blockInfo.state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO)) {
 			blockInfos.add(blockInfo);
 		} else {
 			p_237149_3_.add(blockInfo);
 		}
-
 	}
 
 	private static List<GottschTemplate.BlockInfo> buildInfoList(List<GottschTemplate.BlockInfo> p_237151_0_, List<GottschTemplate.BlockInfo> p_237151_1_, List<GottschTemplate.BlockInfo> p_237151_2_) {
@@ -140,7 +151,7 @@ public class GottschTemplate extends StructureTemplate {
 	 */
 	public List<GottschTemplate.BlockInfo> filterBlocks(BlockPos pos, PlacementSettings placement, Block block, boolean rotate) {
 		List<GottschTemplate.BlockInfo> list = Lists.newArrayList();
-		MutableBoundingBox mutableboundingbox = placement.getBoundingBox();
+		BoundingBox mutableboundingbox = placement.getBoundingBox();
 		if (this.palettes.isEmpty()) {
 			return Collections.emptyList();
 		} else {
@@ -159,7 +170,7 @@ public class GottschTemplate extends StructureTemplate {
 		return transform(p_186266_1_, placement.getMirror(), placement.getRotation(), placement.getRotationPivot());
 	}
 
-	public static Vector3d transformedVec3d(PlacementSettings placementIn, Vector3d pos) {
+	public static Vec3 transformedVec3d(PlacementSettings placementIn, Vec3 pos) {
 		return transform(pos, placementIn.getMirror(), placementIn.getRotation(), placementIn.getRotationPivot());
 	}
 
@@ -167,7 +178,7 @@ public class GottschTemplate extends StructureTemplate {
 	 * Non-Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(ServerLevel world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
+	public boolean placeInWorld(ServerLevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
 		if (this.palettes.isEmpty()) {
 			return false;
 		} else {
@@ -242,18 +253,15 @@ public class GottschTemplate extends StructureTemplate {
 									blockInfo.nbt.putInt("x", blockPos.getX());
 									blockInfo.nbt.putInt("y", blockPos.getY());
 									blockInfo.nbt.putInt("z", blockPos.getZ());
-									if (tileentity1 instanceof LockableLootTileEntity) {
+									if (tileentity1 instanceof RandomizableContainerBlockEntity) {
 										blockInfo.nbt.putLong("LootTableSeed", random.nextLong());
 									}
-
-									tileentity1.load(blockInfo.state, blockInfo.nbt);
-									tileentity1.mirror(placement.getMirror());
-									tileentity1.rotate(placement.getRotation());
+									tileentity1.load(blockInfo.nbt);
 								}
 							}
 
-							if (fluidstate != null && processedBlockState.getBlock() instanceof ILiquidContainer) {
-								((ILiquidContainer)processedBlockState.getBlock()).placeLiquid(world, blockPos, processedBlockState, fluidstate);
+							if (fluidstate != null && processedBlockState.getBlock() instanceof LiquidBlockContainer) {
+								((LiquidBlockContainer)processedBlockState.getBlock()).placeLiquid(world, blockPos, processedBlockState, fluidstate);
 								if (!fluidstate.isSource()) {
 									list1.add(blockPos);
 								}
@@ -286,8 +294,8 @@ public class GottschTemplate extends StructureTemplate {
 						if (fluidstate2.isSource()) {
 							BlockState blockstate2 = world.getBlockState(blockpos2);
 							Block block = blockstate2.getBlock();
-							if (block instanceof ILiquidContainer) {
-								((ILiquidContainer)block).placeLiquid(world, blockpos2, blockstate2, fluidstate2);
+							if (block instanceof LiquidBlockContainer) {
+								((LiquidBlockContainer)block).placeLiquid(world, blockpos2, blockstate2, fluidstate2);
 								flag = true;
 								iterator.remove();
 							}
@@ -297,14 +305,14 @@ public class GottschTemplate extends StructureTemplate {
 
 				if (i <= l) {
 					if (!placement.getKnownShape()) {
-						VoxelShapePart voxelshapepart = new BitSetVoxelShapePart(l - i + 1, i1 - j + 1, j1 - k + 1);
+						DiscreteVoxelShape voxelshapepart = new BitSetDiscreteVoxelShape(l - i + 1, i1 - j + 1, j1 - k + 1);
 						int l1 = i;
 						int i2 = j;
 						int j2 = k;
 
 						for(Pair<BlockPos, CompoundTag> pair1 : list2) {
 							BlockPos blockpos5 = pair1.getFirst();
-							voxelshapepart.setFull(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2, true, true);
+							voxelshapepart.fill(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2);
 						}
 
 						updateShapeAtEdge(world, flags, voxelshapepart, l1, i2, j2);
@@ -323,7 +331,7 @@ public class GottschTemplate extends StructureTemplate {
 						}
 
 						if (pair.getSecond() != null) {
-							TileEntity tileentity2 = world.getBlockEntity(blockpos4);
+							BlockEntity tileentity2 = world.getBlockEntity(blockpos4);
 							if (tileentity2 != null) {
 								tileentity2.setChanged();
 							}
@@ -332,7 +340,7 @@ public class GottschTemplate extends StructureTemplate {
 				}
 
 				if (!placement.isIgnoreEntities()) {
-					this.addEntitiesToWorld((ServerLevel)world, pos, placement);
+					this.addEntitiesToWorld(world, pos, placement);
 				}
 
 				return true;
@@ -434,18 +442,16 @@ public class GottschTemplate extends StructureTemplate {
 								processed.nbt.putInt("x", decayPos.getX());
 								processed.nbt.putInt("y", decayPos.getY());
 								processed.nbt.putInt("z", decayPos.getZ());
-								if (tileentity1 instanceof LockableLootTileEntity) {
+								if (tileentity1 instanceof RandomizableContainerBlockEntity) {
 									processed.nbt.putLong("LootTableSeed", random.nextLong());
 								}
 
-								tileentity1.load(processed.state, processed.nbt);
-								tileentity1.mirror(placement.getMirror());
-								tileentity1.rotate(placement.getRotation());
+								tileentity1.load(processed.nbt);
 							}
 						}
 
-						if (fluidstate != null && decay.getState().getBlock() instanceof ILiquidContainer) {
-							((ILiquidContainer)decay.getState().getBlock()).placeLiquid(world, decayPos, decay.getState(), fluidstate);
+						if (fluidstate != null && decay.getState().getBlock() instanceof LiquidBlockContainer) {
+							((LiquidBlockContainer)decay.getState().getBlock()).placeLiquid(world, decayPos, decay.getState(), fluidstate);
 							if (!fluidstate.isSource()) {
 								list1.add(decayPos);
 							}
@@ -479,8 +485,8 @@ public class GottschTemplate extends StructureTemplate {
 						if (fluidstate2.isSource()) {
 							BlockState blockstate2 = world.getBlockState(blockpos2);
 							Block block = blockstate2.getBlock();
-							if (block instanceof ILiquidContainer) {
-								((ILiquidContainer)block).placeLiquid(world, blockpos2, blockstate2, fluidstate2);
+							if (block instanceof LiquidBlockContainer) {
+								((LiquidBlockContainer)block).placeLiquid(world, blockpos2, blockstate2, fluidstate2);
 								flag = true;
 								iterator.remove();
 							}
@@ -490,14 +496,14 @@ public class GottschTemplate extends StructureTemplate {
 
 				if (i <= l) {
 					if (!placement.getKnownShape()) {
-						VoxelShapePart voxelshapepart = new BitSetVoxelShapePart(l - i + 1, i1 - j + 1, j1 - k + 1);
+						DiscreteVoxelShape voxelshapepart = new BitSetDiscreteVoxelShape(l - i + 1, i1 - j + 1, j1 - k + 1);
 						int l1 = i;
 						int i2 = j;
 						int j2 = k;
 
 						for(Pair<BlockPos, CompoundTag> pair1 : list2) {
 							BlockPos blockpos5 = pair1.getFirst();
-							voxelshapepart.setFull(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2, true, true);
+							voxelshapepart.fill(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2);
 						}
 
 						updateShapeAtEdge(world, flags, voxelshapepart, l1, i2, j2);
@@ -536,11 +542,11 @@ public class GottschTemplate extends StructureTemplate {
 	}
 
 	@Deprecated //Use Forge version
-	public static List<GottschTemplate.BlockInfo> processBlockInfos(Level p_237145_0_, BlockPos p_237145_1_, BlockPos p_237145_2_, PlacementSettings p_237145_3_, List<GottschTemplate.BlockInfo> p_237145_4_) {
+	public static List<GottschTemplate.BlockInfo> processBlockInfos(LevelAccessor p_237145_0_, BlockPos p_237145_1_, BlockPos p_237145_2_, PlacementSettings p_237145_3_, List<GottschTemplate.BlockInfo> p_237145_4_) {
 		return processBlockInfos(p_237145_0_, p_237145_1_, p_237145_2_, p_237145_3_, p_237145_4_, null);
 	}
 
-	public static List<GottschTemplate.BlockInfo> processBlockInfos(Level world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos, @Nullable GottschTemplate template) {
+	public static List<GottschTemplate.BlockInfo> processBlockInfos(LevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos, @Nullable GottschTemplate template) {
 		List<GottschTemplate.BlockInfo> list = Lists.newArrayList();
 
 		for(GottschTemplate.BlockInfo GottschTemplateNew$blockinfo : blockInfos) {
@@ -558,10 +564,10 @@ public class GottschTemplate extends StructureTemplate {
 		return list;
 	}
 
-	public static List<GottschTemplate.EntityInfo> processEntityInfos(@Nullable GottschTemplate GottschTemplate, IWorld p_215387_0_, BlockPos p_215387_1_, PlacementSettings p_215387_2_, List<GottschTemplate.EntityInfo> p_215387_3_) {
+	public static List<GottschTemplate.EntityInfo> processEntityInfos(@Nullable GottschTemplate GottschTemplate, LevelAccessor p_215387_0_, BlockPos p_215387_1_, PlacementSettings p_215387_2_, List<GottschTemplate.EntityInfo> p_215387_3_) {
 		List<GottschTemplate.EntityInfo> list = Lists.newArrayList();
 		for(GottschTemplate.EntityInfo entityInfo : p_215387_3_) {
-			Vector3d pos = transformedVec3d(p_215387_2_, entityInfo.pos).add(Vector3d.atLowerCornerOf(p_215387_1_));
+			Vec3 pos = transformedVec3d(p_215387_2_, entityInfo.pos).add(Vec3.atLowerCornerOf(p_215387_1_));
 			BlockPos blockpos = calculateRelativePosition(p_215387_2_, entityInfo.blockPos).offset(p_215387_1_);
 			GottschTemplate.EntityInfo info = new GottschTemplate.EntityInfo(pos, blockpos, entityInfo.nbt);
 			for (StructureProcessor proc : p_215387_2_.getProcessors()) {
@@ -575,13 +581,13 @@ public class GottschTemplate extends StructureTemplate {
 		return list;
 	}
 
-	private void addEntitiesToWorld(IServerWorld p_237143_1_, BlockPos p_237143_2_, PlacementSettings placementIn) {
+	private void addEntitiesToWorld(ServerLevelAccessor p_237143_1_, BlockPos p_237143_2_, PlacementSettings placementIn) {
 		for(GottschTemplate.EntityInfo GottschTemplateNew$entityinfo : processEntityInfos(this, p_237143_1_, p_237143_2_, placementIn, this.entities)) {
 			BlockPos blockpos = transform(GottschTemplateNew$entityinfo.blockPos, placementIn.getMirror(), placementIn.getRotation(), placementIn.getRotationPivot()).offset(p_237143_2_);
 			blockpos = GottschTemplateNew$entityinfo.blockPos; // FORGE: Position will have already been transformed by processEntityInfos
 			if (placementIn.getBoundingBox() == null || placementIn.getBoundingBox().isInside(blockpos)) {
 				CompoundTag CompoundTag = GottschTemplateNew$entityinfo.nbt.copy();
-				Vector3d vector3d1 = GottschTemplateNew$entityinfo.pos; // FORGE: Position will have already been transformed by processEntityInfos
+				Vec3 vector3d1 = GottschTemplateNew$entityinfo.pos; // FORGE: Position will have already been transformed by processEntityInfos
 				ListTag ListTag = new ListTag();
 				ListTag.add(DoubleTag.valueOf(vector3d1.x));
 				ListTag.add(DoubleTag.valueOf(vector3d1.y));
@@ -590,10 +596,10 @@ public class GottschTemplate extends StructureTemplate {
 				CompoundTag.remove("UUID");
 				createEntityIgnoreException(p_237143_1_, CompoundTag).ifPresent((p_242927_6_) -> {
 					float f = p_242927_6_.mirror(placementIn.getMirror());
-					f = f + (p_242927_6_.yRot - p_242927_6_.rotate(placementIn.getRotation()));
-					p_242927_6_.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, p_242927_6_.xRot);
-					if (placementIn.shouldFinalizeEntities() && p_242927_6_ instanceof MobEntity) {
-						((MobEntity)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), SpawnReason.STRUCTURE, (ILivingEntityData)null, CompoundTag);
+					f = f + (p_242927_6_.getYRot() - p_242927_6_.rotate(placementIn.getRotation()));
+					p_242927_6_.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, p_242927_6_.getXRot());
+					if (placementIn.shouldFinalizeEntities() && p_242927_6_ instanceof Mob) {
+						((Mob)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), MobSpawnType.STRUCTURE, (SpawnGroupData)null, CompoundTag);
 					}
 
 					p_237143_1_.addFreshEntityWithPassengers(p_242927_6_);
@@ -603,7 +609,7 @@ public class GottschTemplate extends StructureTemplate {
 
 	}
 
-	private static Optional<Entity> createEntityIgnoreException(ServerLevel p_215382_0_, CompoundTag p_215382_1_) {
+	private static Optional<Entity> createEntityIgnoreException(ServerLevelAccessor p_215382_0_, CompoundTag p_215382_1_) {
 		try {
 			return EntityType.create(p_215382_1_, p_215382_0_.getLevel());
 		} catch (Exception exception) {
@@ -647,7 +653,7 @@ public class GottschTemplate extends StructureTemplate {
 		for(int j = 0; j < ListTag5.size(); ++j) {
 			CompoundTag CompoundTag = ListTag5.getCompound(j);
 			ListTag ListTag3 = CompoundTag.getList("pos", 6);
-			Vector3d vector3d = new Vector3d(ListTag3.getDouble(0), ListTag3.getDouble(1), ListTag3.getDouble(2));
+			Vec3 vector3d = new Vec3(ListTag3.getDouble(0), ListTag3.getDouble(1), ListTag3.getDouble(2));
 			ListTag ListTag4 = CompoundTag.getList("blockPos", 3);
 			BlockPos blockpos = new BlockPos(ListTag4.getInt(0), ListTag4.getInt(1), ListTag4.getInt(2));
 			if (CompoundTag.contains("nbt")) {
@@ -660,10 +666,10 @@ public class GottschTemplate extends StructureTemplate {
 
 	private void loadPalette(ListTag palettes, ListTag blocks, List<Block> markerBlocks,
 			Map<BlockState, BlockState> replacementBlocks) {
-		GottschTemplate.BasicPalette GottschTemplateNew$basicpalette = new GottschTemplate.BasicPalette();
+		GottschTemplate.SimplePalette GottschTemplateNew$basicpalette = new GottschTemplate.SimplePalette();
 
 		for(int i = 0; i < palettes.size(); ++i) {
-			GottschTemplateNew$basicpalette.addMapping(NBTUtil.readBlockState(palettes.getCompound(i)), i);
+			GottschTemplateNew$basicpalette.addMapping(NbtUtils.readBlockState(palettes.getCompound(i)), i);
 		}
 
 		List<GottschTemplate.BlockInfo> list2 = Lists.newArrayList();
@@ -710,12 +716,12 @@ public class GottschTemplate extends StructureTemplate {
 		this.palettes.add(new GottschTemplate.Palette(list3));
 	}
 
-	static class BasicPalette implements Iterable<BlockState> {
+	static class SimplePalette implements Iterable<BlockState> {
 		public static final BlockState DEFAULT_BLOCK_STATE = Blocks.AIR.defaultBlockState();
-		private final ObjectIntIdentityMap<BlockState> ids = new ObjectIntIdentityMap<>(16);
+		private final IdMapper<BlockState> ids = new IdMapper<>(16);
 		private int lastId;
 
-		private BasicPalette() {
+		private SimplePalette() {
 		}
 
 		public int idFor(BlockState p_189954_1_) {
@@ -760,11 +766,11 @@ public class GottschTemplate extends StructureTemplate {
 	}
 
 	public static class EntityInfo {
-		public final Vector3d pos;
+		public final Vec3 pos;
 		public final BlockPos blockPos;
 		public final CompoundTag nbt;
 
-		public EntityInfo(Vector3d vec3d, BlockPos blockPos, CompoundTag nbt) {
+		public EntityInfo(Vec3 vec3d, BlockPos blockPos, CompoundTag nbt) {
 			this.pos = vec3d;
 			this.blockPos = blockPos;
 			this.nbt = nbt;
