@@ -18,51 +18,40 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Vector3d;
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.DoorBlock;
-import net.minecraft.block.ILiquidContainer;
-import net.minecraft.block.LeverBlock;
-import net.minecraft.block.TorchBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.IClearable;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.DoubleNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.state.properties.StructureMode;
-import net.minecraft.tileentity.LockableLootTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MutableBoundingBox;
-import net.minecraft.util.math.shapes.BitSetVoxelShapePart;
-import net.minecraft.util.math.shapes.VoxelShapePart;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.EmptyBlockReader;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Clearable;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.TorchBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.material.FluidState;
+
 
 /**
  * 
  * @author Mark Gottschling on Mar 26, 2021
  *
  */
-public class GottschTemplate extends Template {
+public class GottschTemplate extends StructureTemplate {
 	/** blocks in the structure */
 	private final List<GottschTemplate.Palette> palettes = Lists.newArrayList();
 	/** entities in the structure */
@@ -178,15 +167,15 @@ public class GottschTemplate extends Template {
 	 * Non-Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(IServerWorld world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
+	public boolean placeInWorld(ServerLevel world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
 		if (this.palettes.isEmpty()) {
 			return false;
 		} else {
 			List<GottschTemplate.BlockInfo> blockInfoList = placement.getRandomPalette(this.palettes, pos).blocks();
 			if ((!blockInfoList.isEmpty() || !placement.isIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
-				MutableBoundingBox boundingBox = placement.getBoundingBox();
+				BoundingBox boundingBox = placement.getBoundingBox();
 				List<BlockPos> list1 = Lists.newArrayListWithCapacity(placement.shouldKeepLiquids() ? blockInfoList.size() : 0);
-				List<Pair<BlockPos, CompoundNBT>> list2 = Lists.newArrayListWithCapacity(blockInfoList.size());
+				List<Pair<BlockPos, CompoundTag>> list2 = Lists.newArrayListWithCapacity(blockInfoList.size());
 				int i = Integer.MAX_VALUE;
 				int j = Integer.MAX_VALUE;
 				int k = Integer.MAX_VALUE;
@@ -221,8 +210,8 @@ public class GottschTemplate extends Template {
 						}
 						//============== End of GottschCore ===============//
 						if (blockInfo.nbt != null) {
-							TileEntity tileentity = world.getBlockEntity(blockPos);
-							IClearable.tryClear(tileentity);
+							BlockEntity tileentity = world.getBlockEntity(blockPos);
+							Clearable.tryClear(tileentity);
 							world.setBlock(blockPos, Blocks.BARRIER.defaultBlockState(), 20);
 						}
 
@@ -248,7 +237,7 @@ public class GottschTemplate extends Template {
 							j1 = Math.max(j1, blockPos.getZ());
 							list2.add(Pair.of(blockPos, blockInfo.nbt));
 							if (blockInfo.nbt != null) {
-								TileEntity tileentity1 = world.getBlockEntity(blockPos);
+								BlockEntity tileentity1 = world.getBlockEntity(blockPos);
 								if (tileentity1 != null) {
 									blockInfo.nbt.putInt("x", blockPos.getX());
 									blockInfo.nbt.putInt("y", blockPos.getY());
@@ -313,7 +302,7 @@ public class GottschTemplate extends Template {
 						int i2 = j;
 						int j2 = k;
 
-						for(Pair<BlockPos, CompoundNBT> pair1 : list2) {
+						for(Pair<BlockPos, CompoundTag> pair1 : list2) {
 							BlockPos blockpos5 = pair1.getFirst();
 							voxelshapepart.setFull(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2, true, true);
 						}
@@ -321,7 +310,7 @@ public class GottschTemplate extends Template {
 						updateShapeAtEdge(world, flags, voxelshapepart, l1, i2, j2);
 					}
 
-					for(Pair<BlockPos, CompoundNBT> pair : list2) {
+					for(Pair<BlockPos, CompoundTag> pair : list2) {
 						BlockPos blockpos4 = pair.getFirst();
 						if (!placement.getKnownShape()) {
 							BlockState blockstate1 = world.getBlockState(blockpos4);
@@ -343,7 +332,7 @@ public class GottschTemplate extends Template {
 				}
 
 				if (!placement.isIgnoreEntities()) {
-					this.addEntitiesToWorld((IServerWorld)world, pos, placement);
+					this.addEntitiesToWorld((ServerLevel)world, pos, placement);
 				}
 
 				return true;
@@ -357,7 +346,7 @@ public class GottschTemplate extends Template {
 	 * Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(IServerWorld world, BlockPos blockPos, BlockPos pos2, PlacementSettings placement, IDecayProcessor decayProcessor, 
+	public boolean placeInWorld(ServerLevel world, BlockPos blockPos, BlockPos pos2, PlacementSettings placement, IDecayProcessor decayProcessor, 
 			final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
 
 		if (this.palettes.isEmpty()) {
@@ -365,9 +354,9 @@ public class GottschTemplate extends Template {
 		} else {
 			List<GottschTemplate.BlockInfo> blockInfoList = placement.getRandomPalette(this.palettes, blockPos).blocks();
 			if ((!blockInfoList.isEmpty() || !placement.isIgnoreEntities() && !this.entities.isEmpty()) && this.size.getX() >= 1 && this.size.getY() >= 1 && this.size.getZ() >= 1) {
-				MutableBoundingBox boundingBox = placement.getBoundingBox();
+				BoundingBox boundingBox = placement.getBoundingBox();
 				List<BlockPos> list1 = Lists.newArrayListWithCapacity(placement.shouldKeepLiquids() ? blockInfoList.size() : 0);
-				List<Pair<BlockPos, CompoundNBT>> list2 = Lists.newArrayListWithCapacity(blockInfoList.size());
+				List<Pair<BlockPos, CompoundTag>> list2 = Lists.newArrayListWithCapacity(blockInfoList.size());
 				int i = Integer.MAX_VALUE;
 				int j = Integer.MAX_VALUE;
 				int k = Integer.MAX_VALUE;
@@ -425,8 +414,8 @@ public class GottschTemplate extends Template {
 					BlockPos decayPos = decay.getCoords().toPos();
 
 					if (processed.nbt != null) {
-						TileEntity tileentity = world.getBlockEntity(decayPos);
-						IClearable.tryClear(tileentity);
+						BlockEntity tileentity = world.getBlockEntity(decayPos);
+						Clearable.tryClear(tileentity);
 						world.setBlock(decayPos, Blocks.BARRIER.defaultBlockState(), 20);
 					}
 
@@ -440,7 +429,7 @@ public class GottschTemplate extends Template {
 						j1 = Math.max(j1, decayPos.getZ());
 						list2.add(Pair.of(decayPos, processed.nbt));
 						if (processed.nbt != null) {
-							TileEntity tileentity1 = world.getBlockEntity(decayPos);
+							BlockEntity tileentity1 = world.getBlockEntity(decayPos);
 							if (tileentity1 != null) {
 								processed.nbt.putInt("x", decayPos.getX());
 								processed.nbt.putInt("y", decayPos.getY());
@@ -506,7 +495,7 @@ public class GottschTemplate extends Template {
 						int i2 = j;
 						int j2 = k;
 
-						for(Pair<BlockPos, CompoundNBT> pair1 : list2) {
+						for(Pair<BlockPos, CompoundTag> pair1 : list2) {
 							BlockPos blockpos5 = pair1.getFirst();
 							voxelshapepart.setFull(blockpos5.getX() - l1, blockpos5.getY() - i2, blockpos5.getZ() - j2, true, true);
 						}
@@ -514,7 +503,7 @@ public class GottschTemplate extends Template {
 						updateShapeAtEdge(world, flags, voxelshapepart, l1, i2, j2);
 					}
 
-					for(Pair<BlockPos, CompoundNBT> pair : list2) {
+					for(Pair<BlockPos, CompoundTag> pair : list2) {
 						BlockPos blockpos4 = pair.getFirst();
 						if (!placement.getKnownShape()) {
 							BlockState blockstate1 = world.getBlockState(blockpos4);
@@ -527,7 +516,7 @@ public class GottschTemplate extends Template {
 						}
 
 						if (pair.getSecond() != null) {
-							TileEntity tileentity2 = world.getBlockEntity(blockpos4);
+							BlockEntity tileentity2 = world.getBlockEntity(blockpos4);
 							if (tileentity2 != null) {
 								tileentity2.setChanged();
 							}
@@ -536,7 +525,7 @@ public class GottschTemplate extends Template {
 				}
 
 				if (!placement.isIgnoreEntities()) {
-					this.addEntitiesToWorld((IServerWorld)world, blockPos, placement);
+					this.addEntitiesToWorld((ServerLevel)world, blockPos, placement);
 				}
 
 				return true;
@@ -547,11 +536,11 @@ public class GottschTemplate extends Template {
 	}
 
 	@Deprecated //Use Forge version
-	public static List<GottschTemplate.BlockInfo> processBlockInfos(IWorld p_237145_0_, BlockPos p_237145_1_, BlockPos p_237145_2_, PlacementSettings p_237145_3_, List<GottschTemplate.BlockInfo> p_237145_4_) {
+	public static List<GottschTemplate.BlockInfo> processBlockInfos(Level p_237145_0_, BlockPos p_237145_1_, BlockPos p_237145_2_, PlacementSettings p_237145_3_, List<GottschTemplate.BlockInfo> p_237145_4_) {
 		return processBlockInfos(p_237145_0_, p_237145_1_, p_237145_2_, p_237145_3_, p_237145_4_, null);
 	}
 
-	public static List<GottschTemplate.BlockInfo> processBlockInfos(IWorld world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos, @Nullable GottschTemplate template) {
+	public static List<GottschTemplate.BlockInfo> processBlockInfos(Level world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos, @Nullable GottschTemplate template) {
 		List<GottschTemplate.BlockInfo> list = Lists.newArrayList();
 
 		for(GottschTemplate.BlockInfo GottschTemplateNew$blockinfo : blockInfos) {
@@ -591,20 +580,20 @@ public class GottschTemplate extends Template {
 			BlockPos blockpos = transform(GottschTemplateNew$entityinfo.blockPos, placementIn.getMirror(), placementIn.getRotation(), placementIn.getRotationPivot()).offset(p_237143_2_);
 			blockpos = GottschTemplateNew$entityinfo.blockPos; // FORGE: Position will have already been transformed by processEntityInfos
 			if (placementIn.getBoundingBox() == null || placementIn.getBoundingBox().isInside(blockpos)) {
-				CompoundNBT compoundnbt = GottschTemplateNew$entityinfo.nbt.copy();
+				CompoundTag CompoundTag = GottschTemplateNew$entityinfo.nbt.copy();
 				Vector3d vector3d1 = GottschTemplateNew$entityinfo.pos; // FORGE: Position will have already been transformed by processEntityInfos
-				ListNBT listnbt = new ListNBT();
-				listnbt.add(DoubleNBT.valueOf(vector3d1.x));
-				listnbt.add(DoubleNBT.valueOf(vector3d1.y));
-				listnbt.add(DoubleNBT.valueOf(vector3d1.z));
-				compoundnbt.put("Pos", listnbt);
-				compoundnbt.remove("UUID");
-				createEntityIgnoreException(p_237143_1_, compoundnbt).ifPresent((p_242927_6_) -> {
+				ListTag ListTag = new ListTag();
+				ListTag.add(DoubleTag.valueOf(vector3d1.x));
+				ListTag.add(DoubleTag.valueOf(vector3d1.y));
+				ListTag.add(DoubleTag.valueOf(vector3d1.z));
+				CompoundTag.put("Pos", ListTag);
+				CompoundTag.remove("UUID");
+				createEntityIgnoreException(p_237143_1_, CompoundTag).ifPresent((p_242927_6_) -> {
 					float f = p_242927_6_.mirror(placementIn.getMirror());
 					f = f + (p_242927_6_.yRot - p_242927_6_.rotate(placementIn.getRotation()));
 					p_242927_6_.moveTo(vector3d1.x, vector3d1.y, vector3d1.z, f, p_242927_6_.xRot);
 					if (placementIn.shouldFinalizeEntities() && p_242927_6_ instanceof MobEntity) {
-						((MobEntity)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), SpawnReason.STRUCTURE, (ILivingEntityData)null, compoundnbt);
+						((MobEntity)p_242927_6_).finalizeSpawn(p_237143_1_, p_237143_1_.getCurrentDifficultyAt(new BlockPos(vector3d1)), SpawnReason.STRUCTURE, (ILivingEntityData)null, CompoundTag);
 					}
 
 					p_237143_1_.addFreshEntityWithPassengers(p_242927_6_);
@@ -614,7 +603,7 @@ public class GottschTemplate extends Template {
 
 	}
 
-	private static Optional<Entity> createEntityIgnoreException(IServerWorld p_215382_0_, CompoundNBT p_215382_1_) {
+	private static Optional<Entity> createEntityIgnoreException(ServerLevel p_215382_0_, CompoundTag p_215382_1_) {
 		try {
 			return EntityType.create(p_215382_1_, p_215382_0_.getLevel());
 		} catch (Exception exception) {
@@ -626,7 +615,7 @@ public class GottschTemplate extends Template {
 	 * Re-direct to GottschTemplate's version to ensure any extra processing is done.
 	 */
 	@Override
-	public void load(CompoundNBT palettesNBT) {
+	public void load(CompoundTag palettesNBT) {
 		load(palettesNBT, new ArrayList<Block>(), new HashMap<BlockState, BlockState>());
 	}
 
@@ -636,15 +625,15 @@ public class GottschTemplate extends Template {
 	 * @param markerBlocks
 	 * @param replacementBlocks
 	 */
-	public void load(CompoundNBT palettesNBT, List<Block> markerBlocks,
+	public void load(CompoundTag palettesNBT, List<Block> markerBlocks,
 			Map<BlockState, BlockState> replacementBlocks) {
 		this.palettes.clear();
 		this.entities.clear();
-		ListNBT listnbt = palettesNBT.getList("size", 3);
-		this.size = new BlockPos(listnbt.getInt(0), listnbt.getInt(1), listnbt.getInt(2));
-		ListNBT blocksNBT = palettesNBT.getList("blocks", 10);
+		ListTag ListTag = palettesNBT.getList("size", 3);
+		this.size = new BlockPos(ListTag.getInt(0), ListTag.getInt(1), ListTag.getInt(2));
+		ListTag blocksNBT = palettesNBT.getList("blocks", 10);
 		if (palettesNBT.contains("palettes", 9)) {
-			ListNBT palettesNBT2 = palettesNBT.getList("palettes", 9);
+			ListTag palettesNBT2 = palettesNBT.getList("palettes", 9);
 
 			for(int i = 0; i < palettesNBT2.size(); ++i) {
 				this.loadPalette(palettesNBT2.getList(i), blocksNBT, markerBlocks, replacementBlocks);
@@ -653,23 +642,23 @@ public class GottschTemplate extends Template {
 			this.loadPalette(palettesNBT.getList("palette", 10), blocksNBT, markerBlocks, replacementBlocks);
 		}
 
-		ListNBT listnbt5 = palettesNBT.getList("entities", 10);
+		ListTag ListTag5 = palettesNBT.getList("entities", 10);
 
-		for(int j = 0; j < listnbt5.size(); ++j) {
-			CompoundNBT compoundnbt = listnbt5.getCompound(j);
-			ListNBT listnbt3 = compoundnbt.getList("pos", 6);
-			Vector3d vector3d = new Vector3d(listnbt3.getDouble(0), listnbt3.getDouble(1), listnbt3.getDouble(2));
-			ListNBT listnbt4 = compoundnbt.getList("blockPos", 3);
-			BlockPos blockpos = new BlockPos(listnbt4.getInt(0), listnbt4.getInt(1), listnbt4.getInt(2));
-			if (compoundnbt.contains("nbt")) {
-				CompoundNBT compoundnbt1 = compoundnbt.getCompound("nbt");
-				this.entities.add(new GottschTemplate.EntityInfo(vector3d, blockpos, compoundnbt1));
+		for(int j = 0; j < ListTag5.size(); ++j) {
+			CompoundTag CompoundTag = ListTag5.getCompound(j);
+			ListTag ListTag3 = CompoundTag.getList("pos", 6);
+			Vector3d vector3d = new Vector3d(ListTag3.getDouble(0), ListTag3.getDouble(1), ListTag3.getDouble(2));
+			ListTag ListTag4 = CompoundTag.getList("blockPos", 3);
+			BlockPos blockpos = new BlockPos(ListTag4.getInt(0), ListTag4.getInt(1), ListTag4.getInt(2));
+			if (CompoundTag.contains("nbt")) {
+				CompoundTag CompoundTag1 = CompoundTag.getCompound("nbt");
+				this.entities.add(new GottschTemplate.EntityInfo(vector3d, blockpos, CompoundTag1));
 			}
 		}
 
 	}
 
-	private void loadPalette(ListNBT palettes, ListNBT blocks, List<Block> markerBlocks,
+	private void loadPalette(ListTag palettes, ListTag blocks, List<Block> markerBlocks,
 			Map<BlockState, BlockState> replacementBlocks) {
 		GottschTemplate.BasicPalette GottschTemplateNew$basicpalette = new GottschTemplate.BasicPalette();
 
@@ -682,18 +671,18 @@ public class GottschTemplate extends Template {
 		List<GottschTemplate.BlockInfo> list1 = Lists.newArrayList();
 
 		for(int j = 0; j < blocks.size(); ++j) {
-			CompoundNBT compoundNBT = blocks.getCompound(j);
-			ListNBT listNBT = compoundNBT.getList("pos", 3);
-			BlockPos blockPos = new BlockPos(listNBT.getInt(0), listNBT.getInt(1), listNBT.getInt(2));
-			BlockState blockState = GottschTemplateNew$basicpalette.stateFor(compoundNBT.getInt("state"));
-			CompoundNBT compoundNBT1;
-			if (compoundNBT.contains("nbt")) {
-				compoundNBT1 = compoundNBT.getCompound("nbt");
+			CompoundTag CompoundTag = blocks.getCompound(j);
+			ListTag ListTag = CompoundTag.getList("pos", 3);
+			BlockPos blockPos = new BlockPos(ListTag.getInt(0), ListTag.getInt(1), ListTag.getInt(2));
+			BlockState blockState = GottschTemplateNew$basicpalette.stateFor(CompoundTag.getInt("state"));
+			CompoundTag CompoundTag1;
+			if (CompoundTag.contains("nbt")) {
+				CompoundTag1 = CompoundTag.getCompound("nbt");
 			} else {
-				compoundNBT1 = null;
+				CompoundTag1 = null;
 			}
 
-			GottschTemplate.BlockInfo GottschTemplateNew$blockinfo = new GottschTemplate.BlockInfo(blockPos, blockState, compoundNBT1);
+			GottschTemplate.BlockInfo GottschTemplateNew$blockinfo = new GottschTemplate.BlockInfo(blockPos, blockState, CompoundTag1);
 			addToLists(GottschTemplateNew$blockinfo, list2, list, list1);
 
 			//================= GottschCore =================//
@@ -757,9 +746,9 @@ public class GottschTemplate extends Template {
 	public static class BlockInfo {
 		public final BlockPos pos;
 		public final BlockState state;
-		public final CompoundNBT nbt;
+		public final CompoundTag nbt;
 
-		public BlockInfo(BlockPos pos, BlockState state, @Nullable CompoundNBT nbt) {
+		public BlockInfo(BlockPos pos, BlockState state, @Nullable CompoundTag nbt) {
 			this.pos = pos;
 			this.state = state;
 			this.nbt = nbt;
@@ -773,9 +762,9 @@ public class GottschTemplate extends Template {
 	public static class EntityInfo {
 		public final Vector3d pos;
 		public final BlockPos blockPos;
-		public final CompoundNBT nbt;
+		public final CompoundTag nbt;
 
-		public EntityInfo(Vector3d vec3d, BlockPos blockPos, CompoundNBT nbt) {
+		public EntityInfo(Vector3d vec3d, BlockPos blockPos, CompoundTag nbt) {
 			this.pos = vec3d;
 			this.blockPos = blockPos;
 			this.nbt = nbt;

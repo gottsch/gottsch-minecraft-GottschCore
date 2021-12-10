@@ -18,6 +18,7 @@ archivesBaseName = "${mod_name}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -85,7 +86,8 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
-            args '--mod', 'gottschcore', '--all', '--output', file('src/generated/resources/')
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 gottschcore {
@@ -144,19 +146,19 @@ task deleteOldJar(type: Delete) {
     }
 }
     
-task copyJar() {
+//task copyJar() {
 	// iterate over the array with destination paths
- 	destinations.each { destination ->
+// 	destinations.each { destination ->
         // for every destination define new CopySpec
-        println destination
-        copy {
-            from jar
-            into destination
-        }
-    }
-}
+//        println destination
+//        copy {
+//            from jar
+//            into destination
+//        }
+//    }
+//}
 
-deleteOldJar
-copyJar.dependsOn minecraft
+//deleteOldJar
+//copyJar.dependsOn minecraft
 //build.dependsOn copyJar
 //copyJar.dependsOn deleteOldJar

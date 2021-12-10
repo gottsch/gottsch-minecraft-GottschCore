@@ -5,24 +5,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.measurement.Quantity;
 import com.someguyssoftware.gottschcore.random.RandomHelper;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.DungeonHooks;
 
 /**
@@ -38,44 +39,44 @@ public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 	/**
 	 * 
 	 */
-	public ProximitySpawnerTileEntity(TileEntityType<?> type) {
-		super(type);
+	public ProximitySpawnerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	/**
 	 * @param proximity
 	 */
-	public ProximitySpawnerTileEntity(TileEntityType<?> type, double proximity) {
-		super(type, proximity);
+	public ProximitySpawnerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, double proximity) {
+		super(type, pos, state, proximity);
 	}
 
 	/**
 	 * 
 	 */
 	@Override
-	public void load(BlockState state, CompoundNBT nbt) {
-		super.load(state, nbt);
+	public void load(CompoundTag tag) {
+		super.load(tag);
 		try {
 			// read the custom name
-			if (nbt.contains(MOB_NAME, 8)) {
-				this.mobName = new ResourceLocation(nbt.getString(MOB_NAME));
+			if (tag.contains(MOB_NAME, 8)) {
+				this.mobName = new ResourceLocation(tag.getString(MOB_NAME));
 			} else {
 				// select a random mob
 				EntityType<?> entityType = DungeonHooks.getRandomDungeonMob(new Random());
 				this.mobName = entityType.getRegistryName();
 			}
-			if (getMobName() == null || StringUtils.isNullOrEmpty(getMobName().toString())) {
+			if (getMobName() == null || StringUtils.isBlank(getMobName().toString())) {
 				defaultMobSpawnerSettings();
 				return;
 			}
 
 			int min = 1;
 			int max = 1;
-			if (nbt.contains("mobNumMin")) {
-				min = nbt.getInt("mobNumMin");
+			if (tag.contains("mobNumMin")) {
+				min = tag.getInt("mobNumMin");
 			}
-			if (nbt.contains("mobNumMax")) {
-				max = nbt.getInt("mobNumMax");
+			if (tag.contains("mobNumMax")) {
+				max = tag.getInt("mobNumMax");
 			}
 			this.mobNum = new Quantity(min, max);
 		} catch (Exception e) {
@@ -87,9 +88,9 @@ public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	public CompoundNBT save(CompoundNBT tag) {
+	public CompoundTag save(CompoundTag tag) {
 		super.save(tag);
-		if (getMobName() == null || StringUtils.isNullOrEmpty(getMobName().toString())) {        	
+		if (getMobName() == null || StringUtils.isBlank(getMobName().toString())) {        	
 			defaultMobSpawnerSettings();
 		}
 		tag.putString("mobName", getMobName().toString());
@@ -111,7 +112,7 @@ public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	public void execute(World world, Random random, ICoords blockCoords, ICoords playerCoords) {
+	public void execute(Level world, Random random, ICoords blockCoords, ICoords playerCoords) {
 		if (world.isClientSide()) {
 			return;
 		}
@@ -144,7 +145,7 @@ public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 			BlockPos spawnPos = availableSpawnBlocks.get(random.nextInt(availableSpawnBlocks.size()));
 
 			// NOTE added APPLE itemstack because mixin mods where looking for that to be there.
-			if (entityType.get().spawn((ServerWorld)world, new ItemStack(Items.APPLE), null, spawnPos, SpawnReason.COMMAND, true, true) != null) {
+			if (entityType.get().spawn((ServerLevel)world, new ItemStack(Items.APPLE), null, spawnPos, MobSpawnType.COMMAND, true, true) != null) {
 				GottschCore.LOGGER.debug("should've created entity(s) at -> {}", getBlockPos());
 			}
 			else {

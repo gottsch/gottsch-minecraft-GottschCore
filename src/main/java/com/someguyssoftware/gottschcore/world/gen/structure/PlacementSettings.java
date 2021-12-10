@@ -1,19 +1,41 @@
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2021, Mark Gottschling (gottsch)
+ * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
+ */
 package com.someguyssoftware.gottschcore.world.gen.structure;
 
 import com.google.common.collect.Lists;
+
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
 import java.util.List;
 import java.util.Random;
 import javax.annotation.Nullable;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.MutableBoundingBox;
+
 
 /**
- * Mod copy of vanilla PlacementSettings
+ * Mod copy of vanilla StructurePlaceSettings
  * @author Mark Gottschling on Aug 5, 2020
  *
  */
@@ -25,7 +47,7 @@ public class PlacementSettings {
 	   @Nullable
 	   private ChunkPos chunkPos;
 	   @Nullable
-	   private MutableBoundingBox boundingBox;
+	   private BoundingBox boundingBox;
 	   private boolean keepLiquids = true;
 	   @Nullable
 	   private Random random;
@@ -77,7 +99,7 @@ public class PlacementSettings {
 	      return this;
 	   }
 
-	   public PlacementSettings setBoundingBox(MutableBoundingBox p_186223_1_) {
+	   public PlacementSettings setBoundingBox(BoundingBox p_186223_1_) {
 	      this.boundingBox = p_186223_1_;
 	      return this;
 	   }
@@ -119,20 +141,20 @@ public class PlacementSettings {
 	      return this.rotationPivot;
 	   }
 
-	   public Random getRandom(@Nullable BlockPos p_189947_1_) {
-	      if (this.random != null) {
-	         return this.random;
-	      } else {
-	         return p_189947_1_ == null ? new Random(Util.getMillis()) : new Random(MathHelper.getSeed(p_189947_1_));
-	      }
-	   }
+	   public Random getRandom(@Nullable BlockPos p_74400_) {
+		      if (this.random != null) {
+		         return this.random;
+		      } else {
+		         return p_74400_ == null ? new Random(Util.getMillis()) : new Random(Mth.getSeed(p_74400_));
+		      }
+		   }
 
 	   public boolean isIgnoreEntities() {
 	      return this.ignoreEntities;
 	   }
 
 	   @Nullable
-	   public MutableBoundingBox getBoundingBox() {
+	   public BoundingBox getBoundingBox() {
 	      if (this.boundingBox == null && this.chunkPos != null) {
 	         this.updateBoundingBoxFromChunkPos();
 	      }
@@ -175,13 +197,13 @@ public class PlacementSettings {
 	   }
 
 	   @Nullable
-	   private MutableBoundingBox calculateBoundingBox(@Nullable ChunkPos p_186216_1_) {
+	   private BoundingBox calculateBoundingBox(@Nullable ChunkPos p_186216_1_) {
 	      if (p_186216_1_ == null) {
 	         return this.boundingBox;
 	      } else {
 	         int i = p_186216_1_.x * 16;
 	         int j = p_186216_1_.z * 16;
-	         return new MutableBoundingBox(i, 0, j, i + 16 - 1, 255, j + 16 - 1);
+	         return new BoundingBox(i, 0, j, i + 16 - 1, 255, j + 16 - 1);
 	      }
 	   }
 

@@ -5,9 +5,9 @@ package com.someguyssoftware.gottschcore.world.gen.structure;
 
 import java.util.Map;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.gen.feature.template.PlacementSettings;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+
 
 /**
  * @author Mark Gottschling on Jan 7, 2020

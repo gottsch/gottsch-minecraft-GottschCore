@@ -21,23 +21,12 @@ package com.someguyssoftware.gottschcore.tileentity;
 
 import java.util.Random;
 
-import javax.annotation.Nullable;
-
 import com.someguyssoftware.gottschcore.GottschCore;
-import com.someguyssoftware.gottschcore.spatial.Coords;
 import com.someguyssoftware.gottschcore.spatial.ICoords;
-import com.someguyssoftware.gottschcore.world.WorldInfo;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.world.level.block.entity.BellBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -46,7 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * @author Mark Gottschling on Feb 1, 2019
  *
  */
-public abstract class AbstractProximityBlockEntity<T> extends AbstractModBlockEntity implements IProximityTileEntity {
+public abstract class AbstractProximityBlockEntity extends AbstractModBlockEntity implements IProximityTileEntity {
 	private double proximity;
 	private boolean isDead = false;
 

@@ -21,16 +21,16 @@ import com.someguyssoftware.gottschcore.GottschCore;
 import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.resource.AbstractResourceManager;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.datafix.DefaultTypeReferences;
-import net.minecraft.world.gen.feature.template.Template;
+import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
  * @author Mark Gottschling on Feb 3, 2019
@@ -42,7 +42,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	/*
 	 * templates is the master map where the key is the String representation resource location.
 	 */
-	private final Map<String, Template> templates = Maps.<String, Template>newHashMap();
+	private final Map<String, StructureTemplate> templates = Maps.<String, StructureTemplate>newHashMap();
 	
 	/*
 	 * standard list of marker blocks to scan for 
@@ -115,7 +115,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	 * @param templatePath
 	 * @return
 	 */
-	public Template load(ResourceLocation templatePath, List<Block> markerBlocks, Map<BlockState, BlockState> replacementBlocks) {
+	public StructureTemplate load(ResourceLocation templatePath, List<Block> markerBlocks, Map<BlockState, BlockState> replacementBlocks) {
 		String key = templatePath.toString();
 		
 		if (this.getTemplates().containsKey(key)) {
@@ -130,7 +130,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		else {
 			GottschCore.LOGGER.debug("Unable to read template from -> {}", key);
 		}
-		return this.templates.containsKey(key) ? (Template) this.templates.get(key) : null;
+		return this.templates.containsKey(key) ? (StructureTemplate) this.templates.get(key) : null;
 	}
 	
 	/**
@@ -200,15 +200,15 @@ public class GottschTemplateManager extends AbstractResourceManager {
 	 */
 	private void readTemplateFromStream(String id, InputStream stream, List<Block> markerBlocks, 
 			Map<BlockState, BlockState> replacementBlocks) throws IOException {
-		
-		CompoundNBT nbt = CompressedStreamTools.readCompressed(stream);
+
+		CompoundTag nbt = NbtIo.readCompressed(stream);
 
 		if (!nbt.contains("DataVersion", 99)) {
 			nbt.putInt("DataVersion", 500);
 		}
 
 		GottschTemplate template = new GottschTemplate();
-		template.load(NBTUtil.update(this.fixer, DefaultTypeReferences.STRUCTURE, nbt, nbt.getInt("DataVersion")), markerBlocks, replacementBlocks);
+		template.load(NbtUtils.update(this.fixer, DataFixTypes.STRUCTURE, nbt, nbt.getInt("DataVersion")), markerBlocks, replacementBlocks);
 		GottschCore.LOGGER.debug("adding template to map with key -> {}", id);
 		this.templates.put(id, template);
 	}
@@ -260,7 +260,7 @@ public class GottschTemplateManager extends AbstractResourceManager {
 		this.templates.remove(templatePath.getPath());
 	}
 	
-	public Map<String, Template> getTemplates() {
+	public Map<String, StructureTemplate> getTemplates() {
 		return templates;
 	}
 

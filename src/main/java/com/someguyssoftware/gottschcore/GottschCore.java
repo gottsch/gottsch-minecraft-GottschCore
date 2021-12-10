@@ -31,7 +31,7 @@ public class GottschCore implements IMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.4.5";
+	protected static final String VERSION = "1.0.0";
 
 	public static GottschCore instance;
 	private static GottschCoreConfig config;
