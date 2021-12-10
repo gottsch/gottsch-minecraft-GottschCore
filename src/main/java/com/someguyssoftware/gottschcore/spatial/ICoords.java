@@ -5,6 +5,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations.
@@ -76,6 +77,8 @@ public interface ICoords {
 
 	public ICoords add(ICoords coords);
 
+	public ICoords delta(BlockPos pos);
+	
 	public ICoords delta(ICoords coords);
 
 	public ICoords rotate90(int width);
@@ -191,8 +194,10 @@ public interface ICoords {
 
 	/**
 	 * 
-	 * @param parentNBT
+	 * @param nbt
+	 * @return
 	 */
+	@Deprecated
 	public static ICoords readFromNBT(CompoundNBT nbt) {
 		Integer x = null;
 		Integer y = null;
@@ -208,16 +213,31 @@ public interface ICoords {
 			z = nbt.getInt("z");
 		}
 		if (x != null && y != null && z != null) {
-			coords = new Coords(x, y, z);
+			coords = new Coords(x, y, z);  // TODO this is crap... referencing the concrete class from the interface
 		}
 		return coords;
 	}
+	
+	/**
+	 * 
+	 * @param nbt
+	 * @return
+	 */
+	public ICoords load(CompoundNBT nbt);
 
 	/**
 	 * 
 	 * @param nbt
 	 * @return
 	 */
+	CompoundNBT save(CompoundNBT nbt);
+	
+	/**
+	 * 
+	 * @param nbt
+	 * @return
+	 */
+	@Deprecated
 	CompoundNBT writeToNBT(CompoundNBT nbt);
 
 	/**
@@ -240,6 +260,10 @@ public interface ICoords {
 
 	ICoords offset(Direction facing);
 
+	ICoords offset(ICoords coords);
+
+	ICoords offset(int x, int y, int z);
+	
 	ICoords withY(ICoords coords);
 
 	ICoords withY(int y);
@@ -254,4 +278,7 @@ public interface ICoords {
 
 	public Vector3d toVec3d();
 
+	public Vector3i toVec3i();
+
+	public ICoords negate();	
 }

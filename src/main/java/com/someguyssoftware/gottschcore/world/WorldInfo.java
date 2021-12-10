@@ -30,9 +30,10 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  *
  */
 public class WorldInfo {
-	private static final int MAX_HEIGHT = 256;
-	private static final int MIN_HEIGHT = 1;
-	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
+	public static final int MAX_HEIGHT = 256;
+	public static final int MIN_HEIGHT = 1;
+	public static final int BOTTOM_HEIGHT = 0;
+	public static final ICoords EMPTY_COORDS = new Coords(0, BOTTOM_HEIGHT - 1, 0);
 	public static final int INVALID_SURFACE_POS = -255;
 	public static final int CHUNK_RADIUS = 8;
 	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
@@ -130,6 +131,18 @@ public class WorldInfo {
 	 */
 	public static boolean isTheEnd(World world) {
 		return isCurrentDimension(world, THE_END);
+	}
+
+	public static boolean isOutsideBuildHeight(BlockPos pos) {
+		return isOutsideBuildHeight(pos.getY());
+	}
+	
+	public static boolean isOutsideBuildHeight(ICoords coords) {
+		return isOutsideBuildHeight(coords.getY());
+	}
+
+	public static boolean isOutsideBuildHeight(int height) {
+		return height < BOTTOM_HEIGHT || height >= MAX_HEIGHT;
 	}
 
 	/**
@@ -328,7 +341,7 @@ public class WorldInfo {
 		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.WORLD_SURFACE_WG);
 		// the spawn coords is 1 ablove the land height
 		ICoords spawnCoords = coords.withY(landHeight + 1);
-		
+
 		// grabs column of blocks at given position
 		IBlockReader columnOfBlocks = generator.getBaseColumn(coords.getX(), coords.getZ());
 		// get the top block of the column (1 below the spawn)
@@ -404,7 +417,7 @@ public class WorldInfo {
 		}
 		return newCoords;
 	}
-	
+
 	/**
 	 * 
 	 * @param world
@@ -417,7 +430,7 @@ public class WorldInfo {
 		int landHeight = generator.getFirstOccupiedHeight(coords.getX(), coords.getZ(), Heightmap.Type.OCEAN_FLOOR_WG);
 		// the spawn coords is 1 ablove the land height
 		ICoords spawnCoords = coords.withY(landHeight + 1);
-		
+
 		// grabs column of blocks at given position
 		IBlockReader columnOfBlocks = generator.getBaseColumn(coords.getX(), coords.getZ());
 		// get the top block of the column (1 below the spawn)
