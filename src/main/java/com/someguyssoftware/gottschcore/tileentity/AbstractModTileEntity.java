@@ -36,7 +36,7 @@ public abstract class AbstractModTileEntity extends TileEntity {
 	 */
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		save(pkt.getTag());
+		handleUpdateTag(this.getLevel().getBlockState(pkt.getPos()), pkt.getTag());
 	}
 
 	/*
