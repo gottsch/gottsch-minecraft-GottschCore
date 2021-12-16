@@ -143,21 +143,15 @@ public class Coords implements ICoords {
 	 */
 	@Override
 	public ICoords offset(Direction facing) {
-		switch (facing) {
-		case NORTH:
-		default:
-			return this.north(1);
-		case EAST:
-			return this.east(1);
-		case SOUTH:
-			return this.south(1);
-		case WEST:
-			return this.west(1);
-		case UP:
-			return this.up(1);
-		case DOWN:
-			return this.down(1);
-		}
+		return switch (facing) {
+		case NORTH -> this.north(1);
+		case EAST -> this.east(1);
+		case SOUTH -> this.south(1);
+		case WEST -> this.west(1);
+		case UP -> this.up(1);
+		case DOWN -> this.down(1);
+		default -> this.north(1);
+		};
 	}
 	
 	// TODO add offset(Heading)

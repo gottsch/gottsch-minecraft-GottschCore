@@ -94,13 +94,10 @@ public class GottschTemplate extends StructureTemplate {
 	}
 
 	public BlockPos getSize(Rotation rotation) {
-		switch(rotation) {
-		case COUNTERCLOCKWISE_90:
-		case CLOCKWISE_90:
-			return new BlockPos(this.size.getZ(), this.size.getY(), this.size.getX());
-		default:
-			return this.size;
-		}
+		return switch(rotation) {
+		case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> new BlockPos(this.size.getZ(), this.size.getY(), this.size.getX());
+		default -> this.size;
+		};
 	}
 
 	public void setAuthor(String authorIn) {

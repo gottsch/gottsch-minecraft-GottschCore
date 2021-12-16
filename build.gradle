@@ -16,7 +16,8 @@ version = "mc${mc_version}-f${forge_version}-${mod_version_type}${mod_version}"
 group = "${package_group}"
 archivesBaseName = "${mod_name}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
@@ -136,15 +137,15 @@ jar {
 // an array containing destination paths
 def destinations = ["${dest_folder}", "${mods_folder}"]
 
-task deleteOldJar(type: Delete) {
-	destinations.each { destination ->
-		print 'deleting... '
-		println destination
-        delete fileTree(destination) {
-            include "**/${mod_name}-f${forge_version}*.jar"
-        }
-    }
-}
+//task deleteOldJar(type: Delete) {
+//	destinations.each { destination ->
+//		print 'deleting... '
+//		println destination
+//        delete fileTree(destination) {
+//            include "**/${mod_name}-f${forge_version}*.jar"
+//        }
+//    }
+//}
     
 //task copyJar() {
 	// iterate over the array with destination paths

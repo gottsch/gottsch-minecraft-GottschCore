@@ -43,7 +43,7 @@ public enum Heading {
 	// @formatter:on
 
 	private static final Map<Direction, Heading> mapByDirection = new HashMap<Direction, Heading>();
-	
+
 	/*
 	 * wrapped minecraft class
 	 */
@@ -70,7 +70,7 @@ public enum Heading {
 	public Direction toDirection() {
 		return direction;
 	}
-	
+
 	public Heading byDirection(Direction direction) {
 		return mapByDirection.get(direction);
 	}
@@ -99,51 +99,37 @@ public enum Heading {
 	 * @return
 	 */
 	public Heading rotateY(Rotate r) {
-		switch (r) {
-		case NO_ROTATE:
-			return this;
-		case ROTATE_90:
-			switch (this) {
-			case NORTH:
-				return Heading.EAST;
-			case EAST:
-				return Heading.SOUTH;
-			case SOUTH:
-				return Heading.WEST;
-			case WEST:
-				return Heading.NORTH;
-			default:
-				return this;
-			}
-		case ROTATE_180:
-			switch (this) {
-			case NORTH:
-				return Heading.SOUTH;
-			case EAST:
-				return Heading.WEST;
-			case SOUTH:
-				return Heading.NORTH;
-			case WEST:
-				return Heading.EAST;
-			default:
-				return this;
-			}
-		case ROTATE_270:
-			switch (this) {
-			case NORTH:
-				return Heading.WEST;
-			case EAST:
-				return Heading.NORTH;
-			case SOUTH:
-				return Heading.EAST;
-			case WEST:
-				return Heading.SOUTH;
-			default:
-				return this;
-			}
-		default:
-			return this;
+		return switch (r) {
+		case NO_ROTATE -> this;
+		case ROTATE_90 -> {
+			yield switch (this) {
+			case NORTH -> Heading.EAST;
+			case EAST -> Heading.SOUTH;
+			case SOUTH -> Heading.WEST;
+			case WEST -> Heading.NORTH;
+			default ->this;
+			};
 		}
+		case ROTATE_180 -> {
+			yield switch (this) {
+			case NORTH -> Heading.SOUTH;
+			case EAST -> Heading.WEST;
+			case SOUTH -> Heading.NORTH;
+			case WEST -> Heading.EAST;
+			default -> this;
+			};
+		}
+		case ROTATE_270 -> {
+			yield switch (this) {
+			case NORTH -> Heading.WEST;
+			case EAST -> Heading.NORTH;
+			case SOUTH -> Heading.EAST;
+			case WEST -> Heading.SOUTH;
+			default -> this;
+			};
+		}
+		default -> this;
+		};		
 	}
 
 	/**
@@ -210,19 +196,19 @@ public enum Heading {
 		}
 	}
 
-//	/**
-//	 * TODO probably required by Dungeons2
-//	 * @param plane
-//	 * @return
-//	 */
-//	public boolean isSamePlane(Alignment plane) {
-//		if (this.getAlignment() == plane) {
-//			return true;
-//		}
-//		return false;
-//	}
+	//	/**
+	//	 * TODO probably required by Dungeons2
+	//	 * @param plane
+	//	 * @return
+	//	 */
+	//	public boolean isSamePlane(Alignment plane) {
+	//		if (this.getAlignment() == plane) {
+	//			return true;
+	//		}
+	//		return false;
+	//	}
 
-//
+	//
 
 	/**
 	 * 
@@ -251,7 +237,7 @@ public enum Heading {
 	public Direction getDirection() {
 		return direction;
 	}
-	
+
 	/**
 	 * 
 	 * @return

@@ -2,7 +2,7 @@
 modLoader="javafml" #mandatory
 
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[38,)" #mandatory (32 is current forge version)
+loaderVersion="[39,)" #mandatory (32 is current forge version)
 
 # License
 license="GNU GPLv3"
@@ -17,7 +17,7 @@ issueTrackerURL="https://raw.githubusercontent.com/gottsch/gottsch-minecraft-Got
 modId="gottschcore" #mandatory
 
 # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="1.0.0" #mandatory
+version="1.5.0" #mandatory
 
  # A display name for the mod
 displayName="GottschCore" #mandatory
@@ -50,7 +50,7 @@ Base API for all my mods.
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[38,)" #mandatory
+    versionRange="[39,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -58,6 +58,6 @@ Base API for all my mods.
 [[dependencies.gottschcore]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18,1.19)"
+    versionRange="[1.18.1,1.19)"
     ordering="NONE"
     side="BOTH"
