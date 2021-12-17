@@ -58,7 +58,7 @@ public class LootTableMaster2 implements ILootTableMaster {
 
 	public static final String LOOT_TABLES_FOLDER = "loot_tables";
 
-	private static final Gson GSON_INSTANCE = (new GsonBuilder())
+	protected static final Gson GSON_INSTANCE = (new GsonBuilder())
 			.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer()).create();
 
 	private final IMod mod;
