@@ -18,6 +18,10 @@ public class ModItem extends Item {
 		super();
 	}
 	
+	public ModItem(String modID, String name) {
+		setItemName(modID, name);
+	}
+	
 	/**
 	 * Set the registry name of {@code this Item} to {@code name} and the unlocalised name to the full registry name.
 	 * @param modID
