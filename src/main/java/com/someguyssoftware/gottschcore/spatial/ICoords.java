@@ -255,4 +255,15 @@ public interface ICoords {
 
 	public Vector3d toVec3d();
 
+	CompoundTag save(CompoundTag tag);
+
+	/**
+	 * Remember Coords are immutable so it returns a new Coords.
+	 */
+	ICoords load(CompoundTag tag);
+
+	ICoords offset(ICoords coords);
+
+	ICoords offset(int x, int y, int z);
+
 }

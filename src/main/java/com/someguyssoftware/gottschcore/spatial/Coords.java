@@ -156,6 +156,16 @@ public class Coords implements ICoords {
 	
 	// TODO add offset(Heading)
 
+	@Override
+	public ICoords offset(ICoords coords) {
+		return offset(coords.getX(), coords.getY(), coords.getZ());
+	}
+	
+	@Override
+	public ICoords offset(int x, int y, int z) {
+		return new Coords(toPos().offset(x, y, z));
+	}
+	
 	/**
 	 * Calculate squared distance to the given coordinates
 	 * 
@@ -474,14 +484,40 @@ public class Coords implements ICoords {
 	 */
 	@Override
 	public CompoundTag writeToNBT(CompoundTag tag) {
+		return save(tag);
+	}
+	
+	@Override
+	public CompoundTag save(CompoundTag tag) {
 		try {
 			tag.putInt("x", getX());
 			tag.putInt("y", getY());
 			tag.putInt("z", getZ());
 		} catch (Exception e) {
-			GottschCore.LOGGER.error("Unable to write state to tag:", e);
+			GottschCore.LOGGER.error("Unable to write state to NBT:", e);
 		}
 		return tag;
+	}
+
+	/**
+	 * Remember Coords are immutable so it returns a new Coords.
+	 */
+	@Override
+	public ICoords load(CompoundTag tag) {
+		Integer x = null;
+		Integer y = null;
+		Integer z = null;
+		if (tag.contains("x")) {
+			x = tag.getInt("x");
+		}
+		if (tag.contains("y")) {
+			y = tag.getInt("y");
+		}
+		if (tag.contains("z")) {
+			z = tag.getInt("z");
+		}
+		ICoords coords = new Coords(x, y, z);		
+		return coords;
 	}
 
 	@Override

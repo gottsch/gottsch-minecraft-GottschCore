@@ -88,15 +88,14 @@ public class ProximitySpawnerTileEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		super.save(tag);
+	   protected void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		if (getMobName() == null || StringUtils.isBlank(getMobName().toString())) {        	
 			defaultMobSpawnerSettings();
 		}
 		tag.putString("mobName", getMobName().toString());
 		tag.putInt("mobNumMin", getMobNum().getMinInt());
 		tag.putInt("mobNumMax", getMobNum().getMaxInt());
-		return tag;
 	}
 
 	/**

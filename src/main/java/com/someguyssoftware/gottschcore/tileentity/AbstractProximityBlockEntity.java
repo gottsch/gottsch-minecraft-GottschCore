@@ -87,11 +87,10 @@ public abstract class AbstractProximityBlockEntity extends AbstractModBlockEntit
 	 * 
 	 */
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		super.save(tag);
+	   protected void saveAdditional(CompoundTag tag) {
+		super.saveAdditional(tag);
 		tag.putDouble("proximity", getProximity());
 		tag.putBoolean("isDead", isDead());
-		return tag;
 	}
 
 //  tick() and related methods are no longer part of TileEntity (BlockEntity), but are part of Block, and the ticker is called from BlockBehaviour

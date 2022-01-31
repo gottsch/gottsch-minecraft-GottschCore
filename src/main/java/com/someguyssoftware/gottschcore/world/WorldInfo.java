@@ -43,9 +43,10 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  *
  */
 public class WorldInfo {
-	private static final int MAX_HEIGHT = 256;
-	private static final int MIN_HEIGHT = 1;
-	public static final ICoords EMPTY_COORDS = new Coords(-1, -1, -1);
+	public static final int MAX_HEIGHT = 319;
+	public static final int MIN_HEIGHT = -63;
+	public static final int BOTTOM_HEIGHT = -64;
+	public static final ICoords EMPTY_COORDS = new Coords(0, BOTTOM_HEIGHT - 1, 0);
 	public static final int INVALID_SURFACE_POS = -255;
 	public static final int CHUNK_RADIUS = 8;
 	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;

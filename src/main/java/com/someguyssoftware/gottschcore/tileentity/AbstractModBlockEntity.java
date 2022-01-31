@@ -25,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,25 +45,39 @@ public abstract class AbstractModBlockEntity extends BlockEntity {
 		super(type, pos, state);
 	}
 
-   @Nullable
-   public ClientboundBlockEntityDataPacket getUpdatePacket() {
-      return ClientboundBlockEntityDataPacket.create(this);
-   }
-   
+	@Override
+	@Nullable
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
 	/**
-	 * 
+	 * Data to send to client for sync-ing
+	 * ex.
+	 *   CompoundTag tag = new CompoundTag();
+      *  ContainerHelper.saveAllItems(tag, this.items, true);
+	 */
+	@Override
+	public CompoundTag getUpdateTag() {
+		return super.getUpdateTag();
+	}
+
+	/**
+	 * Not necessary to override
 	 */
 	@Override
 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-		save(pkt.getTag());
+		super.onDataPacket(net, pkt);
 	}
 
 	/*
 	 * Creates a tag containing the TileEntity information, used by vanilla to
 	 * transmit from server to client
+	 * Not necessary to override
 	 */
 	@Override
 	public CompoundTag getTileData() {
-		return save(new CompoundTag());
+		return super.getTileData();
+//		return save(new CompoundTag());
 	}
 }
