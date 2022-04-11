@@ -249,7 +249,7 @@ public class LootTableMaster2 implements ILootTableMaster {
 							continue;
 						}
 						
-						GottschCore.logger.error("is file system (config) loot table current -> {}", isCurrent);
+//						GottschCore.logger.debug("is file system (config) loot table current -> {}", isCurrent);
 						if (!isCurrent) {
 							Files.move(
 									fileSystemFilePath, 
