@@ -8,6 +8,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="lib" path="gradle/wrapper/gradle-wrapper.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/forge-1.18.1-39.0.59"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/forge-1.18.1-59"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
