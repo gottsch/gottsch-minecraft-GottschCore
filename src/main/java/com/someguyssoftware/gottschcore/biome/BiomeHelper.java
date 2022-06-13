@@ -9,6 +9,7 @@ import java.util.List;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biome.BiomeCategory;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -135,10 +136,14 @@ public class BiomeHelper {
 		return list;
 	}
 
-	public static Result isBiomeAllowed(Biome biome, List<String> whiteList, List<String> blackList) {
+	public static Result isBiomeAllowed(Biome biome, List<? extends String> whiteList, List<? extends String> blackList) {
+		return isBiomeAllowed(biome.getRegistryName(), whiteList, blackList);
+	}
+	
+	public static Result isBiomeAllowed(ResourceLocation biome, List<? extends String> whiteList, List<? extends String> blackList) {
         if (whiteList != null && whiteList.size() > 0) {
         	for (String biomeName : whiteList) {
-	        	if (biomeName.equals(biome.getRegistryName().toString())) {
+	        	if (biomeName.equals(biome)) {
 	        		return Result.WHITE_LISTED;
 	        	}
 	        }
@@ -148,12 +153,38 @@ public class BiomeHelper {
         
         if (blackList != null && blackList.size() > 0) {
         	for (String biomeName : blackList) {
-        		if (biomeName.equals(biome.getRegistryName().toString())) {
+        		if (biomeName.equals(biome)) {
         			return Result.BLACK_LISTED;
         		}
         	}
         }
         
+    	// neither white list nor black list have values = all biomes are valid
+    	return Result.OK;
+	}
+	
+	public static Result isBiomeAllowed(ResourceLocation biome, BiomeCategory category, 
+			List<? extends String> biomeWhiteList, List<? extends String> biomeBlackList,
+			List<? extends String> categoryWhiteList, List<? extends String> categoryBlackList) {
+		
+		Result result = isBiomeAllowed(biome, biomeWhiteList, biomeBlackList);
+		if (result == Result.OK) {
+	        if (categoryWhiteList != null && !categoryWhiteList.isEmpty()) {
+	        	if (categoryWhiteList.contains(category.getName())) {
+	        		return Result.WHITE_LISTED;
+	        	}
+	        	return Result.BLACK_LISTED;
+	        }
+	        if (categoryBlackList != null && !categoryBlackList.isEmpty()) {
+	        	if (categoryBlackList.contains(category.getName())) {
+	        		return Result.BLACK_LISTED;
+	        	}
+	        }
+		}
+		else {
+			return result;
+		}
+		
     	// neither white list nor black list have values = all biomes are valid
     	return Result.OK;
 	}

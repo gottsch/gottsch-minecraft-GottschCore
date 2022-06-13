@@ -30,6 +30,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * 
@@ -367,6 +368,11 @@ public class Coords implements ICoords {
 	@Override
 	public ChunkPos toChunkPos() {
 		return new ChunkPos(toPos());
+	}
+	
+	@Override
+	public Vec3 toVec3() {
+		return new Vec3(getX(), getY(), getZ());
 	}
 	
 	@Override

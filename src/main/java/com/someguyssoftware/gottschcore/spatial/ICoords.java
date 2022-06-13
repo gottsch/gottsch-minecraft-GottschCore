@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations.
@@ -265,5 +266,7 @@ public interface ICoords {
 	ICoords offset(ICoords coords);
 
 	ICoords offset(int x, int y, int z);
+
+	Vec3 toVec3();
 
 }
