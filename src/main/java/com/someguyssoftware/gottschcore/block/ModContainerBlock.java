@@ -32,10 +32,19 @@ public abstract class ModContainerBlock extends BaseEntityBlock /*ModBlock /*imp
 
 	/**
 	 * 
+	 * @param properties
+	 */
+	public ModContainerBlock(Block.Properties properties) {
+		super(properties);
+	}
+	
+	/**
+	 * 
 	 * @param modID
 	 * @param name
 	 * @param properties
 	 */
+	@Deprecated
 	public ModContainerBlock(String modID, String name, Block.Properties properties) {
 		super(properties);
 		setBlockName(modID, name);
