@@ -66,16 +66,6 @@ public class GottschCoreConfig extends AbstractConfig {
 	public static void onReload(final ModConfigEvent.Reloading configEvent) {
 	}
 
-//	@Override
-//	public boolean isEnableVersionChecker() {
-//		return GottschCoreConfig.MOD.enableVersionChecker.get();
-//	}
-//
-//	@Override
-//	public void setEnableVersionChecker(boolean enableVersionChecker) {
-//		GottschCoreConfig.MOD.enableVersionChecker.set(enableVersionChecker);
-//	}
-
 	@Override
 	public boolean isLatestVersionReminder() {
 		return GottschCoreConfig.MOD.latestVersionReminder.get();
@@ -122,27 +112,12 @@ public class GottschCoreConfig extends AbstractConfig {
 	}
 	
 	@Override
-	public void setLogsFolder(String folder) {
-		GottschCoreConfig.LOGGING.folder.set(folder);
-	}
-	
-	@Override
-	public String getLoggerSize() {
+	public String getLogSize() {
 		return GottschCoreConfig.LOGGING.size.get();
 	}
 	
 	@Override
-	public void setLoggerSize(String size) {
-		GottschCoreConfig.LOGGING.size.set(size);
-	}
-	
-	@Override
-	public String getLoggerLevel() {
+	public String getLoggingLevel() {
 		return GottschCoreConfig.LOGGING.level.get();
-	}
-	
-	@Override
-	public void setLoggerLevel(String level) {
-		GottschCoreConfig.LOGGING.level.set(level);
 	}
 }

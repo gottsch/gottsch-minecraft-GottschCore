@@ -1,14 +1,15 @@
 /*
 gradle.log
+!.classpath
 !/src/
 !.gitignore
 !gradlew*
 !/gradle/
 !/LICENSE.txt
-!/LICENSE
 !/README.md
 !build.gradle
 !/gradle.properties
 !.gitattributes
 !*.json
 !*.gradlew
+!/models/
