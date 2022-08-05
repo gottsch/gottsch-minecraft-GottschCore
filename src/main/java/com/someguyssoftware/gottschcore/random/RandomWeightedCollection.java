@@ -16,6 +16,7 @@ import java.util.TreeMap;
  * @author Mark Gottschling on Jan 21, 2018
  *
  */
+@Deprecated
 public class RandomWeightedCollection<T> {
 	private final NavigableMap<Integer, T> map = new TreeMap<Integer, T>();
 	private Random random;

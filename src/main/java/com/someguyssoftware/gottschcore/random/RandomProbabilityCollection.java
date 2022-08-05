@@ -10,12 +10,12 @@ import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
 
-// TODO review if all ints need to change to double
 /**
  * This type of weighted collection must use non-negative integers.
  * @author Mark Gottschling on Aug 21, 2015
  *
  */
+@Deprecated
 public class RandomProbabilityCollection<T extends IRandomProbabilityItem> {
 	private final NavigableMap<Integer, T> map = new TreeMap<Integer, T>();
 	private Random random;

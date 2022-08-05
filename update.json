@@ -1,12 +1,10 @@
 {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/gottschcore",
     "promos": {
-    "1.18.1-latest": "1.7.0",
-    "1.18.1-recommended": "1.7.0"
+    "1.18.2-latest": "1.7.0",
+    "1.18.2-recommended": "1.7.0"
   },
-    "1.18.1": {
-        "1.5.0": "initial port from 1.16.5",
-        "1.6.0": "",
+    "1.18.2": {
         "1.7.0": ""
     }
 }

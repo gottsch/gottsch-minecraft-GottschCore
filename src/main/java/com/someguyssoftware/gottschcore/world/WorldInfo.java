@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biome.BiomeCategory;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -125,7 +126,9 @@ public class WorldInfo {
 	 * @return
 	 */
 	public static boolean isSurfaceWorld(Level world, BlockPos pos) {
-		return world.getBiome(pos).getBiomeCategory() != Biome.BiomeCategory.NETHER && world.getBiome(pos).getBiomeCategory() != Biome.BiomeCategory.THEEND;
+		BiomeCategory cat = Biome.getBiomeCategory(world.getBiome(pos));
+		return cat != Biome.BiomeCategory.NETHER && cat != Biome.BiomeCategory.THEEND;
+//		return world.getBiome(pos).getBiomeCategory() != Biome.BiomeCategory.NETHER && world.getBiome(pos).getBiomeCategory() != Biome.BiomeCategory.THEEND;
 	}
 
 	/**

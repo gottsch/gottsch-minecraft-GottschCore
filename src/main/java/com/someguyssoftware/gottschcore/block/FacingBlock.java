@@ -70,6 +70,7 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	 * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
 	 * fine.
 	 */
+    @Deprecated
 	@Override
 	public BlockState rotate(BlockState state, Rotation rot) {
 		return state.setValue(FACING, rot.rotate(getFacing(state)));
