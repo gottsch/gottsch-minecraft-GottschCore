@@ -7,6 +7,7 @@ import com.someguyssoftware.gottschcore.annotation.Credits;
 import com.someguyssoftware.gottschcore.annotation.ModInfo;
 import com.someguyssoftware.gottschcore.config.GottschCoreConfig;
 import com.someguyssoftware.gottschcore.config.IConfig;
+import com.someguyssoftware.gottschcore.config.IModSetup;
 import com.someguyssoftware.gottschcore.mod.IMod;
 
 import net.minecraftforge.fml.ModLoadingContext;
@@ -22,7 +23,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
  *
  */
 @Mod(value = GottschCore.MODID)
-@ModInfo(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, minecraftVersion = "1.18.1", forgeVersion = "39.0.0", updateJsonUrl = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.18.1-master/update.json")
+@ModInfo(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, minecraftVersion = "1.18.2", forgeVersion = "40.1.0", updateJsonUrl = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.18.2-master/update.json")
 @Credits(values = { "GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017." })
 public class GottschCore implements IMod {
 	// logger
@@ -31,8 +32,8 @@ public class GottschCore implements IMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.7.0";
-
+	protected static final String VERSION = "1.8.0";
+	
 	public static GottschCore instance;
 	private static GottschCoreConfig config;
 
@@ -55,7 +56,7 @@ public class GottschCore implements IMod {
 	 * @param event
 	 */
 	private void setup(final FMLCommonSetupEvent event) {
-		config.addRollingFileAppender(GottschCore.NAME, GottschCore.config);
+		IModSetup.addRollingFileAppender(this);
 	}
 
 	@Override

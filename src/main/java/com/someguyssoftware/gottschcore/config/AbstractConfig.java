@@ -120,51 +120,5 @@ public abstract class AbstractConfig implements IConfig {
 
 		configData.load();
 		spec.setConfig(configData);
-	}
-	
-	/**
-	 * @param modName
-	 * @param object
-	 */
-	public void addRollingFileAppender(String modName, IConfig modConfig) {
-
-		String appenderName = modName + "Appender";
-		String loggerFolder = Paths.get(modConfig.getLogsFolder()).toString(); //"logs/gottschcore/";
-		if (!loggerFolder.endsWith("/")) {
-			loggerFolder += "/";
-		}
-
-		final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-		final Configuration config = ctx.getConfiguration();
-
-		// create a sized-based trigger policy, using config setting for size.
-		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(modConfig.getLoggerSize()/*"1000K"*/);
-		// create the pattern for log statements
-		PatternLayout layout = PatternLayout.newBuilder().withPattern("%d [%t] %p %c | %F:%L | %m%n")
-				.withAlwaysWriteExceptions(true).build();
-
-		// create a rolling file appender
-		Appender appender = RollingFileAppender.newBuilder()
-				.withFileName(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore"*/  ".log")
-				.withFilePattern(Paths.get(loggerFolder, modName).toString() + /*modConfig.getLoggerFilename()"gottschcore" +*/ "-%d{yyyy-MM-dd-HH_mm_ss}.log")
-				.withAppend(true).setName(appenderName).withBufferedIo(true).withImmediateFlush(true)
-				.withPolicy(policy)
-				.setLayout(layout)
-				.setIgnoreExceptions(true).withAdvertise(false).setConfiguration(config).build();
-
-		appender.start();
-		config.addAppender(appender);
-		
-		// create a appender reference
-		AppenderRef ref = AppenderRef.createAppenderRef("File", null, null);
-		AppenderRef[] refs = new AppenderRef[] {ref};
-		
-		Level level = Level.getLevel(modConfig.getLoggerLevel().toUpperCase());
-		LoggerConfig loggerConfig = LoggerConfig.createLogger(false, level, modName, "true", refs, null, config, null );
-		loggerConfig.addAppender(appender, null, null);
-		config.addLogger(modName, loggerConfig);
-		
-		// update logger with new appenders
-		ctx.updateLoggers();
-	}
+	}	
 }

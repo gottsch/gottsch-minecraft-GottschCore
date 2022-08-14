@@ -18,16 +18,6 @@ public interface IConfig {
 	public static final String DEFAULT_LOGGER_FOLDER = "logs";
 	public static final String DEFAULT_LOGGER_SIZE = "1000K";
 
-//	/**
-//	 * @return
-//	 */
-//	public boolean isEnableVersionChecker();
-//
-//	/**
-//	 * @param enableVersionChecker
-//	 */
-//	void setEnableVersionChecker(boolean enableVersionChecker);
-
 	/**
 	 * @return
 	 */
@@ -72,15 +62,19 @@ public interface IConfig {
 	 */
 	void setConfigFolder(String configFolder);
 	
-	public String getLogsFolder();
+	/**
+	 * 
+	 * @return
+	 */
+	default public String getLogsFolder() {
+		return DEFAULT_LOGGER_FOLDER;
+	}
 	
-	public void setLogsFolder(String logsFolder);
+	default public String getLogSize() {
+		return DEFAULT_LOGGER_SIZE;
+	}
 	
-	public String getLoggerSize();
-	
-	public void setLoggerSize(String size);
-	
-	public String getLoggerLevel();
-	
-	public void setLoggerLevel(String level);
+	default public String getLoggingLevel() {
+		return DEFAULT_LOGGER_SIZE;
+	}
 }
