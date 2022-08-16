@@ -16,6 +16,7 @@ import java.util.TreeMap;
  * @author Mark Gottschling on Aug 21, 2015
  *
  */
+@Deprecated
 public class RandomProbabilityCollection<T extends IRandomProbabilityItem> {
 	private final NavigableMap<Integer, T> map = new TreeMap<Integer, T>();
 	private Random random;
