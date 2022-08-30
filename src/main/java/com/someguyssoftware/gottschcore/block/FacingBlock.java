@@ -38,10 +38,20 @@ public class FacingBlock extends ModBlock implements IFacingBlock {
 	
 	/**
 	 * 
+	 * @param properties
+	 */
+	public FacingBlock(Block.Properties properties) {
+		super(properties);
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+	}
+	
+	/**
+	 * 
 	 * @param modID
 	 * @param name
 	 * @param materialIn
 	 */
+	@Deprecated
 	public FacingBlock(String modID, String name, Block.Properties properties) {
 		super(modID, name, properties);
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
