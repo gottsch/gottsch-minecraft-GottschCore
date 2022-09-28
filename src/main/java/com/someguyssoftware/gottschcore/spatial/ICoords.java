@@ -9,7 +9,7 @@ import net.minecraft.util.math.vector.Vector3i;
 
 /**
  * This class is a wrapper for Minecraft positional classes and calculations.
- * Ex. BlockPos in 1.8+, or for (x, y, z) in &lt;1.8
+ * Ex. BlockPos in 1.8+, or for (x, y, z) in <1.8
  * 
  * @author Mark Gottschling on May 5, 2017
  *

@@ -43,6 +43,10 @@ public class WeightedCollection<W extends Number, T> {
 		return this;
 	}
 	
+	public boolean contains(T value) {
+		return map.containsValue(value);
+	}
+	
 	/**
 	 * Get the next random value.
 	 * @return
