@@ -1,8 +1,8 @@
 {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/gottschcore",
     "promos": {
-    "1.16.5-latest": "1.5.0",
-    "1.16.5-recommended": "1.5.0"
+    "1.16.5-latest": "1.8.0",
+    "1.16.5-recommended": "1.8.0"
   },
     "1.16.5": {
         "1.0.0": "",
@@ -11,6 +11,10 @@
         "1.2.0": "WorldInfo - added getXXCoords using ChunkGenerator.\nFixed ProximitySpawnerTileEntity to spawn better.\nHeading - add getNames().\nFixed BasedBlock.\n0",
         "1.3.0": "this fixes the sharing of MOD and LOGGING config settings between mods.\nall mods now have their own instance of these properties.",
         "1.4.0": "fixed NPE on spawning from ProximitySpawners due to conflict with forgery-1.3.4.",
-        "1.5.0": "Use Forge 1.16.5-36.2.0.\nAdd replacements for World methods that test against supplied Y_TOP and Y_BOTTOM values.\n"
+        "1.5.0": "Use Forge 1.16.5-36.2.0.\nAdd replacements for World methods that test against supplied Y_TOP and Y_BOTTOM values.\n",
+        "1.6.0": "Use Forge 1.16.5-36.2.34.\n.Added WeightedCollection.\n",
+        "1.7.0": "Add some constructors that don't require modid and name.\n",
+        "1.8.0": "Add Interval Binary Search Tree datatypes - IIntervalTree interface, CoordsIntervalTree.\n"
+        
     }
 }

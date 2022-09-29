@@ -15,7 +15,17 @@ public class ModBlockItem extends BlockItem {
 
 	/**
 	 * 
+	 * @param block
+	 * @param properties
 	 */
+	public ModBlockItem(Block block, Item.Properties properties) {
+		super(block, properties);
+	}
+	
+	/**
+	 * 
+	 */
+	@Deprecated
 	public ModBlockItem(String modID, String name, Block block, Item.Properties properties) {
 		super(block, properties);
 		setItemName(modID, name);

@@ -11,9 +11,14 @@ import net.minecraft.item.Item;
  */
 public class ModItem extends Item {
 
+	public ModItem(Item.Properties properties) {
+		super(properties);
+	}
+	
 	/**
 	 * 
 	 */
+	@Deprecated
 	public ModItem(String modID, String name, Item.Properties properties) {
 		super(properties);
 		setItemName(modID, name);
@@ -24,6 +29,7 @@ public class ModItem extends Item {
 	 * @param modID
 	 * @param name
 	 */
+	@Deprecated
 	public Item setItemName(String modID, String name) {
 		setRegistryName(modID, name);
 		return this;
