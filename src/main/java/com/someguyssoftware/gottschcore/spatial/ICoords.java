@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
  * @author Mark Gottschling on May 5, 2017
  *
  */
+@Deprecated
 public interface ICoords {
 
 	/**

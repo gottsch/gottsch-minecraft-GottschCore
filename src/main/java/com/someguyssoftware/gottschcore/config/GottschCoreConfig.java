@@ -32,6 +32,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
  * @author Mark Gottschling on Nov 15, 2019
  *
  */
+@Deprecated
 @EventBusSubscriber(modid = GottschCore.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class GottschCoreConfig extends AbstractConfig {
 	protected static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
@@ -39,7 +40,7 @@ public class GottschCoreConfig extends AbstractConfig {
 
 	public static final Mod MOD;
 	public static final Logging LOGGING;
-	
+
 	static {
 		MOD = new Mod(COMMON_BUILDER);
 		LOGGING = new Logging(COMMON_BUILDER);
@@ -58,8 +59,10 @@ public class GottschCoreConfig extends AbstractConfig {
 
 	@SubscribeEvent
 	public static void onLoad(final ModConfigEvent.Loading configEvent) {
-		GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG,
-				FMLPaths.CONFIGDIR.get().resolve(mod.getId() + "-common.toml"));
+		if (mod != null) {
+			GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG,
+					FMLPaths.CONFIGDIR.get().resolve(mod.getId() + "-common.toml"));
+		}
 	}
 
 	@SubscribeEvent
@@ -105,17 +108,17 @@ public class GottschCoreConfig extends AbstractConfig {
 	public void setConfigFolder(String configFolder) {
 		GottschCoreConfig.MOD.configFolder.set(configFolder);
 	}
-	
+
 	@Override
 	public String getLogsFolder() {
 		return GottschCoreConfig.LOGGING.folder.get();
 	}
-	
+
 	@Override
 	public String getLogSize() {
 		return GottschCoreConfig.LOGGING.size.get();
 	}
-	
+
 	@Override
 	public String getLoggingLevel() {
 		return GottschCoreConfig.LOGGING.level.get();

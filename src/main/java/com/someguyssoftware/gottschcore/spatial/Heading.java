@@ -32,6 +32,7 @@ import net.minecraft.core.Direction;
  * @author Mark Gottschling on Feb 26, 2020
  *
  */
+@Deprecated
 public enum Heading {
 	// @formatter:off
 	UP(Direction.UP), 

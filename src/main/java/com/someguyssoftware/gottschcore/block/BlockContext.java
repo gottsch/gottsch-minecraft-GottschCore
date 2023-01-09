@@ -33,6 +33,7 @@ import net.minecraft.world.level.material.Material;
  * @author Mark Gottschling on Mar 10, 2020
  *
  */
+@Deprecated
 public class BlockContext {
 	private final ICoords coords;
 	private final BlockState state;

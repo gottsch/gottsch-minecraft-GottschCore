@@ -19,6 +19,7 @@ import com.someguyssoftware.gottschcore.mod.IMod;
  * @author Mark Gottschling on Apr 28, 2021
  *
  */
+@Deprecated
 public class IModSetup {
 	/**
 	 * 

@@ -43,6 +43,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  * @author Mark Gottschling on May 6, 2017
  *
  */
+@Deprecated
 public class WorldInfo {
 	public static final int MAX_HEIGHT = 319;
 	public static final int MIN_HEIGHT = -63;

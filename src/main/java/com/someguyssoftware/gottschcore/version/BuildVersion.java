@@ -9,6 +9,7 @@ package com.someguyssoftware.gottschcore.version;
  * @version 2.0
  *
  */
+@Deprecated
 public class BuildVersion {
 	/**
 	 * Empty version object.
