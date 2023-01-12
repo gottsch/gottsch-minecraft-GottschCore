@@ -354,7 +354,17 @@ public class Coords implements ICoords {
 		ICoords c = new Coords(this.x - coords.getX(), this.y - coords.getY(), this.z - coords.getZ());
 		return c;
 	}
+	
+	@Override
+	public ICoords delta(BlockPos pos) {
+		return delta(new Coords(pos));
+	}
 
+	@Override
+	public ICoords negate() {
+		return new Coords(-this.getX(), -this.getY(), -this.getZ());
+	}
+	
 	/**
 	 * 
 	 * @return new BlockPos instance

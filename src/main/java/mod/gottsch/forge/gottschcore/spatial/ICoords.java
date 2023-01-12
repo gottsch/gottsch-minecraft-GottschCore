@@ -110,7 +110,8 @@ public interface ICoords {
 	public ICoords add(ICoords coords);
 
 	public ICoords delta(ICoords coords);
-
+	public ICoords delta(BlockPos pos);
+	
 	public ICoords rotate90(int width);
 
 	public ICoords rotate180(int depth, int width);
@@ -247,5 +248,7 @@ public interface ICoords {
 	ICoords offset(int x, int y, int z);
 
 	Vec3 toVec3();
+
+	ICoords negate();
 
 }
