@@ -19,8 +19,6 @@
  */
 package mod.gottsch.forge.gottschcore.block.entity;
 
-import java.util.Random;
-
 import com.someguyssoftware.gottschcore.GottschCore;
 
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
@@ -98,7 +96,7 @@ public abstract class AbstractProximityBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	abstract public void execute(Level world, Random random, ICoords blockCoords, ICoords playerCoords);
+	abstract public void execute(Level world, ICoords blockCoords, ICoords playerCoords);
 
 	/**
 	 * @return the proximity

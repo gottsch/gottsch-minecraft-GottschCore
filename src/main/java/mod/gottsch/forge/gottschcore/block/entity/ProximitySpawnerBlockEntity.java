@@ -83,8 +83,8 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 				this.mobName = new ResourceLocation(tag.getString(MOB_NAME));
 			} else {
 				// select a random mob
-				EntityType<?> entityType = DungeonHooks.getRandomDungeonMob(new Random());
-				this.mobName = entityType.getRegistryName();
+				EntityType<?> entityType = DungeonHooks.getRandomDungeonMob(this.level.random);
+				this.mobName = EntityType.getKey(entityType);
 			}
 			if (getMobName() == null || StringUtils.isBlank(getMobName().toString())) {
 				defaultMobSpawnerSettings();
@@ -132,11 +132,12 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	public void execute(Level world, Random random, ICoords blockCoords, ICoords playerCoords) {
+	public void execute(Level world, ICoords blockCoords, ICoords playerCoords) {
 		if (world.isClientSide()) {
 			return;
 		}
 		ServerLevel level = (ServerLevel)world;
+		Random random = new Random();
 
 		Optional<EntityType<?>> entityType = EntityType.byString(getMobName().toString());
 		if (!entityType.isPresent()) {
@@ -150,9 +151,11 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 		int numberOfMobs = RandomHelper.randomInt(random, getMobNum().getMinInt(), getMobNum().getMaxInt());
 		for (int x = 0; x < numberOfMobs; x++) {
 			for (int i = 0; i < 20; i++) { // 20 tries
-				int spawnX = blockCoords.getX() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-				int spawnY = blockCoords.getY() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-				int spawnZ = blockCoords.getZ() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+				// TODO these should be doubles so they can be anywhere on a block
+				// TODO see base spawner for positioning code
+				int spawnX = blockCoords.getX() + Mth.nextInt(level.getRandom(), 1, 2) * Mth.nextInt(level.getRandom(), -1, 1);
+				int spawnY = blockCoords.getY() + Mth.nextInt(level.getRandom(), 1, 2) * Mth.nextInt(level.getRandom(), -1, 1);
+				int spawnZ = blockCoords.getZ() + Mth.nextInt(level.getRandom(), 1, 2) * Mth.nextInt(level.getRandom(), -1, 1);
 
 				ICoords spawnCoords = new Coords(spawnX, spawnY, spawnZ);
 
@@ -186,41 +189,6 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 				break;
 			}
 		}
-		
-		//		 get a list of adjacent unoccupied blocks
-		//		List<BlockPos> availableSpawnBlocks = new ArrayList<>();
-		//		BlockPos proximityPos = getBlockPos();
-		//		// TODO update to Coords
-		//		if (world.getBlockState(proximityPos.north()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.north());
-		//		if (world.getBlockState(proximityPos.east()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.east());
-		//		if (world.getBlockState(proximityPos.south()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.south());
-		//		if (world.getBlockState(proximityPos.west()).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.west());
-		//
-		//		if (world.getBlockState(proximityPos.offset(1, 0, 1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(1, 0, 1));
-		//		if (world.getBlockState(proximityPos.offset(1, 0, -1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(1, 0, -1));
-		//		if (world.getBlockState(proximityPos.offset(-1, 0, 1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(-1, 0, 1));
-		//		if (world.getBlockState(proximityPos.offset(-1, 0, -1)).getMaterial().isReplaceable()) availableSpawnBlocks.add(proximityPos.offset(-1, 0, -1));
-		//
-		//		for (int i = 0; i < mobCount; i++) {
-		//			Optional<EntityType<?>> entityType = EntityType.byString(getMobName().toString());
-		//			if (!entityType.isPresent()) {
-		//				GottschCore.LOGGER.debug("unable to get entityType -> {}", getMobName());
-		//				selfDestruct();
-		//				return;
-		//			}			
-		//			GottschCore.LOGGER.debug("got entityType -> {}", getMobName());
-		//			// select a random spawn coords
-		//			BlockPos spawnPos = availableSpawnBlocks.get(random.nextInt(availableSpawnBlocks.size()));
-		//
-		//			// NOTE added APPLE itemstack because mixin mods where looking for that to be there.
-		//			if (entityType.get().spawn((ServerLevel)world, new ItemStack(Items.APPLE), null, spawnPos, MobSpawnType.COMMAND, true, true) != null) {
-		//				GottschCore.LOGGER.debug("should've created entity(s) at -> {}", getBlockPos());
-		//			}
-		//			else {
-		//				GottschCore.LOGGER.debug("spawn failed");
-		//			}
-		//		}
-		// self destruct
 		selfDestruct();
 	}
 
