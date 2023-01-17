@@ -19,7 +19,7 @@
  */
 package mod.gottsch.forge.gottschcore.bst;
 
-import com.someguyssoftware.gottschcore.GottschCore;
+import mod.gottsch.forge.gottschcore.GottschCore;
 
 /**
  * 

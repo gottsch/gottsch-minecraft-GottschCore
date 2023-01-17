@@ -22,8 +22,7 @@ import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.someguyssoftware.gottschcore.GottschCore;
-
+import mod.gottsch.forge.gottschcore.GottschCore;
 import mod.gottsch.forge.gottschcore.random.RandomHelper;
 import mod.gottsch.forge.gottschcore.size.Quantity;
 import mod.gottsch.forge.gottschcore.spatial.Coords;

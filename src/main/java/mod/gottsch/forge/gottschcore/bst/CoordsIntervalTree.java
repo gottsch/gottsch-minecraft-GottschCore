@@ -22,7 +22,7 @@ package mod.gottsch.forge.gottschcore.bst;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.someguyssoftware.gottschcore.GottschCore;
+import mod.gottsch.forge.gottschcore.GottschCore;
 
 /**
  * 

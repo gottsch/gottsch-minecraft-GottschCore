@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
-package com.someguyssoftware.gottschcore;
+package mod.gottsch.forge.gottschcore;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

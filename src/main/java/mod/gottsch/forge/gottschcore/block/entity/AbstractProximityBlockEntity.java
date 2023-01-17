@@ -19,8 +19,7 @@
  */
 package mod.gottsch.forge.gottschcore.block.entity;
 
-import com.someguyssoftware.gottschcore.GottschCore;
-
+import mod.gottsch.forge.gottschcore.GottschCore;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
