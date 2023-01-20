@@ -14,6 +14,7 @@ import java.util.TreeMap;
  * @author Mark Gottschling on Jan 21, 2018
  *
  */
+@Deprecated
 public class WeightedCollection<W extends Number, T> {
 	private final NavigableMap<Double, T> map = new TreeMap<Double, T>();
 	private Random random;

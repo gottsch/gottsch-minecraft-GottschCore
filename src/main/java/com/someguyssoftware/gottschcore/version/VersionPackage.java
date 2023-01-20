@@ -8,6 +8,7 @@ package com.someguyssoftware.gottschcore.version;
  * @author Mark Gottschling on Jan 3, 2016
  *
  */
+@Deprecated
 public class VersionPackage {
 	private BuildVersion minecraft;
 	private BuildVersion mod;

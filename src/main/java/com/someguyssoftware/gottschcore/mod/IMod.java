@@ -11,6 +11,7 @@ import com.someguyssoftware.gottschcore.config.IConfig;
  * @author Mark Gottschling on Nov 14, 2019
  *
  */
+@Deprecated
 public interface IMod {
 
 	/**

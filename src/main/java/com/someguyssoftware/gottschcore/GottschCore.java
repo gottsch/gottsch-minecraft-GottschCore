@@ -1,21 +1,33 @@
+/*
+ * This file is part of  GottschCore.
+ * Copyright (c) 2020 Mark Gottschling (gottsch)
+ * 
+ * All rights reserved.
+ *
+ * GottschCore is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GottschCore is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
+ */
 package com.someguyssoftware.gottschcore;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.someguyssoftware.gottschcore.annotation.Credits;
-import com.someguyssoftware.gottschcore.annotation.ModInfo;
-import com.someguyssoftware.gottschcore.config.GottschCoreConfig;
-import com.someguyssoftware.gottschcore.config.IConfig;
-import com.someguyssoftware.gottschcore.config.IModSetup;
-import com.someguyssoftware.gottschcore.mod.IMod;
-
-import net.minecraftforge.fml.ModLoadingContext;
+import mod.gottsch.forge.gottschcore.config.Config;
+import mod.gottsch.forge.gottschcore.setup.CommonSetup;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
  * 
@@ -23,31 +35,25 @@ import net.minecraftforge.fml.loading.FMLPaths;
  *
  */
 @Mod(value = GottschCore.MODID)
-@ModInfo(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, minecraftVersion = "1.18.2", forgeVersion = "40.1.0", updateJsonUrl = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.18.2-master/update.json")
-@Credits(values = { "GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017." })
-public class GottschCore implements IMod {
+public class GottschCore {
 	// logger
 	public static final Logger LOGGER = LogManager.getLogger(GottschCore.class.getSimpleName());
 
 	// constants
 	public static final String MODID = "gottschcore";
-	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.9.1";
 	
 	public static GottschCore instance;
-	private static GottschCoreConfig config;
 
 	public GottschCore() {
 		GottschCore.instance = this;
-		GottschCore.config = new GottschCoreConfig(this);
 
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, GottschCoreConfig.COMMON_CONFIG);
+		// register config
+		Config.register();
 
-		// Register the setup method for modloading
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-
-		GottschCoreConfig.loadConfig(GottschCoreConfig.COMMON_CONFIG,
-				FMLPaths.CONFIGDIR.get().resolve("gottschcore-common.toml"));
+		// register the setup method for mod loading
+		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+		// register 'ModSetup::init' to be called at mod setup time (server and client)
+		modEventBus.addListener(this::setup);
 	}
 
 	/**
@@ -56,21 +62,7 @@ public class GottschCore implements IMod {
 	 * @param event
 	 */
 	private void setup(final FMLCommonSetupEvent event) {
-		IModSetup.addRollingFileAppender(this);
+		CommonSetup.init(MODID, Config.instance, event);
 	}
 
-	@Override
-	public IMod getInstance() {
-		return GottschCore.instance;
-	}
-
-	@Override
-	public String getId() {
-		return GottschCore.MODID;
-	}
-
-	@Override
-	public IConfig getConfig() {
-		return GottschCore.config;
-	}	
 }

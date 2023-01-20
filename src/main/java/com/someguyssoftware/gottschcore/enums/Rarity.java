@@ -12,6 +12,7 @@ import java.util.Map;
  * @author Mark Gottschling on Jan 2, 2019
  * @since 1.7.0
  */
+@Deprecated
 public enum Rarity implements IRarity {
 	COMMON(0, "common"),
 	UNCOMMON(1, "uncommon"),
