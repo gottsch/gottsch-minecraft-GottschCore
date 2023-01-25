@@ -19,7 +19,7 @@
  */
 package mod.gottsch.forge.gottschcore.spatial;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

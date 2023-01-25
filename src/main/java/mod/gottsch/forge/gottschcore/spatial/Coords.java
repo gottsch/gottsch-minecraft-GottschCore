@@ -21,7 +21,7 @@ package mod.gottsch.forge.gottschcore.spatial;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.mojang.math.Vector3d;
+import org.joml.Vector3d;
 
 import mod.gottsch.forge.gottschcore.GottschCore;
 import net.minecraft.core.BlockPos;
