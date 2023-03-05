@@ -16,6 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * @author Mark Gottschling on May 8, 2017
  *
  */
+@Deprecated
 public class BiomeHelper {
 
 	public static List<String> biomeNames;
