@@ -90,6 +90,14 @@ public class Coords implements ICoords {
 	public Coords(Vector3d vec) {
 		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
 	}
+	
+	/**
+	 * Copy constructor from Vec3d
+	 * @param vec
+	 */
+	public Coords(Vec3 vec) {
+		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
+	}
 
 	
 	/**
