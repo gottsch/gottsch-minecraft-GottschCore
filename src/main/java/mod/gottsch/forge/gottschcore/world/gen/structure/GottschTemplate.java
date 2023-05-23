@@ -12,7 +12,6 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.someguyssoftware.gottschcore.GottschCore;
 
-import mod.gottsch.forge.gottschcore.block.BlockContext;
 import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import net.minecraft.core.BlockPos;
@@ -57,7 +56,7 @@ public class GottschTemplate extends StructureTemplate {
 	/*
 	 * A map of all the specials within the template.
 	 */
-	private final Multimap<Block, BlockContext> tagBlockMap = ArrayListMultimap.create();
+	private final Multimap<Block, BlockInfoContext> tagBlockMap = ArrayListMultimap.create();
 
 	/*
 	 * A list of block classes to check for post processing
@@ -685,7 +684,7 @@ public class GottschTemplate extends StructureTemplate {
 				// add pos to map
 				GottschCore.LOGGER.debug("template map adding block -> {} with pos -> {}", block.getRegistryName(),
 						blockPos);
-				tagBlockMap.put(block, new BlockContext(new Coords(blockPos), blockState));
+				tagBlockMap.put(block, new BlockInfoContext(GottschTemplateNew$blockinfo, new Coords(blockPos), blockState));
 			}
 			//============== End of GottschCore ===============//
 		}
@@ -795,7 +794,7 @@ public class GottschTemplate extends StructureTemplate {
 	 */
 	public ICoords findCoords(Random random, Block findBlock) {
 		ICoords coords = null; // TODO should this be an empty object or Coords.EMPTY_COORDS
-		List<BlockContext> contextList = (List<BlockContext>) getTagBlockMap().get(findBlock);
+		List<BlockInfoContext> contextList = (List<BlockInfoContext>) getTagBlockMap().get(findBlock);
 		List<ICoords> list = contextList.stream().map(c -> c.getCoords()).collect(Collectors.toList());
 		if (list.isEmpty())
 			return new Coords(0, 0, 0);
@@ -810,7 +809,7 @@ public class GottschTemplate extends StructureTemplate {
 	 * 
 	 * @return
 	 */
-	public Multimap<Block, BlockContext> getTagBlockMap() {
+	public Multimap<Block, BlockInfoContext> getTagBlockMap() {
 		return tagBlockMap;
 	}
 }

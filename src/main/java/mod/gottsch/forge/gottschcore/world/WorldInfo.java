@@ -249,11 +249,11 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getDryLandSurfaceCoords(final CommonLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getDryLandSurfaceCoords(final CommonLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {		
 		// grab height of land. Will stop at first non-air block
 		int occupiedHeight = getHeight(level, generator, Heightmap.Types.WORLD_SURFACE_WG, coords);
 		// the spawn coords is 1 ablove the land height
-		ICoords spawnCoords = coords.withY(occupiedHeight + 1);
+//		ICoords spawnCoords = coords.withY(occupiedHeight + 1);
 		
 		// grabs column of blocks at given position
 		NoiseColumn columnOfBlocks = generator.getBaseColumn(
@@ -262,12 +262,36 @@ public class WorldInfo {
 				level);
 		
 		// get the top block of the column (1 below the spawn)
-		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
+		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);		
+		
 		// test for non-solid state
 		if (!topBlock.getFluidState().isEmpty()) {
 			return Coords.EMPTY;
 		}
-		return spawnCoords;
+		
+		boolean isSurfaceBlock = false;
+		int index = 0;
+		while (!isSurfaceBlock) {	
+			topBlock = columnOfBlocks.getBlock(occupiedHeight -= index);
+			BlockContext blockContext = new BlockContext(coords.withY(occupiedHeight), topBlock);
+			// exit if not valid Y coordinate
+			if (!isHeightValid(blockContext.getCoords())) {
+				return Coords.EMPTY;
+			}
+			if (blockContext.isAir() || blockContext.isReplaceable() || blockContext.isBurning()) {
+				index++;
+			}
+			else {
+				isSurfaceBlock = true;
+			}
+		}
+		
+		// test for fluid state gaain
+		if (!topBlock.getFluidState().isEmpty()) {
+			return Coords.EMPTY;
+		}
+		
+		return coords.withY(occupiedHeight + 1);
 	}
 
 	// TESTING
@@ -386,7 +410,7 @@ public class WorldInfo {
 		BlockState noiseBlock = columnOfBlocks.getBlock(occupiedHeight);
 
 		int index = 0;
-		while (!isSurfaceBlock) {			
+		while (!isSurfaceBlock) {	
 			noiseBlock = columnOfBlocks.getBlock(occupiedHeight -= index);
 			BlockContext blockContext = new BlockContext(coords.withY(occupiedHeight), noiseBlock);
 			// exit if not valid Y coordinate
