@@ -323,6 +323,8 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
+	@Deprecated
+	// use Optional<ICoords>
 	public static ICoords getDryLandSurfaceCoordsWG(IWorldGenContext context, final ICoords coords) {
 		return getDryLandSurfaceCoords(context.level(), context.chunkGenerator(), Heightmap.Types.WORLD_SURFACE_WG, coords);
 	}
