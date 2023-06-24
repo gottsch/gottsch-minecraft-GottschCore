@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * @author Mark Gottschling on Feb 8, 2020
  *
  */
+@Deprecated
 public class BlockContext {
 	private ICoords coords;
 	private BlockState state;

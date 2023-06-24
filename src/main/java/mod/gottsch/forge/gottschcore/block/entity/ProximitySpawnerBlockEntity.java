@@ -38,6 +38,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.Blocks;
@@ -129,6 +130,39 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	}
 
 	/**
+	 * NOTE this was not working when calling the super.update()
+	 */
+	public void tickServer() {
+		// this is copied fromt he abstract
+		if (this.level.isClientSide()) {
+			return;
+		}
+
+		boolean isTriggered = false;
+		double proximitySq = getProximity() * getProximity();
+		if (proximitySq < 1) {
+			proximitySq = 1;
+		}
+
+		// for each player
+		for (Player player : getLevel().players()) {
+			// get the distance
+			double distanceSq = player.distanceToSqr(this.getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ());
+			if (!isTriggered && !this.isDead() && (distanceSq < proximitySq)) {
+				GottschCore.LOGGER.debug("proximity @ -> {} was met.", new Coords(getBlockPos()).toShortString());
+				isTriggered = true;
+				// exectute action
+				GottschCore.LOGGER.debug("proximity pos -> {}", this.getBlockPos());
+				execute(level, new Random(), new Coords(this.getBlockPos()), new Coords(player.blockPosition()));
+				// NOTE: does not self-destruct that is up to the execute action to perform
+			}
+			if (this.isDead()) {
+				break;
+			}
+		}
+	}
+
+	/**
 	 * 
 	 */
 	@Override
@@ -186,7 +220,7 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 				break;
 			}
 		}
-		
+
 		//		 get a list of adjacent unoccupied blocks
 		//		List<BlockPos> availableSpawnBlocks = new ArrayList<>();
 		//		BlockPos proximityPos = getBlockPos();

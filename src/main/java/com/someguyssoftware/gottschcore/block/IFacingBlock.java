@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
  * @author Mark Gottschling on Jan 11, 2020
  *
  */
+@Deprecated
 public interface IFacingBlock extends IGottschCoreBlock {
 	public static final EnumProperty<Direction> FACING = EnumProperty.create("facing", Direction.class);
 	

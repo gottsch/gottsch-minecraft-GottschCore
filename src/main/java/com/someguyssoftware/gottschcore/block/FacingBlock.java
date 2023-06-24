@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
  * @author Mark Gottschling on Jan 14, 2020
  *
  */
+@Deprecated
 public class FacingBlock extends ModBlock implements IFacingBlock {
 	
 	/**
