@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * @author Mark Gottschling on May 4, 2017
  *
  */
+@Deprecated
 public @interface Credits {
 	String[] values();
 }

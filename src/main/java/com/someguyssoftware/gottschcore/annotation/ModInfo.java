@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
  * @author Mark Gottschling on Nov 16, 2019
  *
  */
+@Deprecated
 public @interface ModInfo {
 	String modid();
 	String name();

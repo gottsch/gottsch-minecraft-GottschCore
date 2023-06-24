@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * @author Mark Gottschling on Sep 17, 2021
  *
  */
+@Deprecated
 public abstract class AbstractProximityBlock extends BaseEntityBlock {
 
 	/**

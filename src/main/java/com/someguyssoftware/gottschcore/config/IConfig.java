@@ -7,6 +7,7 @@ package com.someguyssoftware.gottschcore.config;
  * @author Mark Gottschling on Apr 30, 2017
  *
  */
+@Deprecated
 public interface IConfig {
 	public static final String MOD_CATEGORY = "01-mod";
 	public static final String LOGGING_CATEGORY = "02-logging";

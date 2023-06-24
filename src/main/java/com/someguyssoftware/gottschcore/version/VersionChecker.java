@@ -22,6 +22,7 @@ import net.minecraftforge.versions.mcp.MCPVersion;
  * @author Mark Gottschling on Apr 30, 2015
  * @version 2.0
  */
+@Deprecated
 public class VersionChecker {
 
 	/**

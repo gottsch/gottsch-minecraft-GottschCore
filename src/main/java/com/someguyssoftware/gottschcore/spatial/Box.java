@@ -30,6 +30,7 @@ import net.minecraft.world.phys.AABB;
  * @author Mark Gottschling on Oct 30, 2021
  *
  */
+@Deprecated
 public class Box {
 	// TODO determine what invalid y is (important when moving to mc1.17)
 	public static final Box EMPTY = new Box(new Coords(0, -255, 0), new Coords(0, -255, 0));

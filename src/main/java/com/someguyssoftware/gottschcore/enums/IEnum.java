@@ -9,6 +9,7 @@ import java.util.Map;
  * @author Mark Gottschling on Aug 31, 2014
  *
  */
+@Deprecated
 public interface IEnum {
 
 	public Integer getCode();

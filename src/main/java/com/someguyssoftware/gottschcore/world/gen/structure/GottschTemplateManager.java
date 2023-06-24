@@ -36,6 +36,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
  * @author Mark Gottschling on Feb 3, 2019
  *
  */
+@Deprecated
 public class GottschTemplateManager extends AbstractResourceManager {
 	   private final DataFixer fixer;
 	

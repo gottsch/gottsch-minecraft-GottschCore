@@ -37,6 +37,7 @@ import net.minecraft.world.phys.Vec3;
  * @author Mark Gottschling on Feb 26, 2020
  *
  */
+@Deprecated
 @Immutable
 public class Coords implements ICoords {
 	private final int x;
