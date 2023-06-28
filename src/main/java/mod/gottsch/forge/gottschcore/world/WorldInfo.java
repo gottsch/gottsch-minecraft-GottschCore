@@ -28,8 +28,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.CommonLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -161,7 +163,7 @@ public class WorldInfo {
 	public static int getHeight(final Level level) {
 		return level.getHeight();
 	}
-
+	
 	/**
 	 * Finds the topmost block position at an Coords position in the world. Wrapper
 	 * for BlockPos version.
@@ -170,25 +172,25 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static int getHeight(final ServerLevel level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
+	public static int getHeight(final CommonLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
 		return getHeight(level, generator, heightmapType, coords.toPos());
 	}
 
 	/**
 	 * Finds the topmost block position at an BlockPos position in the world
 	 * 
-	 * @param world
+	 * @param level
 	 * @param pos
 	 * @return
 	 */
-	private static int getHeight(final ServerLevel world, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
+	private static int getHeight(final CommonLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
 		// grab height at first non-air block
-
 		int occupiedHeight = generator.getFirstOccupiedHeight(
 				pos.getX(), 
 				pos.getZ(), 
 				heightmapType, 
-				world.getChunk(pos.getX(), pos.getZ()).getHeightAccessorForGeneration(), world.getChunkSource().randomState());
+				level,
+				null);
 		return occupiedHeight;
 	}
 
@@ -200,7 +202,7 @@ public class WorldInfo {
 	public static boolean isHeightValid(final ICoords coords) {
 		return isHeightValid(coords.toPos());
 	}
-
+	
 	/**
 	 * 
 	 * @param blockPos
@@ -272,6 +274,42 @@ public class WorldInfo {
 		return spawnCoords;
 	}
 
+	// TESTING
+	public static ICoords getDryLandSurfaceCoords(final ServerLevel level, final ChunkGenerator generator, Heightmap.Types heightMapType, final ICoords coords) {
+		// grab height of land. Will stop at first non-air block
+		int occupiedHeight = getHeight(level, generator, heightMapType, coords);
+		// the spawn coords is 1 ablove the land height
+		ICoords spawnCoords = coords.withY(occupiedHeight + 1);
+		
+		// grabs column of blocks at given position
+		NoiseColumn columnOfBlocks = generator.getBaseColumn(
+				coords.getX(), 
+				coords.getZ(), 
+				level,
+				level.getChunkSource().randomState());
+		
+		// get the top block of the column (1 below the spawn)
+		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
+		// test for non-solid state
+		if (!topBlock.getFluidState().isEmpty()) {
+			return Coords.EMPTY;
+		}
+		return spawnCoords;
+	}
+	
+	/**
+	 * TESTING
+	 * @param level
+	 * @param generator
+	 * @param coords
+	 * @return
+	 */
+	@Deprecated
+	// use Optional<ICoords>
+	public static ICoords getDryLandSurfaceCoordsWG(IWorldGenContext context, final ICoords coords) {
+		return getDryLandSurfaceCoords((ServerLevel)context.level(), context.chunkGenerator(), Heightmap.Types.WORLD_SURFACE_WG, coords);
+	}
+	
 	/**
 	 * 
 	 * @param level

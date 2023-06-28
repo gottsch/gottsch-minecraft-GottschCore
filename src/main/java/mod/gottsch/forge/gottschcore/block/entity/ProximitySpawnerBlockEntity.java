@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import mod.gottsch.forge.gottschcore.GottschCore;
 import mod.gottsch.forge.gottschcore.random.RandomHelper;
-import mod.gottsch.forge.gottschcore.size.Quantity;
+import mod.gottsch.forge.gottschcore.size.DoubleRange;
 import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import mod.gottsch.forge.gottschcore.world.WorldInfo;
@@ -34,9 +34,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.Blocks;
@@ -54,7 +56,7 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	private static final String MAX_MOBS = "mobNumMax";
 
 	private ResourceLocation mobName;
-	private Quantity mobNum;
+	private DoubleRange mobNum;
 
 	/**
 	 * 
@@ -98,7 +100,7 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 			if (tag.contains(MAX_MOBS)) {
 				max = tag.getInt(MAX_MOBS);
 			}
-			this.mobNum = new Quantity(min, max);
+			this.mobNum = new DoubleRange(min, max);
 		} catch (Exception e) {
 			GottschCore.LOGGER.error("error reading ProximitySpanwerBlockEntity properties from tag:", e);
 		}
@@ -123,20 +125,52 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	 */
 	private void defaultMobSpawnerSettings() {
 		setMobName(new ResourceLocation("minecraft", "zombie"));
-		setMobNum(new Quantity(1, 1));
+		setMobNum(new DoubleRange(1, 1));
 		setProximity(5.0D);
 	}
 
 	/**
+	 * NOTE this was not working when calling the super.update()
+	 */
+	public void tickServer() {
+		// this is copied fromt he abstract
+		if (this.level.isClientSide()) {
+			return;
+		}
+
+		boolean isTriggered = false;
+		double proximitySq = getProximity() * getProximity();
+		if (proximitySq < 1) {
+			proximitySq = 1;
+		}
+
+		// for each player
+		for (Player player : getLevel().players()) {
+			// get the distance
+			double distanceSq = player.distanceToSqr(this.getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ());
+			if (!isTriggered && !this.isDead() && (distanceSq < proximitySq)) {
+				GottschCore.LOGGER.debug("proximity @ -> {} was met.", new Coords(getBlockPos()).toShortString());
+				isTriggered = true;
+				// exectute action
+				GottschCore.LOGGER.debug("proximity pos -> {}", this.getBlockPos());
+				execute(level, level.getRandom(), new Coords(this.getBlockPos()), new Coords(player.blockPosition()));
+				// NOTE: does not self-destruct that is up to the execute action to perform
+			}
+			if (this.isDead()) {
+				break;
+			}
+		}
+	}
+	
+	/**
 	 * 
 	 */
 	@Override
-	public void execute(Level world, ICoords blockCoords, ICoords playerCoords) {
+	public void execute(Level world, RandomSource random, ICoords blockCoords, ICoords playerCoords) {
 		if (world.isClientSide()) {
 			return;
 		}
 		ServerLevel level = (ServerLevel)world;
-		Random random = new Random();
 
 		Optional<EntityType<?>> entityType = EntityType.byString(getMobName().toString());
 		if (!entityType.isPresent()) {
@@ -218,15 +252,14 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	/**
 	 * @return the mobNum
 	 */
-	public Quantity getMobNum() {
+	public DoubleRange getMobNum() {
 		return mobNum;
 	}
 
 	/**
 	 * @param mobNum the mobNum to set
 	 */
-	public void setMobNum(Quantity mobNum) {
+	public void setMobNum(DoubleRange mobNum) {
 		this.mobNum = mobNum;
 	}
-
 }

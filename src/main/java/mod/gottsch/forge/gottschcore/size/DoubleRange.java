@@ -23,15 +23,14 @@ package mod.gottsch.forge.gottschcore.size;
  * @author Mark Gottschling on Jul 18, 2016
  *
  */
-@Deprecated
-public class Quantity {
+public class DoubleRange {
 	private double min;
 	private double max;
 
 	/**
 	 * 
 	 */
-	public Quantity() {
+	public DoubleRange() {
 
 	}
 
@@ -39,7 +38,7 @@ public class Quantity {
 	 * 
 	 * @param q
 	 */
-	public Quantity(Quantity q) {
+	public DoubleRange(DoubleRange q) {
 		setMin(q.getMin());
 		setMax(q.getMax());
 	}
@@ -48,7 +47,7 @@ public class Quantity {
 	 * @param min
 	 * @param max
 	 */
-	public Quantity(double min, double max) {
+	public DoubleRange(double min, double max) {
 		super();
 		this.min = min;
 		this.max = max;
@@ -58,8 +57,8 @@ public class Quantity {
 	 * 
 	 * @return
 	 */
-	public Quantity copy() {
-		return new Quantity(this);
+	public DoubleRange copy() {
+		return new DoubleRange(this);
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class Quantity {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Quantity other = (Quantity) obj;
+		DoubleRange other = (DoubleRange) obj;
 		if (Double.doubleToLongBits(max) != Double.doubleToLongBits(other.max))
 			return false;
 		if (Double.doubleToLongBits(min) != Double.doubleToLongBits(other.min))
