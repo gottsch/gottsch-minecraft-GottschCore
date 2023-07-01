@@ -28,10 +28,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.CommonLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -172,7 +170,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static int getHeight(final CommonLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
+	public static int getHeight(final ServerLevel level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
 		return getHeight(level, generator, heightmapType, coords.toPos());
 	}
 
@@ -183,14 +181,14 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	private static int getHeight(final CommonLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
+	private static int getHeight(final ServerLevel level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
 		// grab height at first non-air block
 		int occupiedHeight = generator.getFirstOccupiedHeight(
 				pos.getX(), 
 				pos.getZ(), 
 				heightmapType, 
 				level,
-				null);
+				level.getChunkSource().randomState());
 		return occupiedHeight;
 	}
 

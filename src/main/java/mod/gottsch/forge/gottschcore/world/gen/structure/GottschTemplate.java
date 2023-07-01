@@ -157,7 +157,7 @@ public class GottschTemplate extends StructureTemplate {
 	 * Non-Decay version.
 	 * Adds blocks and entities from this structure to the given world.
 	 */
-	public boolean placeInWorld(ServerLevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, Random random, int flags) {
+	public boolean placeInWorld(ServerLevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, final Block NULL_BLOCK, Map<BlockState, BlockState> replacementBlocks, RandomSource random, int flags) {
 		if (this.palettes.isEmpty()) {
 			return false;
 		} else {
