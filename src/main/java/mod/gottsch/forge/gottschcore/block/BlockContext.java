@@ -5,8 +5,8 @@ import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.CommonLevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
@@ -25,12 +25,12 @@ public class BlockContext {
 	 * @param world
 	 * @param coords
 	 */
-	public BlockContext(Level level, ICoords coords) {
+	public BlockContext(CommonLevelAccessor level, ICoords coords) {
 		this.coords = coords;
 		this.state = level.getBlockState(coords.toPos());
 	}
 	
-	public BlockContext(Level level, BlockPos pos) {
+	public BlockContext(CommonLevelAccessor level, BlockPos pos) {
 		this(level, new Coords(pos));
 	}
 	
