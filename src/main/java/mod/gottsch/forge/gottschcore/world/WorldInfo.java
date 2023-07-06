@@ -22,6 +22,7 @@ package mod.gottsch.forge.gottschcore.world;
 import mod.gottsch.forge.gottschcore.block.BlockContext;
 import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
+import mod.gottsch.forge.gottschcore.world.IWorldGenContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -148,7 +149,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @param state
 	 */
-	public static void setBlock(Level level, ICoords coords, BlockState state) {
+	public static void setBlock(ServerLevelAccessor level, ICoords coords, BlockState state) {
 		level.setBlock(coords.toPos(), state, 3);
 	}
 
