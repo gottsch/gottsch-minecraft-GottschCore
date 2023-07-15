@@ -20,6 +20,7 @@
 package mod.gottsch.forge.gottschcore.block.entity;
 
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 
 /**
@@ -29,7 +30,7 @@ import net.minecraft.world.level.Level;
  */
 public interface IProximityBlockEntity {
 
-	void execute(Level level, ICoords blockCoords, ICoords playerCoords);
+	void execute(Level level, RandomSource random, ICoords blockCoords, ICoords playerCoords);
 
 	double getProximity();
 
