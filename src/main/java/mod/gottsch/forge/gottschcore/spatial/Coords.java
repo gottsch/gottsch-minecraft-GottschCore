@@ -21,7 +21,6 @@ package mod.gottsch.forge.gottschcore.spatial;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.joml.Vector3d;
 
 import mod.gottsch.forge.gottschcore.GottschCore;
 import net.minecraft.core.BlockPos;
@@ -74,6 +73,10 @@ public class Coords implements ICoords {
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
+	public Coords(Vec3 vec) {
+		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
+	}
+	
 	/**
 	 * Copy constructor from Vec3i
 	 * 
@@ -82,23 +85,6 @@ public class Coords implements ICoords {
 	public Coords(Vec3i vec) {
 		this(Mth.floor(vec.getX()), Mth.floor(vec.getY()), Mth.floor(vec.getZ()));
 	}
-	
-	/**
-	 * Copy constructor from Vec3d
-	 * @param vec
-	 */
-	public Coords(Vector3d vec) {
-		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
-	}
-	
-	/**
-	 * Copy constructor from Vec3d
-	 * @param vec
-	 */
-	public Coords(Vec3 vec) {
-		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
-	}
-
 	
 	/**
 	 * Offset this Coords n blocks up
@@ -396,9 +382,10 @@ public class Coords implements ICoords {
 		return new Vec3(getX(), getY(), getZ());
 	}
 	
+	@Deprecated
 	@Override
-	public Vector3d toVec3d() {
-		return new Vector3d(getX(), getY(), getZ());
+	public Vec3 toVec3d() {
+		return toVec3();
 	}
 
 	/**

@@ -1,10 +1,11 @@
 {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/gottschcore",
     "promos": {
-    "1.19.4-latest": "2.0.5",
-    "1.19.4-recommended": "2.0.5"
+    "1.19.4-latest": "2.1.0",
+    "1.19.4-recommended": "2.1.0"
   },
     "1.19.4": {
-        "2.0.5": "New V2. Initial port from 1.19.3"
+        "2.0.5": "New V2. Initial port from 1.19.3",
+        "2.1.0": "Bring to parity with 1.19.3"
     }
 }

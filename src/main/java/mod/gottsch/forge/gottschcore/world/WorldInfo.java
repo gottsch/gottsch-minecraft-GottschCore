@@ -30,6 +30,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -147,7 +148,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @param state
 	 */
-	public static void setBlock(Level level, ICoords coords, BlockState state) {
+	public static void setBlock(ServerLevelAccessor level, ICoords coords, BlockState state) {
 		level.setBlock(coords.toPos(), state, 3);
 	}
 
@@ -161,7 +162,7 @@ public class WorldInfo {
 	public static int getHeight(final Level level) {
 		return level.getHeight();
 	}
-
+	
 	/**
 	 * Finds the topmost block position at an Coords position in the world. Wrapper
 	 * for BlockPos version.
@@ -173,22 +174,36 @@ public class WorldInfo {
 	public static int getHeight(final ServerLevel level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
 		return getHeight(level, generator, heightmapType, coords.toPos());
 	}
+	public static int getHeight(final ServerLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final ICoords coords) {
+		return getHeight(level, generator, heightmapType, coords.toPos());
+	}
 
 	/**
 	 * Finds the topmost block position at an BlockPos position in the world
 	 * 
-	 * @param world
+	 * @param level
 	 * @param pos
 	 * @return
 	 */
-	private static int getHeight(final ServerLevel world, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
+	private static int getHeight(final ServerLevel level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
 		// grab height at first non-air block
-
 		int occupiedHeight = generator.getFirstOccupiedHeight(
 				pos.getX(), 
 				pos.getZ(), 
 				heightmapType, 
-				world.getChunk(pos.getX(), pos.getZ()).getHeightAccessorForGeneration(), world.getChunkSource().randomState());
+				level,
+				level.getChunkSource().randomState());
+		return occupiedHeight;
+	}
+	
+	private static int getHeight(final ServerLevelAccessor level, final ChunkGenerator generator, final Heightmap.Types heightmapType, final BlockPos pos) {
+		// grab height at first non-air block
+		int occupiedHeight = generator.getFirstOccupiedHeight(
+				pos.getX(), 
+				pos.getZ(), 
+				heightmapType, 
+				level,
+				level.getLevel().getChunkSource().randomState());
 		return occupiedHeight;
 	}
 
@@ -200,7 +215,7 @@ public class WorldInfo {
 	public static boolean isHeightValid(final ICoords coords) {
 		return isHeightValid(coords.toPos());
 	}
-
+	
 	/**
 	 * 
 	 * @param blockPos
@@ -249,7 +264,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getDryLandSurfaceCoords(final ServerLevel level, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getDryLandSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {
 		// grab height of land. Will stop at first non-air block
 		int occupiedHeight = getHeight(level, generator, Heightmap.Types.WORLD_SURFACE_WG, coords);
 		// the spawn coords is 1 ablove the land height
@@ -259,9 +274,8 @@ public class WorldInfo {
 		NoiseColumn columnOfBlocks = generator.getBaseColumn(
 				coords.getX(), 
 				coords.getZ(), 
-				level.getChunk(coords.getX(), 
-						coords.getZ()).getHeightAccessorForGeneration(),
-				level.getChunkSource().randomState());
+				level,
+				level.getLevel().getChunkSource().randomState());
 
 		// get the top block of the column (1 below the spawn)
 		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
@@ -272,6 +286,42 @@ public class WorldInfo {
 		return spawnCoords;
 	}
 
+	// TESTING
+	public static ICoords getDryLandSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, Heightmap.Types heightMapType, final ICoords coords) {
+		// grab height of land. Will stop at first non-air block
+		int occupiedHeight = getHeight(level, generator, heightMapType, coords);
+		// the spawn coords is 1 ablove the land height
+		ICoords spawnCoords = coords.withY(occupiedHeight + 1);
+		
+		// grabs column of blocks at given position
+		NoiseColumn columnOfBlocks = generator.getBaseColumn(
+				coords.getX(), 
+				coords.getZ(), 
+				level,
+				level.getLevel().getChunkSource().randomState());
+		
+		// get the top block of the column (1 below the spawn)
+		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
+		// test for non-solid state
+		if (!topBlock.getFluidState().isEmpty()) {
+			return Coords.EMPTY;
+		}
+		return spawnCoords;
+	}
+	
+	/**
+	 * TESTING
+	 * @param level
+	 * @param generator
+	 * @param coords
+	 * @return
+	 */
+	@Deprecated
+	// use Optional<ICoords>
+	public static ICoords getDryLandSurfaceCoordsWG(IWorldGenContext context, final ICoords coords) {
+		return getDryLandSurfaceCoords(context.level(), context.chunkGenerator(), Heightmap.Types.WORLD_SURFACE_WG, coords);
+	}
+	
 	/**
 	 * 
 	 * @param level
@@ -279,7 +329,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getSurfaceCoords(final ServerLevel level, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {
 		// grab height of land. Will stop at first non-air block
 		int occupiedHeight = getHeight(level, generator, Heightmap.Types.WORLD_SURFACE_WG, coords);
 		// the spawn coords is 1 ablove the land height
@@ -289,9 +339,8 @@ public class WorldInfo {
 		NoiseColumn columnOfBlocks = generator.getBaseColumn(
 				coords.getX(), 
 				coords.getZ(), 
-				level.getChunk(coords.getX(), 
-						coords.getZ()).getHeightAccessorForGeneration(),
-				level.getChunkSource().randomState());
+				level,
+				level.getLevel().getChunkSource().randomState());
 
 		// get the top block of the column (1 below the spawn)
 		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
@@ -307,7 +356,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getSubterraneanSurfaceCoords(final ServerLevel world, final ICoords coords) {
+	public static ICoords getSubterraneanSurfaceCoords(final ServerLevelAccessor world, final ICoords coords) {
 		boolean isSurfaceBlock = false;
 		ICoords newCoords = coords;
 
@@ -341,7 +390,7 @@ public class WorldInfo {
 	 * @param pos
 	 * @return
 	 */
-	public static ICoords getAnyLandSurfaceCoords(final ServerLevel level, final ChunkGenerator generator, final ICoords coords) {		
+	public static ICoords getAnyLandSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {		
 		boolean isSurfaceBlock = false;
 
 		// grab height of land. Will stop at first non-air block
@@ -351,9 +400,8 @@ public class WorldInfo {
 		NoiseColumn columnOfBlocks = generator.getBaseColumn(
 				coords.getX(), 
 				coords.getZ(), 
-				level.getChunk(coords.getX(), 
-						coords.getZ()).getHeightAccessorForGeneration(),
-				level.getChunkSource().randomState());
+				level,
+				level.getLevel().getChunkSource().randomState());
 
 		// get the top block of the column (1 below the spawn)
 		BlockState noiseBlock = columnOfBlocks.getBlock(occupiedHeight);
@@ -384,7 +432,7 @@ public class WorldInfo {
 	 * @param coords
 	 * @return
 	 */
-	public static ICoords getOceanFloorSurfaceCoords(final ServerLevel level, final ChunkGenerator generator, final ICoords coords) {
+	public static ICoords getOceanFloorSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {
 		// grab height of land. Will stop at first non-air block
 		int occupiedHeight = getHeight(level, generator, Heightmap.Types.OCEAN_FLOOR_WG, coords);
 		// the spawn coords is 1 above the land height
@@ -394,8 +442,8 @@ public class WorldInfo {
 		NoiseColumn columnOfBlocks = generator.getBaseColumn(
 				coords.getX(), 
 				coords.getZ(), 
-				level.getChunk(coords.getX(), coords.getZ()),
-				level.getChunkSource().randomState());
+				level,
+				level.getLevel().getChunkSource().randomState());
 
 		// get the top block of the column (1 below the spawn)
 		BlockState topBlock = columnOfBlocks.getBlock(occupiedHeight);
@@ -420,7 +468,7 @@ public class WorldInfo {
 	 * @param airPercentRequired
 	 * @return
 	 */
-	public static boolean isValidAboveGroundBase(final Level world, final ICoords coords, final int width,
+	public static boolean isValidAboveGroundBase(final ServerLevelAccessor world, final ICoords coords, final int width,
 			final int depth, final double groundPercentRequired, final double airPercentRequired) {
 		return isSolidBase(world, coords, width, depth, groundPercentRequired)
 				&& isAirBase(world, coords.up(1), width, depth, airPercentRequired);
@@ -430,7 +478,7 @@ public class WorldInfo {
 	 * Method to check if the ground (base) has a % of solid blocks, and checks the
 	 * y+1, and y+2 to see if has a % of air blocks.
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
@@ -439,26 +487,26 @@ public class WorldInfo {
 	 * @param airPercentRequired2
 	 * @return
 	 */
-	public static boolean isValidAboveGroundBase(final Level world, final ICoords coords, final int width,
+	public static boolean isValidAboveGroundBase(final ServerLevelAccessor level, final ICoords coords, final int width,
 			final int depth, final double groundPercentRequired, final double airPercentRequired1,
 			final double airPercentRequired2) {
-		return isSolidBase(world, coords, width, depth, groundPercentRequired)
-				&& isAirBase(world, coords.up(1), width, depth, airPercentRequired1)
-				&& isAirBase(world, coords.up(2), width, depth, airPercentRequired2);
+		return isSolidBase(level, coords, width, depth, groundPercentRequired)
+				&& isAirBase(level, coords.up(1), width, depth, airPercentRequired1)
+				&& isAirBase(level, coords.up(2), width, depth, airPercentRequired2);
 	}
 
 	/**
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
 	 * @param percentRequired
 	 * @return
 	 */
-	public static boolean isSolidBase(final Level world, final ICoords coords, final int width, final int depth,
+	public static boolean isSolidBase(final ServerLevelAccessor level, final ICoords coords, final int width, final int depth,
 			final double percentRequired) {
-		double percent = getSolidBasePercent(world, coords.down(1), width, depth);
+		double percent = getSolidBasePercent(level, coords.down(1), width, depth);
 
 		if (percent < percentRequired) {
 			return false;
@@ -468,13 +516,13 @@ public class WorldInfo {
 
 	/**
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
 	 * @return
 	 */
-	public static double getSolidBasePercent(final Level world, final ICoords coords, final int width,
+	public static double getSolidBasePercent(final ServerLevelAccessor level, final ICoords coords, final int width,
 			final int depth) {
 		int platformSize = 0;
 
@@ -483,7 +531,7 @@ public class WorldInfo {
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the blockContext
-				BlockContext blockContext = new BlockContext(world, coords.add(x, 0, z));
+				BlockContext blockContext = new BlockContext(level, coords.add(x, 0, z));
 
 				// test the blockContext
 				if (blockContext.hasState() && blockContext.isSolid() && !blockContext.isReplaceable()) {
@@ -501,13 +549,13 @@ public class WorldInfo {
 	 * Gets the percent of blocks in an area (WxD) that are air/air-like
 	 * (replaceable).
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
 	 * @return
 	 */
-	public static double getAirBasePercent(final Level world, final ICoords coords, final int width, final int depth) {
+	public static double getAirBasePercent(final ServerLevelAccessor level, final ICoords coords, final int width, final int depth) {
 		double percent = 0.0D;
 		int airBlocks = 0;
 
@@ -516,7 +564,7 @@ public class WorldInfo {
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the blockContext
-				BlockContext blockContext = new BlockContext(world, coords.add(x, 0, z));
+				BlockContext blockContext = new BlockContext(level, coords.add(x, 0, z));
 				if (blockContext.hasState()
 						&& (blockContext.equalsMaterial(Material.AIR) || blockContext.isReplaceable())) {
 					airBlocks++;
@@ -530,25 +578,25 @@ public class WorldInfo {
 
 	/**
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
 	 * @param percentRequired
 	 * @return
 	 */
-	public static boolean isAirBase(final Level world, final ICoords coords, final int width, final int depth,
+	public static boolean isAirBase(final ServerLevelAccessor level, final ICoords coords, final int width, final int depth,
 			double percentRequired) {
-		double percent = getAirBasePercent(world, coords.down(1), width, depth);
+		double percent = getAirBasePercent(level, coords.down(1), width, depth);
 		if (percent < percentRequired) {
 			return false;
 		}
 		return true;
 	}
 
-	public static boolean isLiquidBase(final Level world, final ICoords coords, final int width, final int depth,
+	public static boolean isLiquidBase(final ServerLevelAccessor level, final ICoords coords, final int width, final int depth,
 			double percentRequired) {
-		double percent = getFluidBasePercent(world, coords.down(1), width, depth);
+		double percent = getFluidBasePercent(level, coords.down(1), width, depth);
 		if (percent < percentRequired) {
 			return false;
 		}
@@ -558,13 +606,13 @@ public class WorldInfo {
 	/**
 	 * Gets the percent of blocks in an area (WxD) that are liquid.
 	 * 
-	 * @param world
+	 * @param level
 	 * @param coords
 	 * @param width
 	 * @param depth
 	 * @return
 	 */
-	public static double getFluidBasePercent(final Level world, final ICoords coords, final int width, final int depth) {
+	public static double getFluidBasePercent(final ServerLevelAccessor level, final ICoords coords, final int width, final int depth) {
 		double percent = 0.0D;
 		int liquidBlocks = 0;
 
@@ -573,7 +621,7 @@ public class WorldInfo {
 		for (int z = 0; z < depth; z++) {
 			for (int x = 0; x < width; x++) {
 				// get the blockContext
-				BlockContext blockContext = new BlockContext(world, coords.add(x, 0, z));
+				BlockContext blockContext = new BlockContext(level, coords.add(x, 0, z));
 				if (blockContext.hasState() && blockContext.isFluid()) {
 					liquidBlocks++;
 				}
