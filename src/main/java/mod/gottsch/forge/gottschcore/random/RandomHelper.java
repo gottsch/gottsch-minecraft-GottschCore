@@ -21,6 +21,8 @@ package mod.gottsch.forge.gottschcore.random;
 
 import java.util.Random;
 
+import net.minecraft.util.RandomSource;
+
 /**
  * @author Mark Gottschling on May 6, 2017
  *
@@ -48,6 +50,32 @@ public final class RandomHelper {
 	 * @return
 	 */
 	public static int randomInt(final Random random,int min, int max) {
+		if (min < 0) {
+			min = 0;
+		}
+		
+		if (max <= 0) {
+			return 0;
+		}
+		
+		if (min == max) {
+			return min;
+		}
+		
+		if (min > max) {
+			return random.nextInt(min) + 1;
+		}
+		return random.nextInt(max - min  + 1) + min;
+	}
+	
+	/**
+	 * 
+	 * @param random
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	public static int randomInt(final RandomSource random,int min, int max) {
 		if (min < 0) {
 			min = 0;
 		}
@@ -118,6 +146,13 @@ public final class RandomHelper {
 		return false;
 	}
 	
+	public static boolean checkProbability(final RandomSource random, final int probability) {
+		if (random.nextInt(INT_MAX_PROB) < probability) {
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param random
@@ -128,6 +163,13 @@ public final class RandomHelper {
 		Random r = null;
 		r = (random == null) ? new Random() : random;
 		if (r.nextDouble() * DOUBLE_MAX_PROB < probability) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean checkProbability(final RandomSource random, final double probability) {
+		if (random.nextDouble() * DOUBLE_MAX_PROB < probability) {
 			return true;
 		}
 		return false;

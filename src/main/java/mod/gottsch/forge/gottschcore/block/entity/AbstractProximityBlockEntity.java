@@ -23,6 +23,7 @@ import mod.gottsch.forge.gottschcore.GottschCore;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -95,7 +96,7 @@ public abstract class AbstractProximityBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	abstract public void execute(Level world, ICoords blockCoords, ICoords playerCoords);
+	abstract public void execute(Level world, RandomSource random, ICoords blockCoords, ICoords playerCoords);
 
 	/**
 	 * @return the proximity

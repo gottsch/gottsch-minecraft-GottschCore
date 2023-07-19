@@ -19,8 +19,6 @@
  */
 package mod.gottsch.forge.gottschcore.spatial;
 
-import org.joml.Vector3d;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -234,7 +232,7 @@ public interface ICoords {
 //
 //	ICoords withZ(int z);
 
-	public Vector3d toVec3d();
+	public Vec3 toVec3d();
 
 	CompoundTag save(CompoundTag tag);
 
