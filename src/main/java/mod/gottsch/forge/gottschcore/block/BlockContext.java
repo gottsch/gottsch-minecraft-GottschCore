@@ -9,7 +9,8 @@ import net.minecraft.world.level.CommonLevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 /**
  * 
@@ -68,15 +69,9 @@ public class BlockContext {
 			return true;
 		return false;
 	}
-	
-	public boolean equalsMaterial(Material material) {
-		if (state.getMaterial() == material)
-			return true;
-		return false;
-	}
 
 	public boolean isAir() {
-		return state.getMaterial() == Material.AIR;
+		return state.isAir();
 	}
 
 	/**
@@ -85,7 +80,7 @@ public class BlockContext {
 	 * @return
 	 */
 	public boolean isReplaceable() {
-		return state.getMaterial().isReplaceable();
+		return state.canBeReplaced();
 	}
 
 	/**
@@ -94,7 +89,7 @@ public class BlockContext {
 	 * @return
 	 */
 	public boolean isSolid() {
-		return state.getMaterial().isSolid();
+		return state.isSolid();
 	}
 	
 	public boolean isFluid() {
@@ -103,6 +98,12 @@ public class BlockContext {
 	
 	public boolean isBurning() {
 		return state.isBurning((BlockGetter) null, this.coords.toPos());
+	}
+	
+	public boolean isLeaves() {
+		return state.getBlock().defaultMapColor() == MapColor.PLANT &&
+				state.ignitedByLava() &&
+				state.getPistonPushReaction() == PushReaction.DESTROY;
 	}
 	
 	public ICoords getCoords() {

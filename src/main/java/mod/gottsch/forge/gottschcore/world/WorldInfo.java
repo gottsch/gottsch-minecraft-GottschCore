@@ -35,7 +35,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -368,11 +368,11 @@ public class WorldInfo {
 				return Coords.EMPTY;
 			}
 			// test if the block at position is water, lava or ice
-			if (blockContext.isFluid() || blockContext.equalsMaterial(Material.ICE)) {
+			if (blockContext.isFluid() || blockContext.getState().getBlock().defaultMapColor() == MapColor.ICE) {
 				return Coords.EMPTY;
 			}
-			if (blockContext.equalsMaterial(Material.AIR) || blockContext.isReplaceable()
-					|| blockContext.equalsMaterial(Material.LEAVES) || blockContext.equalsMaterial(Material.WOOD)
+			if (blockContext.isAir() || blockContext.isReplaceable()
+					|| blockContext.isLeaves() || blockContext.getState().getBlock().defaultMapColor() == MapColor.WOOD
 					|| blockContext.isBurning()) {
 				newCoords = newCoords.down(1);
 			} else {
@@ -382,6 +382,7 @@ public class WorldInfo {
 		return newCoords;
 	}
 
+	
 	/**
 	 * Gets the first valid land surface position (could be under water or lava)
 	 * from the given starting point.
@@ -566,7 +567,7 @@ public class WorldInfo {
 				// get the blockContext
 				BlockContext blockContext = new BlockContext(level, coords.add(x, 0, z));
 				if (blockContext.hasState()
-						&& (blockContext.equalsMaterial(Material.AIR) || blockContext.isReplaceable())) {
+						&& (blockContext.isAir()) || blockContext.isReplaceable()) {
 					airBlocks++;
 				}
 			}

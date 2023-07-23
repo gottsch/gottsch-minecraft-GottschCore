@@ -176,7 +176,7 @@ public class GottschTemplate extends StructureTemplate {
 				List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
 				//============== End of GottschCore ===============//
 
-				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(world, pos, pos2, placement, blockInfoList, this)) {
+				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(world, pos, pos2, placement, blockInfoList)) {
 					BlockPos blockPos = blockInfo.pos;
 					//================= GottschCore =================//
 					// replace block with null block if it is a marker block
@@ -354,7 +354,7 @@ public class GottschTemplate extends StructureTemplate {
 				List<BlockInfoContext> blockInfoContexts = new ArrayList<>();
 				//============== End of GottschCore ===============//
 
-				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(world, blockPos, pos2, placement, blockInfoList, this)) {
+				for(GottschTemplate.BlockInfo blockInfo : processBlockInfos(world, blockPos, pos2, placement, blockInfoList)) {
 					BlockPos blockpos = blockInfo.pos;
 					//================= GottschCore =================//
 					// replace block with null block if it is a marker block
@@ -521,17 +521,17 @@ public class GottschTemplate extends StructureTemplate {
 
 	   @Deprecated //Use Forge version
 	   public static List<StructureTemplate.StructureBlockInfo> processBlockInfos(LevelAccessor p_74518_, BlockPos p_74519_, BlockPos p_74520_, StructurePlaceSettings p_74521_, List<StructureTemplate.StructureBlockInfo> p_74522_) {
-	      return processBlockInfos(p_74518_, p_74519_, p_74520_, p_74521_, p_74522_, null);
+	      return processBlockInfos(p_74518_, p_74519_, p_74520_, p_74521_, p_74522_);
 	   }
 
-	public static List<GottschTemplate.BlockInfo> processBlockInfos(LevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos, @Nullable GottschTemplate template) {
+	public static List<GottschTemplate.BlockInfo> processBlockInfos(LevelAccessor world, BlockPos pos, BlockPos pos2, PlacementSettings placement, List<GottschTemplate.BlockInfo> blockInfos) {
 		List<GottschTemplate.BlockInfo> list = Lists.newArrayList();
 
 		for(GottschTemplate.BlockInfo GottschTemplateNew$blockinfo : blockInfos) {
 			BlockPos blockpos = calculateRelativePosition(placement, GottschTemplateNew$blockinfo.pos).offset(pos);
 			GottschTemplate.BlockInfo GottschTemplateNew$blockinfo1 = new GottschTemplate.BlockInfo(blockpos, GottschTemplateNew$blockinfo.state, GottschTemplateNew$blockinfo.nbt != null ? GottschTemplateNew$blockinfo.nbt.copy() : null);
 
-			for(Iterator<StructureProcessor> iterator = placement.getProcessors().iterator(); GottschTemplateNew$blockinfo1 != null && iterator.hasNext(); GottschTemplateNew$blockinfo1 = iterator.next().process(world, pos, GottschTemplateNew$blockinfo, GottschTemplateNew$blockinfo1, placement, template)) {
+			for(Iterator<StructureProcessor> iterator = placement.getProcessors().iterator(); GottschTemplateNew$blockinfo1 != null && iterator.hasNext(); GottschTemplateNew$blockinfo1 = iterator.next().process(world, pos, GottschTemplateNew$blockinfo, GottschTemplateNew$blockinfo1, placement)) {
 			}
 
 			if (GottschTemplateNew$blockinfo1 != null) {
