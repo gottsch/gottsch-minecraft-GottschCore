@@ -5,10 +5,10 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-version = "${minecraft_version}-${forge_version}-${mod_version}"
+version = "${minecraft_version}-${mod_version}"
 group = mod_group_id
 base {
-    archivesName = mod_name
+    archivesName = mod_id
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -24,7 +24,8 @@ minecraft {
     copyIdeResources = true
     
     runs {
-        client {
+        // applies to all the run configs below
+        configureEach {
             workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
@@ -35,6 +36,8 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
 
             // Recommended logging level for the console
+            // You can set various levels here.
+            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
 
             mods {
@@ -104,9 +107,9 @@ tasks.named('processResources', ProcessResources).configure {
     ]
     inputs.properties replaceProperties
 
- //   filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
- //       expand replaceProperties + [project: project]
- //   }
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
 }
 
 // Example for how to get properties into the manifest for reading at runtime.
