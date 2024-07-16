@@ -59,8 +59,6 @@ public class BasedBlock extends Block implements IBasedBlock {
 	/**
 	 * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
 	 * blockstate.
-	 * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
-	 * fine.
 	 */
 	@Override
 	public BlockState rotate(BlockState state, Rotation rotation) {

@@ -22,6 +22,7 @@ package mod.gottsch.forge.gottschcore.block.entity;
 import mod.gottsch.forge.gottschcore.GottschCore;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -67,8 +68,8 @@ public abstract class AbstractProximityBlockEntity extends BlockEntity implement
 	 * 
 	 */
 	@Override
-	public void load(CompoundTag tag) {
-		super.load(tag);
+	public void loadAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+		super.loadAdditional(tag, lookupProvider);
 		try {
 			// read the custom name
 			if (tag.contains(PROXIMITY_TAG, 8)) {
@@ -89,8 +90,8 @@ public abstract class AbstractProximityBlockEntity extends BlockEntity implement
 	 * 
 	 */
 	@Override
-	   protected void saveAdditional(CompoundTag tag) {
-		super.saveAdditional(tag);
+	   protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+		super.saveAdditional(tag, lookupProvider);
 		tag.putDouble(PROXIMITY_TAG, getProximity());
 		tag.putBoolean(IS_DEAD, isDead());
 	}

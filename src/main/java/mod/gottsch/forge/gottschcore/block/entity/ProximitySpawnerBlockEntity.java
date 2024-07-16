@@ -20,6 +20,8 @@ package mod.gottsch.forge.gottschcore.block.entity;
 import java.util.Optional;
 import java.util.Random;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.entity.SpawnPlacementType;
 import org.apache.commons.lang3.StringUtils;
 
 import mod.gottsch.forge.gottschcore.GottschCore;
@@ -76,12 +78,12 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	public void load(CompoundTag tag) {
-		super.load(tag);
+	public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+		super.loadAdditional(tag, provider);
 		try {
 			// read the custom name
 			if (tag.contains(MOB_NAME, 8)) {
-				this.mobName = new ResourceLocation(tag.getString(MOB_NAME));
+				this.mobName = ResourceLocation.parse(tag.getString(MOB_NAME));
 			} else {
 				// select a random mob
 				EntityType<?> entityType = DungeonHooks.getRandomDungeonMob(this.level.random);
@@ -110,8 +112,8 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	@Override
-	protected void saveAdditional(CompoundTag tag) {
-		super.saveAdditional(tag);
+	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+		super.saveAdditional(tag, provider);
 		if (getMobName() == null || StringUtils.isBlank(getMobName().toString())) {        	
 			defaultMobSpawnerSettings();
 		}
@@ -124,7 +126,7 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 	 * 
 	 */
 	private void defaultMobSpawnerSettings() {
-		setMobName(new ResourceLocation("minecraft", "zombie"));
+		setMobName(ResourceLocation.fromNamespaceAndPath("minecraft", "zombie"));
 		setMobNum(new DoubleRange(1, 1));
 		setProximity(5.0D);
 	}
@@ -194,8 +196,12 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 
 				boolean isSpawned = false;
 				if (!WorldInfo.isClientSide(level)) {
-					SpawnPlacements.Type placement = SpawnPlacements.getPlacementType(entityType.get());
-					if (NaturalSpawner.isSpawnPositionOk(placement, level, spawnCoords.toPos(), entityType.get())) {
+					SpawnPlacementType placement = SpawnPlacements.getPlacementType(entityType.get());
+					if (NaturalSpawner.isValidEmptySpawnBlock(level, spawnCoords.toPos(),
+							level.getBlockState(spawnCoords.toPos()),
+							level.getBlockState(spawnCoords.toPos()).getFluidState(),
+							entityType.get())) {
+
 						Entity mob = entityType.get().create(level);
 						mob.setPos((double)spawnX, (double)spawnY, (double)spawnZ);
 						level.addFreshEntityWithPassengers(mob);

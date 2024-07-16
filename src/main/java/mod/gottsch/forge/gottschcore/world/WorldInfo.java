@@ -51,9 +51,9 @@ public class WorldInfo {
 	public static final int CHUNK_RADIUS = 8;
 	public static final int CHUNK_SIZE = CHUNK_RADIUS * 2;
 
-	public static final ResourceLocation OVERWORLD = new ResourceLocation("overworld");
-	public static final ResourceLocation THE_NETHER = new ResourceLocation("the_nether");
-	public static final ResourceLocation THE_END = new ResourceLocation("the_end");
+	public static final ResourceLocation OVERWORLD = ResourceLocation.withDefaultNamespace("overworld");
+	public static final ResourceLocation THE_NETHER = ResourceLocation.withDefaultNamespace("the_nether");
+	public static final ResourceLocation THE_END = ResourceLocation.withDefaultNamespace("the_end");
 
 	public enum SURFACE {
 		LAND, WATER, LAVA, OTHER, INVALID
@@ -309,18 +309,11 @@ public class WorldInfo {
 		return spawnCoords;
 	}
 	
-	/**
-	 * TESTING
-	 * @param level
-	 * @param generator
-	 * @param coords
-	 * @return
-	 */
-	@Deprecated
-	// use Optional<ICoords>
-	public static ICoords getDryLandSurfaceCoordsWG(IWorldGenContext context, final ICoords coords) {
-		return getDryLandSurfaceCoords(context.level(), context.chunkGenerator(), Heightmap.Types.WORLD_SURFACE_WG, coords);
-	}
+//	@Deprecated
+//	// use Optional<ICoords>
+//	public static ICoords getDryLandSurfaceCoordsWG(IWorldGenContext context, final ICoords coords) {
+//		return getDryLandSurfaceCoords(context.level(), context.chunkGenerator(), Heightmap.Types.WORLD_SURFACE_WG, coords);
+//	}
 	
 	/**
 	 * 
@@ -387,9 +380,6 @@ public class WorldInfo {
 	 * Gets the first valid land surface position (could be under water or lava)
 	 * from the given starting point.
 	 * 
-	 * @param world
-	 * @param pos
-	 * @return
 	 */
 	public static ICoords getAnyLandSurfaceCoords(final ServerLevelAccessor level, final ChunkGenerator generator, final ICoords coords) {		
 		boolean isSurfaceBlock = false;
@@ -428,7 +418,7 @@ public class WorldInfo {
 
 	/**
 	 * 
-	 * @param world
+	 * @param level
 	 * @param generator
 	 * @param coords
 	 * @return
