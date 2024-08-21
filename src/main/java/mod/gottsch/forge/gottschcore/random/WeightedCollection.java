@@ -32,7 +32,7 @@ import java.util.TreeMap;
  * @param <T>
  */
 public class WeightedCollection<W extends Number, T> {
-	private final NavigableMap<Double, T> map = new TreeMap<Double, T>();
+	private NavigableMap<Double, T> map = new TreeMap<Double, T>();
 	private Random random;
 	private double total = 0;
 	
@@ -56,11 +56,24 @@ public class WeightedCollection<W extends Number, T> {
 	 * @param weight
 	 * @param item
 	 */
-	public WeightedCollection<W, T> add(W weight, T item) {
+	public synchronized WeightedCollection<W, T> add(W weight, T item) {
 		if (weight.doubleValue() > 0) {
 			total += weight.doubleValue();
 			map.put(total, item);
 		}
+		return this;
+	}
+
+	public synchronized WeightedCollection<W, T> remove(T item) {
+		NavigableMap<Double, T> newMap = new TreeMap<>();
+		// cycle through map entries
+		map.forEach((k, v) -> {
+			if (!v.equals(item)) {
+				newMap.put(k, v);
+			}
+		});
+		map.clear();
+		map.putAll(newMap);
 		return this;
 	}
 	
@@ -77,7 +90,7 @@ public class WeightedCollection<W extends Number, T> {
 	/**
 	 * 
 	 */
-	public void clear() {
+	public synchronized void clear() {
 		map.clear();
 		setTotal(0);
 	}
@@ -90,7 +103,15 @@ public class WeightedCollection<W extends Number, T> {
 		if (map == null) return 0;
 		return map.size();
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
 	/**
 	 * @return the random
 	 */
@@ -115,5 +136,9 @@ public class WeightedCollection<W extends Number, T> {
 	
 	public Map<Double, T> getMap() {
 		return map;
+	}
+
+	private synchronized void setMap(NavigableMap<Double, T> map) {
+		this.map = map;
 	}
 }
