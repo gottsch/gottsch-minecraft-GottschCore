@@ -50,16 +50,38 @@ public class Coords implements ICoords {
 	 * @param y
 	 * @param z
 	 */
+	@Deprecated
 	public Coords(final int x, final int y, final int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 
+	public static ICoords of(final int x, final int y, final int z) {
+		return new Coords(x, y, z);
+	}
+
+	public static ICoords of(ICoords coords) {
+		return new Coords(coords);
+	}
+
+	public static ICoords of(BlockPos pos) {
+		return new Coords(pos);
+	}
+
+	public static ICoords of(Vec3 vec) {
+		return new Coords(vec);
+	}
+
+	public static ICoords of(Vec3i vec) {
+		return new Coords(vec);
+	}
+
 	/**
 	 * 
 	 * @param coords
 	 */
+	@Deprecated
 	public Coords(ICoords coords) {
 		this(coords.getX(), coords.getY(), coords.getZ());
 	}
@@ -69,10 +91,12 @@ public class Coords implements ICoords {
 	 * 
 	 * @param pos
 	 */
+	@Deprecated
 	public Coords(BlockPos pos) {
 		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
+	@Deprecated
 	public Coords(Vec3 vec) {
 		this(Mth.floor(vec.x), Mth.floor(vec.y), Mth.floor(vec.z));
 	}
@@ -82,6 +106,7 @@ public class Coords implements ICoords {
 	 * 
 	 * @param vec
 	 */
+	@Deprecated
 	public Coords(Vec3i vec) {
 		this(Mth.floor(vec.getX()), Mth.floor(vec.getY()), Mth.floor(vec.getZ()));
 	}
