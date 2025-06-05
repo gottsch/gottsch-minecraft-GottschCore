@@ -19,8 +19,7 @@
  */
 package mod.gottsch.forge.gottschcore;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 
 import mod.gottsch.forge.gottschcore.config.Config;
 import mod.gottsch.forge.gottschcore.setup.CommonSetup;
@@ -28,6 +27,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * 
@@ -37,21 +38,21 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 @Mod(value = GottschCore.MODID)
 public class GottschCore {
 	// logger
-	public static final Logger LOGGER = LogManager.getLogger(GottschCore.class.getSimpleName());
+	public static Logger LOGGER = LogManager.getLogger(GottschCore.MODID);
 
 	// constants
 	public static final String MODID = "gottschcore";
 	
 	public static GottschCore instance;
 
-	public GottschCore() {
+	public GottschCore(FMLJavaModLoadingContext context) {
 		GottschCore.instance = this;
 
 		// register config
 		Config.register();
 
 		// register the setup method for mod loading
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+		IEventBus modEventBus = context.getModEventBus();
 		// register 'ModSetup::init' to be called at mod setup time (server and client)
 		modEventBus.addListener(this::setup);
 	}

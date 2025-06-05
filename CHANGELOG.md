@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HalfBlock block
 - FacingHalfBlock
 - WaterloggedFacingHalfBlock block
+- ModUtil class - contains asLocation(), mcLocation() methods, spawnMob(), spawnAndAddMob() methods.
 
 ## [2.3.0] - 2024-10-27
 
