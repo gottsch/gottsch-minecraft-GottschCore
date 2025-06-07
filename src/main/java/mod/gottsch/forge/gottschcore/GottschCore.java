@@ -45,6 +45,19 @@ public class GottschCore {
 	
 	public static GottschCore instance;
 
+	public GottschCore() {
+		GottschCore.instance = this;
+
+		// register config
+		Config.register();
+
+		// register the setup method for mod loading
+		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+		// register 'ModSetup::init' to be called at mod setup time (server and client)
+		modEventBus.addListener(this::setup);
+	}
+
 	public GottschCore(FMLJavaModLoadingContext context) {
 		GottschCore.instance = this;
 
