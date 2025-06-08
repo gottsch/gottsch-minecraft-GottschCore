@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GottschCore.  If not, see <http://www.gnu.org/licenses/lgpl>.
  */
-
 package mod.gottsch.forge.gottschcore.spatial;
 
 
