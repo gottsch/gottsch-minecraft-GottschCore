@@ -1,7 +1,7 @@
 /*
  * This file is part of  GottschCore.
  * Copyright (c) 2022 Mark Gottschling (gottsch)
- * 
+ *
  * All rights reserved.
  *
  * GottschCore is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 package mod.gottsch.forge.gottschcore.bst;
 
 /**
- * 
+ *
  * @author Mark Gottschling on Sept 20, 2022
  *
  * @param <D>
@@ -46,4 +46,9 @@ public interface IInterval<D> extends Comparable<IInterval<D>> {
 	void setData(D data);
 
 	abstract int compareTo(IInterval<D> o);
+
+	default public boolean isOverlap(IInterval<D> target) {
+//		return !((getStart() > target.getEnd()) || (getEnd() < target.getStart()));
+		return getStart() <= target.getEnd() && getEnd() >= target.getStart();
+	}
 }
