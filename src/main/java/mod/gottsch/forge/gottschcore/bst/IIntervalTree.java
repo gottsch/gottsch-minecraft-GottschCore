@@ -29,6 +29,8 @@ import java.util.List;
  */
 public interface IIntervalTree<D> {
 
+	IInterval<D> getRoot();
+
 	IInterval<D> insert(IInterval<D> interval);
 
 	void clear();
