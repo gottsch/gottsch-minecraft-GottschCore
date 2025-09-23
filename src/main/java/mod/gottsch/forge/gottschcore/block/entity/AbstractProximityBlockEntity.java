@@ -71,7 +71,7 @@ public abstract class AbstractProximityBlockEntity extends BlockEntity implement
 		super.load(tag);
 		try {
 			// read the custom name
-			if (tag.contains(PROXIMITY_TAG, 8)) {
+			if (tag.contains(PROXIMITY_TAG)) {
 				this.proximity = tag.getDouble(PROXIMITY_TAG);
 			}
 			else {
