@@ -19,6 +19,7 @@ package mod.gottsch.forge.gottschcore.block.entity;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,6 +58,10 @@ public class ProximitySpawnerBlockEntity extends AbstractProximityBlockEntity {
 
 	private ResourceLocation mobName;
 	private DoubleRange mobNum;
+
+	public ProximitySpawnerBlockEntity(Supplier<BlockEntityType<?>> type, BlockPos pos, BlockState state) {
+		super(type.get(), pos, state);
+	}
 
 	/**
 	 * 
