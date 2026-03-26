@@ -28,6 +28,7 @@ public class MobSetRegistry {
     /**
      * load/register mob sets from config
      */
+    @Deprecated(forRemoval = true, since = "2.6.0")
     public static void initialize(MobSetConfiguration config) {
         GottschCore.LOGGER.debug("initializing mob sets");
         // clear just the rarity selector. the registry is initialized during setup.

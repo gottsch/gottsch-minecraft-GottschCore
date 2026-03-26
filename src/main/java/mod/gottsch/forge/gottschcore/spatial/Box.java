@@ -69,7 +69,11 @@ public class Box {
 		setMinCoords(new Coords((int)aabb.minX, (int)aabb.minY, (int)aabb.minZ));
 		setMaxCoords(new Coords((int)aabb.maxX, (int)aabb.maxY, (int)aabb.maxZ));
 	}
-	
+
+	public AABB toAABB(Box box) {
+		return new AABB(box.getMinCoords().toPos(), box.getMaxCoords().toPos());
+	}
+
 	/**
 	 * 
 	 * @return
@@ -77,7 +81,29 @@ public class Box {
 	public ICoords getSize() {
 		return getMaxCoords().delta(getMinCoords());
 	}
-	
+
+	// TODO make non-static.
+	// TODO remove box1 -> use this.
+	public static boolean touching(Box box1, Box box2) {
+		return box1.getMinCoords().getX() <= box2.getMaxCoords().getX()
+				&& box1.getMaxCoords().getX() >= box2.getMinCoords().getX()
+				&& box1.getMinCoords().getY() <= box2.getMaxCoords().getY()
+				&& box1.getMaxCoords().getY() >= box2.getMinCoords().getY()
+				&& box1.getMinCoords().getZ() <= box2.getMaxCoords().getZ()
+				&& box1.getMaxCoords().getZ() >= box2.getMinCoords().getZ();
+	}
+
+	public static boolean contains(Box box1, Box box2) {
+		return contains(box1, box2.getMinCoords())
+				&& contains(box1, box2.getMaxCoords());
+	}
+
+	public static boolean contains(Box box, ICoords coords) {
+		return coords.getX() >= box.getMinCoords().getX() && coords.getX() <= box.getMaxCoords().getX()
+				&& coords.getY() >= box.getMinCoords().getY() && coords.getY() <= box.getMaxCoords().getY()
+				&& coords.getZ() >= box.getMinCoords().getZ() && coords.getZ() <= box.getMaxCoords().getZ();
+	}
+
 	/**
 	 * 
 	 * @param nbt
@@ -92,7 +118,7 @@ public class Box {
 		nbt.put(MIN_COORDS, coordsNbt1);
 		nbt.put(MAX_COORDS, coordsNbt2);
 	}
-	
+
 	/**
 	 * 
 	 * @param nbt
