@@ -32,6 +32,7 @@ import net.minecraftforge.common.util.INBTSerializable;
  * @author Mark Gottschling on Sep 20, 2022
  *
  */
+@Deprecated(since = "2.5.1", forRemoval = true)
 public class CoordsIntervalTreeNBTSerializer<D extends INBTSerializable<Tag>> {
 	private static final String START_KEY = "coords1";
 	private static final String END_KEY = "coords2";
