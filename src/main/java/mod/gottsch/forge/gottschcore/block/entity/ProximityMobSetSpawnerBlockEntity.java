@@ -188,6 +188,7 @@ public class ProximityMobSetSpawnerBlockEntity extends AbstractProximityBlockEnt
                 ResourceLocation mobName = Optional.ofNullable(collection.next()).orElse(DEFAULT_MOB);
 
                 EntityType.byString(mobName.toString()).ifPresentOrElse(entityType -> {
+                    // TODO this is incorrect. onFinalizeSpawn is part of spawnMob() and spawnMob() no longer adds the entity to the world
                             Entity mob = entityType.create(level);
                             if (mob instanceof Mob) {
                                 ForgeEventFactory.onFinalizeSpawn((Mob) mob, level, level.getCurrentDifficultyAt(getBlockPos()), MobSpawnType.EVENT, null, null);
