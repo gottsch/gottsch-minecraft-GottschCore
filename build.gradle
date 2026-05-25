@@ -138,13 +138,13 @@ tasks.named('jar', Jar).configure {
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
-        	artifactId project.archivesBaseName
+            artifactId project.archivesBaseName
             artifact jar
         }
     }
     repositories {
         maven {
-            name="localMaven"
+            name = "localMaven"
             url "file:///${project.projectDir}/../maven"
         }
     }

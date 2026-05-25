@@ -1,9 +1,31 @@
-**# Changelog for GottschCore 1.20.1
+# Changelog for GottschCore 1.20.1
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.8.0] - 2026-05-25
+
+### Added
+- New `command` package with shared formatting tools for admin and debug commands.
+  - `CommandResponseFormatter` — builds coloured status messages (success, failure, warning, info) in shorthand or full form. Works with either plain `Component` objects or translation keys. Includes `formatConfirmPrompt()` for two-step destructive command flows.
+  - `ReportBuilder` — fluent builder for structured reports (e.g. `inspect` commands). Auto-aligns label column, supports sections, blank lines, and notes.
+  - `FormatterConstants` — shared box-drawing characters, semantic icons, style helpers, clickable/suggestable component builders, and `buildConfirmButton()` for confirmation prompts.
+- `DimensionCoords` — immutable coordinate class that extends `Coords` with a `ResourceKey<Level>` dimension field. Supports `save()`/`load()` NBT serialization (adds a `"dimension"` string tag alongside x/y/z). Defaults to the overworld when loading old data without a dimension tag. Factory methods: `DimensionCoords.of(dimension, x, y, z)`, `of(dimension, BlockPos)`, `of(dimension, ICoords)`.
+
+## [2.6.0] - 2026-03-26
+
+### Changed
+- Update BST - dimensional aware.
+- ProximitySpawnerBlockEntity.
+- Box added new methods.
+- SpawnUtil.
+
+### Added
+- MobCount, MobSetData, MobSetDataHandler, MobSetDataRegistry, WeightedMob
+- StructureMobSetBlock, ProximityMobSetSpawnerBlockEntity, StructureMobSetBlockEntity
+- MobSetConfiguration
 
 ## [2.5.1] - 2025-09-23
 

@@ -22,6 +22,7 @@ package mod.gottsch.forge.gottschcore.util;
 import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
 import mod.gottsch.forge.gottschcore.world.WorldInfo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -48,41 +49,87 @@ public class SpawnUtil {
      * @param coords
      * @return
      */
-    public static Optional<Mob> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends Mob> entityType, Entity mob, ICoords coords) {
+    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, Entity mob, ICoords coords) {
         return spawnMob(level, random, entityType, MobSpawnType.TRIGGERED, level.getCurrentDifficultyAt(coords.toPos()), coords);
     }
 
-    public static Optional<Mob> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends Mob> entityType, MobSpawnType spawnType, DifficultyInstance difficulty, ICoords coords) {
+//    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, MobSpawnType spawnType, DifficultyInstance difficulty, ICoords coords) {
+//
+//        // 20 tries
+//        for (int i = 0; i < 20; i++) {
+//            int spawnX = coords.getX() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+//            int spawnY = coords.getY() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+//            int spawnZ = coords.getZ() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+//            ICoords spawnCoords = Coords.of(spawnX, spawnY, spawnZ);
+//
+//            if (!WorldInfo.isClientSide(level)) {
+//                SpawnPlacements.Type placement = SpawnPlacements.getPlacementType(entityType);
+//                if (NaturalSpawner.isSpawnPositionOk(placement, level, spawnCoords.toPos(), entityType)) {
+//                    Optional<? extends LivingEntity> mob = Optional.ofNullable(entityType.create(level));
+//                    if (mob.isPresent()) {
+//                        if (mob.get() instanceof Mob) {
+//                            Optional<SpawnGroupData> groupData = Optional.ofNullable(ForgeEventFactory.onFinalizeSpawn(mob.get(), level, difficulty, MobSpawnType.TRIGGERED, (SpawnGroupData) null, (CompoundTag) null));
+//
+//                            if (groupData.isPresent()) {
+//                                mob.get().setPos((double) spawnX, (double) spawnY, (double) spawnZ);
+//                                return mob;
+//                            }
+//                        }
+//                        return mob;
+//                    }
+//                }
+//            }
+//        }
+//        return Optional.empty();
+//    }
 
-        // 20 tries
-        for (int i = 0; i < 20; i++) {
-            int spawnX = coords.getX() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-            int spawnY = coords.getY() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-            int spawnZ = coords.getZ() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-            ICoords spawnCoords = Coords.of(spawnX, spawnY, spawnZ);
+    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, MobSpawnType spawnType, DifficultyInstance difficulty, ICoords coords) {
+        if (level.isClientSide()) {
+            return Optional.empty();
+        }
 
-            if (!WorldInfo.isClientSide(level)) {
-                SpawnPlacements.Type placement = SpawnPlacements.getPlacementType(entityType);
-                if (NaturalSpawner.isSpawnPositionOk(placement, level, spawnCoords.toPos(), entityType)) {
-                    Optional<Mob> mob = Optional.ofNullable(entityType.create(level));
-                    if (mob.isPresent()) {
-                        Optional<SpawnGroupData> groupData = Optional.ofNullable(ForgeEventFactory.onFinalizeSpawn(mob.get(), level, difficulty, MobSpawnType.TRIGGERED, (SpawnGroupData) null, (CompoundTag) null));
+        final int maxTries = 20;
+        final SpawnPlacements.Type placementType = SpawnPlacements.getPlacementType(entityType);
 
-                        if (groupData.isPresent()) {
-                            mob.get().setPos((double) spawnX, (double) spawnY, (double) spawnZ);
+        for (int i = 0; i < maxTries; i++) {
+            // generate random offset coordinates
+            int offsetX = Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+            int offsetY = Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+            int offsetZ = Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
+
+            BlockPos spawnPos = coords.toPos().offset(offsetX, offsetY, offsetZ);
+
+            // check if the spawn position is valid
+            if (NaturalSpawner.isSpawnPositionOk(placementType, level, spawnPos, entityType)) {
+                // attempt to create the entity and initialize it
+                return Optional.ofNullable(entityType.create(level))
+                        .map(mob -> {
+                            mob.setPos(spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
                             return mob;
-                        }
-                    }
-                }
+                        })
+                        .flatMap(mob -> {
+                            if (mob instanceof Mob) {
+                                // attempt to finalize the spawn for Mob entities
+                                SpawnGroupData groupData = ForgeEventFactory.onFinalizeSpawn(
+                                        (Mob)mob, level, difficulty, MobSpawnType.TRIGGERED, null, null);
+
+                                // check if the event was successful (groupData is present)
+                                if (groupData != null) {
+                                    return Optional.of(mob);
+                                }
+                                return Optional.empty(); // finalizeSpawn failed for Mob
+                            }
+                            return Optional.of(mob); // return non-Mob LivingEntity directly
+                        });
+                // ff the Optional chain succeeds, it returns the mob, otherwise the loop continues.
             }
         }
         return Optional.empty();
     }
 
-
     // convenience method to spawn and add the mob to the world.
-    public static Optional<Mob> spawnAndAddMob(ServerLevel level, RandomSource random, EntityType<? extends Mob> entityType, Entity mob, ICoords coords) {
-        Optional<Mob> optionalMob =  SpawnUtil.spawnMob(level, random, entityType, MobSpawnType.TRIGGERED, level.getCurrentDifficultyAt(coords.toPos()), coords);
+    public static Optional<? extends LivingEntity> spawnAndAddMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, Entity mob, ICoords coords) {
+        Optional<? extends LivingEntity> optionalMob =  SpawnUtil.spawnMob(level, random, entityType, MobSpawnType.TRIGGERED, level.getCurrentDifficultyAt(coords.toPos()), coords);
         if (optionalMob.isPresent()) {
             level.addFreshEntityWithPassengers(mob);
         }

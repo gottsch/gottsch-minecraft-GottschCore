@@ -29,6 +29,7 @@ import java.util.List;
  * @author Mark Gottschling on Aug 16, 2024
  *
  */
+@Deprecated(forRemoval = true, since = "2.6.0")
 public class MobSetConfiguration {
 	List<MobSet> mobSets;
 	
