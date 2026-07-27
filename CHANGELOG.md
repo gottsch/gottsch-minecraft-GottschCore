@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-07-05
+
+### Fixed
+- `SpawnUtil.spawnAndAddMob` now adds the created/positioned mob to the world. It previously added an un-positioned, passed-in instance and discarded the actual spawned mob, so mob-set proximity spawners spawned nothing.
+- `ProximityMobSetSpawnerBlockEntity.execute` no longer creates and finalizes a mob twice; it delegates spawning to `SpawnUtil.spawnAndAddMob`.
+- `MobSetDataHandler` now clears the registry at the start of each reload so removed/edited data packs no longer leave stale entries behind.
+- `MobSetDataHandler` merge/replace now reads the `replace` flag from the incoming data instead of the existing entry.
+
+### Changed
+- `SpawnUtil` reworked so creation and world-insertion are separate steps: `spawnMob(...)` creates, positions and finalizes a mob but does not add it to the world (an interception point for external mods to modify the entity first); `spawnAndAddMob(...)` performs the add. Removed the ignored `Entity mob` parameters from both methods.
+- `MobSetDataRegistry` backing map is now a `ConcurrentHashMap` (data pack reloads run off-thread); `get(null)` returns empty.
+- `MobCount` constructor normalizes counts to be non-negative with `min <= max`.
+- `WeightedMob` reduced to a plain record (removed redundant hand-written accessors and `equals`/`hashCode`/`toString`).
+
+### Added
+- Multi-set support wired end-to-end: `StructureMobSetBlockEntity` now loads/saves its `mobSets` list, and `ProximityMobSetSpawnerBlockEntity` selects a set at trigger time from `mobSetNames` when no single `mobSetName` is set.
+- Documentation on `MobSetDataHandler` describing the `mob_sets` data pack folder and the required `AddReloadListenerEvent` registration by consuming mods.
+
 ## [2.8.0] - 2026-05-25
 
 ### Added

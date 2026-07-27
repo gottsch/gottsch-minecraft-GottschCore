@@ -19,8 +19,9 @@ public class MobCount {
     ).apply(instance, MobCount::new));
 
     public MobCount(int min, int max) {
-        this.min = min;
-        this.max = max;
+        // normalize: counts are non-negative and min must not exceed max
+        this.min = Math.max(0, min);
+        this.max = Math.max(this.min, max);
     }
 
     public int getMax() {

@@ -19,11 +19,8 @@
  */
 package mod.gottsch.forge.gottschcore.util;
 
-import mod.gottsch.forge.gottschcore.spatial.Coords;
 import mod.gottsch.forge.gottschcore.spatial.ICoords;
-import mod.gottsch.forge.gottschcore.world.WorldInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -39,59 +36,42 @@ import java.util.Optional;
  */
 public class SpawnUtil {
 
+    private static final int MAX_SPAWN_TRIES = 20;
+
     /**
-     * NOTE this method spawns the mob, but does NOT add the mob to the world.
+     * Creates, positions and finalizes a mob at a valid position near {@code coords},
+     * but does NOT add it to the world. Returning the (un-added) mob gives callers
+     * the opportunity to modify it -- e.g. alter attributes, equipment or NBT -- before
+     * adding it via {@link ServerLevel#addFreshEntityWithPassengers(Entity)}.
+     * Use {@link #spawnAndAddMob} to create and add in a single step.
      *
-     * @param level
-     * @param random
-     * @param entityType
-     * @param mob
-     * @param coords
-     * @return
+     * <p>Uses {@link MobSpawnType#TRIGGERED} and the difficulty at {@code coords}.
+     *
+     * @param level the server level
+     * @param random the random source
+     * @param entityType the type of mob to create
+     * @param coords the target coordinates to spawn near
+     * @return the created (positioned, finalized, un-added) mob, or empty if no valid position was found
      */
-    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, Entity mob, ICoords coords) {
+    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, ICoords coords) {
         return spawnMob(level, random, entityType, MobSpawnType.TRIGGERED, level.getCurrentDifficultyAt(coords.toPos()), coords);
     }
 
-//    public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, MobSpawnType spawnType, DifficultyInstance difficulty, ICoords coords) {
-//
-//        // 20 tries
-//        for (int i = 0; i < 20; i++) {
-//            int spawnX = coords.getX() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-//            int spawnY = coords.getY() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-//            int spawnZ = coords.getZ() + Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
-//            ICoords spawnCoords = Coords.of(spawnX, spawnY, spawnZ);
-//
-//            if (!WorldInfo.isClientSide(level)) {
-//                SpawnPlacements.Type placement = SpawnPlacements.getPlacementType(entityType);
-//                if (NaturalSpawner.isSpawnPositionOk(placement, level, spawnCoords.toPos(), entityType)) {
-//                    Optional<? extends LivingEntity> mob = Optional.ofNullable(entityType.create(level));
-//                    if (mob.isPresent()) {
-//                        if (mob.get() instanceof Mob) {
-//                            Optional<SpawnGroupData> groupData = Optional.ofNullable(ForgeEventFactory.onFinalizeSpawn(mob.get(), level, difficulty, MobSpawnType.TRIGGERED, (SpawnGroupData) null, (CompoundTag) null));
-//
-//                            if (groupData.isPresent()) {
-//                                mob.get().setPos((double) spawnX, (double) spawnY, (double) spawnZ);
-//                                return mob;
-//                            }
-//                        }
-//                        return mob;
-//                    }
-//                }
-//            }
-//        }
-//        return Optional.empty();
-//    }
-
+    /**
+     * Creates, positions and finalizes a mob at a valid position near {@code coords},
+     * but does NOT add it to the world. See {@link #spawnMob(ServerLevel, RandomSource, EntityType, ICoords)}.
+     *
+     * @param spawnType the spawn type passed to the finalize-spawn event
+     * @param difficulty the local difficulty used to finalize the spawn
+     */
     public static Optional<? extends LivingEntity> spawnMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, MobSpawnType spawnType, DifficultyInstance difficulty, ICoords coords) {
         if (level.isClientSide()) {
             return Optional.empty();
         }
 
-        final int maxTries = 20;
         final SpawnPlacements.Type placementType = SpawnPlacements.getPlacementType(entityType);
 
-        for (int i = 0; i < maxTries; i++) {
+        for (int i = 0; i < MAX_SPAWN_TRIES; i++) {
             // generate random offset coordinates
             int offsetX = Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
             int offsetY = Mth.nextInt(random, 1, 2) * Mth.nextInt(random, -1, 1);
@@ -99,40 +79,42 @@ public class SpawnUtil {
 
             BlockPos spawnPos = coords.toPos().offset(offsetX, offsetY, offsetZ);
 
-            // check if the spawn position is valid
-            if (NaturalSpawner.isSpawnPositionOk(placementType, level, spawnPos, entityType)) {
-                // attempt to create the entity and initialize it
-                return Optional.ofNullable(entityType.create(level))
-                        .map(mob -> {
-                            mob.setPos(spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
-                            return mob;
-                        })
-                        .flatMap(mob -> {
-                            if (mob instanceof Mob) {
-                                // attempt to finalize the spawn for Mob entities
-                                SpawnGroupData groupData = ForgeEventFactory.onFinalizeSpawn(
-                                        (Mob)mob, level, difficulty, MobSpawnType.TRIGGERED, null, null);
-
-                                // check if the event was successful (groupData is present)
-                                if (groupData != null) {
-                                    return Optional.of(mob);
-                                }
-                                return Optional.empty(); // finalizeSpawn failed for Mob
-                            }
-                            return Optional.of(mob); // return non-Mob LivingEntity directly
-                        });
-                // ff the Optional chain succeeds, it returns the mob, otherwise the loop continues.
+            // skip invalid positions and try again
+            if (!NaturalSpawner.isSpawnPositionOk(placementType, level, spawnPos, entityType)) {
+                continue;
             }
+
+            LivingEntity mob = entityType.create(level);
+            if (mob == null) {
+                continue;
+            }
+            // center on the block for x/z
+            mob.setPos(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D);
+
+            if (mob instanceof Mob) {
+                // allow the mob (and other mods) to finalize the spawn: equipment, difficulty scaling, etc.
+                SpawnGroupData groupData = ForgeEventFactory.onFinalizeSpawn(
+                        (Mob) mob, level, difficulty, spawnType, null, null);
+                // a null result means the finalize-spawn event was cancelled -- discard and try another position
+                if (groupData == null) {
+                    mob.discard();
+                    continue;
+                }
+            }
+            return Optional.of(mob);
         }
         return Optional.empty();
     }
 
-    // convenience method to spawn and add the mob to the world.
-    public static Optional<? extends LivingEntity> spawnAndAddMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, Entity mob, ICoords coords) {
-        Optional<? extends LivingEntity> optionalMob =  SpawnUtil.spawnMob(level, random, entityType, MobSpawnType.TRIGGERED, level.getCurrentDifficultyAt(coords.toPos()), coords);
-        if (optionalMob.isPresent()) {
-            level.addFreshEntityWithPassengers(mob);
-        }
+    /**
+     * Convenience method that creates a mob via {@link #spawnMob(ServerLevel, RandomSource, EntityType, ICoords)}
+     * and adds it (and any passengers) to the world.
+     *
+     * @return the mob that was added, or empty if no valid position was found
+     */
+    public static Optional<? extends LivingEntity> spawnAndAddMob(ServerLevel level, RandomSource random, EntityType<? extends LivingEntity> entityType, ICoords coords) {
+        Optional<? extends LivingEntity> optionalMob = spawnMob(level, random, entityType, coords);
+        optionalMob.ifPresent(level::addFreshEntityWithPassengers);
         return optionalMob;
     }
 
