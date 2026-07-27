@@ -91,6 +91,20 @@ dependencies {
     //minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    // JUnit 5. Tests that need real Blocks/registries call SharedConstants.tryDetectVersion()
+    // + Bootstrap.bootStrap() in a @BeforeAll -- see AgingProcessorTest.
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Minimal SLF4J binding so Minecraft's logger calls don't print "no provider" warnings.
+    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.9'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
