@@ -22,6 +22,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Multi-set support wired end-to-end: `StructureMobSetBlockEntity` now loads/saves its `mobSets` list, and `ProximityMobSetSpawnerBlockEntity` selects a set at trigger time from `mobSetNames` when no single `mobSetName` is set.
 - Documentation on `MobSetDataHandler` describing the `mob_sets` data pack folder and the required `AddReloadListenerEvent` registration by consuming mods.
+- New `world.gen.structure.templatesystem` package for shared processors built on **vanilla's** template system (`worldgen/processor_list` JSON), as opposed to the legacy `GottschTemplate` path in the parent package.
+  - `AgingProcessor` — ages blocks along multi-stage decay chains and, unlike vanilla's `minecraft:rule`, **carries the source block's state properties onto the replacement**. A vanilla `ProcessorRule` emits a fixed `output_state` and drops properties, so ageing a stair/slab/wall with it silently resets facing/half/shape; this copies every property the source and replacement share, letting one rule age a whole family of shaped blocks. Chains are graduated: a stage is only reachable if the stage before it was rolled, capped by `agings`.
+  - `AgingRule` / `AgingStage` — the datapack model (`block` / `output_blocks` / `probability`). Block ids are resolved by the codec, so a typo fails the file at load instead of producing a rule that never fires.
+  - Randomness is derived from the block's absolute world position (`Mth.getSeed(pos)`, as vanilla's `RuleProcessor` does) rather than from `StructurePlaceSettings`, so results are identical regardless of caller — required by callers that run a processor list over procedurally-built blocks, where a piece is processed once per chunk it overlaps and a block on a chunk seam must resolve the same way in both passes.
+  - **Registration is the consuming mod's job.** GottschCore registers no `StructureProcessorType` (most dependants never touch structure processors), so the class takes a `Supplier<StructureProcessorType<?>>` and exposes `AgingProcessor.codec(supplier)` instead of a static `CODEC`. The registration idiom is documented on the class.
+  - Note: alternative chains for the same source block are tried in order and the first that decays wins, so a later chain's authored probability is **conditional** on the earlier ones missing — two alternatives that should each fire 30% of the time are authored `0.3` and `0.43`.
+- Test source set (JUnit 5, `useJUnitPlatform()`), GottschCore's first, with `AgingProcessorTest` covering property carry-over for stairs/walls/slabs, waterlogging survival, chain-stops-on-miss, the `agings` cap, alternative-chain precedence, and positional determinism.
+
+### Deprecated
+- `world.gen.structure.StructureProcessor` (the legacy `GottschTemplate` placement path). New processors should extend vanilla's `net.minecraft...templatesystem.StructureProcessor` and register a `StructureProcessorType`, so they are datapack-authored via `worldgen/processor_list` and apply to jigsaw/template placement for free.
+  - **Not scheduled for removal** — `GottschTemplate` is still in use and this is a direction marker for new code, not a removal notice. Consuming mods that extend it will now see deprecation warnings.
+  - The legacy type and vanilla's share a simple name but are unrelated and not interchangeable; that is why the new processors live in a `templatesystem` sub-package, where they cannot shadow vanilla's class on import.
 
 ## [2.8.0] - 2026-05-25
 
