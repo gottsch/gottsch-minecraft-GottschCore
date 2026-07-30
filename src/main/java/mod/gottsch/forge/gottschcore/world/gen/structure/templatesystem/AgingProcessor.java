@@ -1,6 +1,6 @@
 /*
  * This file is part of  GottschCore.
- * Copyright (c) 2021, Mark Gottschling (gottsch)
+ * Copyright (c) 2026 Mark Gottschling (gottsch)
  *
  * All rights reserved.
  *
@@ -74,13 +74,20 @@ import java.util.function.Supplier;
  *         DeferredRegister.create(Registries.STRUCTURE_PROCESSOR, MOD_ID);
  *
  * public static final RegistryObject&lt;StructureProcessorType&lt;AgingProcessor&gt;&gt; AGING =
- *         STRUCTURE_PROCESSORS.register("aging", () -&gt; () -&gt; AGING_CODEC);
- *
- * private static final Codec&lt;AgingProcessor&gt; AGING_CODEC =
- *         AgingProcessor.codec(() -&gt; AGING.get());
+ *         STRUCTURE_PROCESSORS.register("aging", () -&gt; {
+ *             Codec&lt;AgingProcessor&gt; codec = AgingProcessor.codec(() -&gt; Registration.AGING.get());
+ *             return () -&gt; codec;
+ *         });
  * </pre>
  * <p>The {@link Supplier} keeps that circle lazy: the codec is only asked for the type
  * when a processor instance is serialized, long after registration has completed.</p>
+ * <p>Two details the shape above exists for. The codec is built <em>inside</em> the
+ * registration supplier so it is created once, at registration, rather than rebuilt on every
+ * (de)serialization &mdash; a separate {@code static final} codec field would do as well, but
+ * only if it is declared <em>before</em> the {@code RegistryObject} that names it. And the
+ * type supplier must qualify the field ({@code Registration.AGING}, not bare {@code AGING}):
+ * a static field cannot be referred to by simple name from a static initializer that precedes
+ * its declaration &mdash; javac rejects it as an illegal forward reference.</p>
  *
  * <h2>Semantics</h2>
  * <ul>
@@ -106,11 +113,13 @@ import java.util.function.Supplier;
  * and a block on a chunk seam must resolve the same way in both passes.</p>
  *
  * <p>{@code processBlock} never reads the {@link LevelReader} it is handed, so it is
- * also safe to run over blocks that do not exist in the world yet.</p>
+ * also safe to run over blocks that do not exist in the world yet &mdash; which is what
+ * {@link LevelIndependentProcessor}, implemented here, declares to callers that build their
+ * blocks procedurally rather than from a placed template.</p>
  *
  * @author Mark Gottschling on Jul 27, 2026
  */
-public class AgingProcessor extends StructureProcessor {
+public class AgingProcessor extends StructureProcessor implements LevelIndependentProcessor {
 
     private final Supplier<StructureProcessorType<?>> type;
     private final int agings;
