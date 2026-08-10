@@ -27,7 +27,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
@@ -94,35 +99,85 @@ class DecorationProcessorTest {
 
     /** Only cobwebs configured. */
     private static DecorationProcessor cobwebs(float probability) {
-        return new DecorationProcessor(NO_TYPE, rule(probability, Blocks.COBWEB), WallGrowthRule.NONE,
+        return new DecorationProcessor(NO_TYPE, rule(probability, Blocks.COBWEB),
+                DecorationRule.NONE, WallGrowthRule.NONE,
+                BlockMatch.NONE, DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
+                DecorationRule.NONE, BlockMatch.NONE);
+    }
+
+    /** Only corner cobwebs configured, drawn from the given blocks. */
+    private static DecorationProcessor cornerCobwebs(float probability, Block... blocks) {
+        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, rule(probability, blocks),
+                WallGrowthRule.NONE,
                 BlockMatch.NONE, DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, BlockMatch.NONE);
     }
 
     /** Only wall growth configured. */
     private static DecorationProcessor growth(WallGrowthRule wallGrowth) {
-        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, wallGrowth, BlockMatch.NONE,
+        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, DecorationRule.NONE,
+                wallGrowth, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, BlockMatch.NONE);
     }
 
     /** Only the dirt behaviours configured. */
     private static DecorationProcessor dirt(BlockMatch dirt, DecorationRule floor, DecorationRule hanging) {
-        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, WallGrowthRule.NONE, dirt,
+        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, DecorationRule.NONE,
+                WallGrowthRule.NONE, dirt,
                 floor, hanging, DecorationRule.NONE, DecorationRule.NONE, BlockMatch.NONE);
     }
 
     /** Only the water behaviours configured. */
     private static DecorationProcessor water(DecorationRule underwater, DecorationRule floating) {
-        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
+        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, DecorationRule.NONE,
+                WallGrowthRule.NONE, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, underwater, floating, BlockMatch.NONE);
     }
 
     /** Only unsupported-block removal configured. */
     private static DecorationProcessor unsupported(BlockMatch unsupported) {
-        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
+        return new DecorationProcessor(NO_TYPE, DecorationRule.NONE, DecorationRule.NONE,
+                WallGrowthRule.NONE, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, unsupported);
+    }
+
+    // ---- corner-web fixtures ------------------------------------------------------
+
+    /** The air cell every corner-web test decorates. */
+    private static final BlockPos AIR = new BlockPos(0, 64, 1);
+
+    /**
+     * A web that can only express the CEILING junction: {@code END_ROD} carries a six-way
+     * {@code facing} but no {@code half}, so it stands in for a block with nothing to flip.
+     */
+    private static Block web() {
+        return Blocks.END_ROD;
+    }
+
+    /**
+     * A web that can express BOTH junctions: {@code OAK_TRAPDOOR} carries a horizontal
+     * {@code facing} and a {@code half}, the same pair {@code dungeonblocks:angle_cobweb_1} uses.
+     */
+    private static Block halfWeb() {
+        return Blocks.OAK_TRAPDOOR;
+    }
+
+    /** Air with a wall to the NORTH and a floor below. */
+    private static List<StructureTemplate.StructureBlockInfo> floorCorner() {
+        return List.of(
+                info(new BlockPos(0, 64, 0), Blocks.STONE_BRICKS),   // wall, north of AIR
+                info(AIR.below(), Blocks.STONE_BRICKS),              // floor
+                info(AIR, Blocks.AIR));
+    }
+
+    /** Air with a wall to the NORTH and a ceiling above. */
+    private static List<StructureTemplate.StructureBlockInfo> ceilingCorner() {
+        return List.of(
+                info(new BlockPos(0, 64, 0), Blocks.STONE_BRICKS),   // wall, north of AIR
+                info(AIR.above(), Blocks.STONE_BRICKS),              // ceiling
+                info(AIR, Blocks.AIR));
     }
 
     // ---- harness ------------------------------------------------------------------
@@ -198,6 +253,140 @@ class DecorationProcessorTest {
                 List.of(info(new BlockPos(1, 64, 0), Blocks.AIR));
 
         assertTrue(byPos(run(cobwebs(1.0F), blocks)).get(new BlockPos(1, 64, 0)).isAir());
+    }
+
+    // ---- corner cobwebs -----------------------------------------------------------
+    //
+    // A corner web is a triangular sheet that gathers into the angle where two surfaces meet and
+    // tapers away from it, so it needs a wall AND a floor or ceiling. Mid-wall it has nothing to
+    // gather into and reads as a sheet hanging in mid-air -- which is why this is its own
+    // behaviour and not another entry in the `cobwebs` palette.
+
+    /** A cell with a wall and a ceiling: horizontal facing, pointing away from the wall. */
+    @Test
+    void aCornerWebAtACeilingFacesAwayFromItsWall() {
+        BlockState web = byPos(run(cornerCobwebs(1.0F, web()), ceilingCorner())).get(AIR);
+
+        assertEquals(web(), web.getBlock(), "nothing was placed in the corner");
+        // The wall is NORTH of the air cell, so the web points SOUTH, out into the room. This is
+        // the OPPOSITE convention to wall growth's face property, which names the side it clings
+        // to -- getting it backwards buries the web in the wall.
+        assertEquals(Direction.SOUTH, web.getValue(BlockStateProperties.FACING));
+    }
+
+    @Test
+    void aCornerWebSurvivesRotationAndMirroring() {
+        // Same trap as growthFaceSurvivesRotationAndMirroring, but solved by SEARCHING for the
+        // state that transforms to the one wanted rather than by inverting the transform --
+        // whether a block transforms a property at all is up to the block. So the assertion is on
+        // the round trip: whatever was stored must READ correctly once vanilla has placed it.
+        for (Rotation rotation : Rotation.values()) {
+            for (Mirror mirror : Mirror.values()) {
+                StructurePlaceSettings settings =
+                        new StructurePlaceSettings().setRotation(rotation).setMirror(mirror);
+                BlockState stored =
+                        byPos(run(cornerCobwebs(1.0F, web()), ceilingCorner(), settings)).get(AIR);
+
+                assertFalse(stored.isAir(), "rotation=" + rotation + " mirror=" + mirror
+                        + " drew nothing at all");
+                // Exactly what placeInWorld does on the way into the world.
+                BlockState placed = stored.mirror(mirror).rotate(rotation);
+
+                assertEquals(Direction.SOUTH, placed.getValue(BlockStateProperties.FACING),
+                        "rotation=" + rotation + " mirror=" + mirror
+                                + " pointed the web the wrong way after placement");
+            }
+        }
+    }
+
+    @Test
+    void aCornerWebNeedsBothSurfaces() {
+        // The whole point of the behaviour. A wall on its own is the mid-wall case that looks
+        // wrong -- the web has nothing to gather into.
+        List<StructureTemplate.StructureBlockInfo> wallOnly = List.of(
+                info(new BlockPos(0, 64, 0), Blocks.STONE_BRICKS),
+                info(AIR, Blocks.AIR));
+        assertTrue(byPos(run(cornerCobwebs(1.0F, web()), wallOnly)).get(AIR).isAir(),
+                "a wall with no floor or ceiling is not a corner");
+
+        List<StructureTemplate.StructureBlockInfo> ceilingOnly = List.of(
+                info(AIR.above(), Blocks.STONE_BRICKS),
+                info(AIR, Blocks.AIR));
+        assertTrue(byPos(run(cornerCobwebs(1.0F, web()), ceilingOnly)).get(AIR).isAir(),
+                "a ceiling with no wall is not a corner");
+    }
+
+    @Test
+    void aCornerWebIsNeverPlacedBelowTheCeilingItGathersAt() {
+        // The web hangs in the cell touching the ceiling, not one further down. A cell with a wall
+        // and open air above is the mid-wall case the whole behaviour exists to avoid.
+        List<StructureTemplate.StructureBlockInfo> midWall = List.of(
+                info(new BlockPos(0, 64, 0), Blocks.STONE_BRICKS),   // wall
+                info(AIR.above(), Blocks.AIR),                       // open air, not a ceiling
+                info(AIR, Blocks.AIR));
+
+        assertTrue(byPos(run(cornerCobwebs(1.0F, web()), midWall)).get(AIR).isAir());
+    }
+
+    @Test
+    void aCornerWebNeedsFullCubesToGatherAgainst() {
+        // Same reasoning as growthOnlyClingsToFullCubes: a stair passes isSolid but presents no
+        // face, so a web gathering against it hangs in the open beside it.
+        List<StructureTemplate.StructureBlockInfo> blocks = List.of(
+                info(new BlockPos(0, 64, 0), Blocks.STONE_BRICK_STAIRS),
+                info(AIR.above(), Blocks.STONE_BRICKS),
+                info(AIR, Blocks.AIR));
+
+        assertTrue(byPos(run(cornerCobwebs(1.0F, web()), blocks)).get(AIR).isAir());
+    }
+
+    /**
+     * A floor junction keeps the SAME horizontal facing and flips {@code half} instead.
+     *
+     * <p>Reported in game 2026-08-10: the first attempt mounted floor webs with {@code facing=UP},
+     * which laid the sheet flat on the floor rather than standing it against the wall. The sheet is
+     * a plane at constant Z and {@code facing} is applied as a model rotation, so no vertical facing
+     * can work and no rotation can mirror the model vertically. {@code half} is the only way to say
+     * it &mdash; hence this assertion is specifically that the facing is unchanged.</p>
+     */
+    @Test
+    void aCornerWebAtAFloorKeepsItsFacingAndFlipsHalf() {
+        BlockState placed = byPos(run(cornerCobwebs(1.0F, halfWeb()), floorCorner())).get(AIR);
+
+        assertEquals(halfWeb(), placed.getBlock(), "nothing was placed in the corner");
+        assertEquals(Direction.SOUTH, placed.getValue(BlockStateProperties.HORIZONTAL_FACING),
+                "a floor web faces away from its wall exactly like a ceiling one");
+        assertEquals(Half.BOTTOM, placed.getValue(BlockStateProperties.HALF),
+                "the floor junction is expressed by half, not by facing");
+    }
+
+    @Test
+    void aCornerWebAtACeilingUsesTheTopHalf() {
+        BlockState placed = byPos(run(cornerCobwebs(1.0F, halfWeb()), ceilingCorner())).get(AIR);
+
+        assertEquals(Half.TOP, placed.getValue(BlockStateProperties.HALF));
+    }
+
+    @Test
+    void aWebThatCannotFlipIsSkippedAtAFloorOnlyJunction() {
+        // END_ROD has a facing but no half, so it has only the ceiling look to offer. Drawing
+        // nothing beats hanging a ceiling web over an open cell.
+        assertTrue(byPos(run(cornerCobwebs(1.0F, web()), floorCorner())).get(AIR).isAir());
+    }
+
+    @Test
+    void aWebWithNoOrientationIsNeverPlacedAsACornerWeb() {
+        // minecraft:cobweb has no facing, so it cannot express a corner. Better to draw nothing
+        // than to put a full-cell web where a corner web was asked for.
+        assertTrue(byPos(run(cornerCobwebs(1.0F, Blocks.COBWEB), ceilingCorner())).get(AIR).isAir());
+    }
+
+    @Test
+    void theOrdinaryCobwebBehaviourIsUnchanged() {
+        // corner_cobwebs is additive: the plain palette still fires on any solid neighbour, with
+        // no orientation and no full-cube requirement.
+        assertEquals(Blocks.COBWEB,
+                byPos(run(cobwebs(1.0F), ceilingCorner())).get(AIR).getBlock());
     }
 
     // ---- wall growth --------------------------------------------------------------
@@ -563,8 +752,8 @@ class DecorationProcessorTest {
         // cobweb in the cell the ledge vacates.
         blocks = with(blocks, LEDGE.east(), Blocks.STONE_BRICKS);
 
-        DecorationProcessor processor = new DecorationProcessor(NO_TYPE, 
-                rule(1.0F, Blocks.COBWEB), WallGrowthRule.NONE, BlockMatch.NONE,
+        DecorationProcessor processor = new DecorationProcessor(NO_TYPE,
+                rule(1.0F, Blocks.COBWEB), DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, match(Blocks.LADDER));
 
@@ -585,8 +774,8 @@ class DecorationProcessorTest {
         // processed once per chunk it overlaps. Processing a slice must give the same
         // answer for the blocks in it as processing the whole piece did.
         List<StructureTemplate.StructureBlockInfo> wall = wallWithAirInFront(32);
-        DecorationProcessor processor = new DecorationProcessor(NO_TYPE, 
-                rule(0.3F, Blocks.COBWEB), wall(0.3F, 0.0F, 1.0F, Blocks.GLOW_LICHEN),
+        DecorationProcessor processor = new DecorationProcessor(NO_TYPE,
+                rule(0.3F, Blocks.COBWEB), DecorationRule.NONE, wall(0.3F, 0.0F, 1.0F, Blocks.GLOW_LICHEN),
                 BlockMatch.NONE, DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, BlockMatch.NONE);
 
@@ -626,8 +815,8 @@ class DecorationProcessorTest {
         // The default codec values are all off, so an author who adds the processor
         // without setting anything gets no surprise decoration -- and no copied list.
         List<StructureTemplate.StructureBlockInfo> wall = wallWithAirInFront(8);
-        DecorationProcessor idle = new DecorationProcessor(NO_TYPE, 
-                DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE, DecorationRule.NONE,
+        DecorationProcessor idle = new DecorationProcessor(NO_TYPE,
+                DecorationRule.NONE, DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE, BlockMatch.NONE);
 
         assertSame(wall, run(idle, wall));
@@ -638,8 +827,8 @@ class DecorationProcessorTest {
         // Palettes name blocks from other mods, so "off" has to be expressible without
         // naming any. A probability alone must not fire and pick from an empty list.
         List<StructureTemplate.StructureBlockInfo> wall = wallWithAirInFront(8);
-        DecorationProcessor paletteless = new DecorationProcessor(NO_TYPE, 
-                new DecorationRule(1.0F, List.of()), WallGrowthRule.NONE, BlockMatch.NONE,
+        DecorationProcessor paletteless = new DecorationProcessor(NO_TYPE,
+                new DecorationRule(1.0F, List.of()), DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, BlockMatch.NONE);
 
@@ -651,8 +840,8 @@ class DecorationProcessorTest {
         // Decoration only ever writes into air (or, for underwater growth, water). The
         // shell of a room must survive whatever is turned on.
         List<StructureTemplate.StructureBlockInfo> wall = wallWithAirInFront(32);
-        DecorationProcessor everything = new DecorationProcessor(NO_TYPE, 
-                rule(1.0F, Blocks.COBWEB), wall(1.0F, 0.0F, 1.0F, Blocks.GLOW_LICHEN),
+        DecorationProcessor everything = new DecorationProcessor(NO_TYPE,
+                rule(1.0F, Blocks.COBWEB), DecorationRule.NONE, wall(1.0F, 0.0F, 1.0F, Blocks.GLOW_LICHEN),
                 match(Blocks.STONE_BRICKS), rule(1.0F, Blocks.BROWN_MUSHROOM),
                 rule(1.0F, Blocks.HANGING_ROOTS), rule(1.0F, Blocks.SEAGRASS),
                 rule(1.0F, Blocks.LILY_PAD), BlockMatch.NONE);

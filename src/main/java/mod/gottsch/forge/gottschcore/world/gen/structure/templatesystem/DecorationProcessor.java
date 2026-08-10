@@ -27,10 +27,14 @@ import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.MultifaceBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
@@ -135,6 +139,8 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
      * of cobwebbed cells would be exactly the set of grown cells at equal probability.
      */
     private static final long COBWEB_SALT = 0x9E3779B97F4A7C15L;
+    private static final long CORNER_COBWEB_SALT = 0x2545F4914F6CDD1DL;
+
     private static final long WALL_GROWTH_SALT = 0xC2B2AE3D27D4EB4FL;
     private static final long FLOOR_GROWTH_SALT = 0x165667B19E3779F9L;
     private static final long HANGING_GROWTH_SALT = 0xD1B54A32D192ED03L;
@@ -149,6 +155,8 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
         return RecordCodecBuilder.create(instance -> instance.group(
             DecorationRule.CODEC.optionalFieldOf("cobwebs", DecorationRule.NONE)
                     .forGetter(processor -> processor.cobwebs),
+            DecorationRule.CODEC.optionalFieldOf("corner_cobwebs", DecorationRule.NONE)
+                    .forGetter(processor -> processor.cornerCobwebs),
             WallGrowthRule.CODEC.optionalFieldOf("wall_growth", WallGrowthRule.NONE)
                     .forGetter(processor -> processor.wallGrowth),
             BlockMatch.CODEC.optionalFieldOf("dirt", BlockMatch.NONE)
@@ -163,14 +171,15 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
                     .forGetter(processor -> processor.floatingGrowth),
             BlockMatch.CODEC.optionalFieldOf("unsupported", BlockMatch.NONE)
                     .forGetter(processor -> processor.unsupported)
-        ).apply(instance, (cobwebs, wallGrowth, dirt, floorGrowth, hangingGrowth,
+        ).apply(instance, (cobwebs, cornerCobwebs, wallGrowth, dirt, floorGrowth, hangingGrowth,
                 underwaterGrowth, floatingGrowth, unsupported) -> new DecorationProcessor(
-                        type, cobwebs, wallGrowth, dirt, floorGrowth, hangingGrowth,
+                        type, cobwebs, cornerCobwebs, wallGrowth, dirt, floorGrowth, hangingGrowth,
                         underwaterGrowth, floatingGrowth, unsupported)));
     }
 
     private final Supplier<StructureProcessorType<?>> type;
     private final DecorationRule cobwebs;
+    private final DecorationRule cornerCobwebs;
     private final WallGrowthRule wallGrowth;
     private final BlockMatch dirt;
     private final DecorationRule floorGrowth;
@@ -179,13 +188,29 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
     private final DecorationRule floatingGrowth;
     private final BlockMatch unsupported;
 
+    /**
+     * The pre-{@code corner_cobwebs} signature, kept so adding a behaviour does not break every
+     * consumer that builds one directly. This class is shared by several mods and its codec has
+     * always been the intended entry point, but tests in particular construct it by hand.
+     */
     public DecorationProcessor(Supplier<StructureProcessorType<?>> type,
                                DecorationRule cobwebs, WallGrowthRule wallGrowth, BlockMatch dirt,
                                DecorationRule floorGrowth, DecorationRule hangingGrowth,
                                DecorationRule underwaterGrowth, DecorationRule floatingGrowth,
                                BlockMatch unsupported) {
+        this(type, cobwebs, DecorationRule.NONE, wallGrowth, dirt, floorGrowth, hangingGrowth,
+                underwaterGrowth, floatingGrowth, unsupported);
+    }
+
+    public DecorationProcessor(Supplier<StructureProcessorType<?>> type,
+                               DecorationRule cobwebs, DecorationRule cornerCobwebs,
+                               WallGrowthRule wallGrowth, BlockMatch dirt,
+                               DecorationRule floorGrowth, DecorationRule hangingGrowth,
+                               DecorationRule underwaterGrowth, DecorationRule floatingGrowth,
+                               BlockMatch unsupported) {
         this.type = type;
         this.cobwebs = cobwebs;
+        this.cornerCobwebs = cornerCobwebs;
         this.wallGrowth = wallGrowth;
         this.dirt = dirt;
         this.floorGrowth = floorGrowth;
@@ -235,6 +260,10 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
             BlockState state = byPos.get(blockPos);
 
             if (state.isAir()) {
+                // Corner webs first: they are the pickier of the two, and a cell that can host one
+                // is exactly a cell the plain web would also have taken. Letting the plain web go
+                // first would leave the corner behaviour drawing only in the leftovers.
+                maybeCornerCobweb(blockPos, byPos, replacements, settings);
                 maybeCobweb(blockPos, byPos, replacements);
                 continue;
             }
@@ -278,9 +307,10 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
 
     /** True if any behaviour is configured, so an idle processor costs one check. */
     private boolean hasWork() {
-        return cobwebs.isActive() || wallGrowth.isActive() || floorGrowth.isActive()
-                || hangingGrowth.isActive() || underwaterGrowth.isActive()
-                || floatingGrowth.isActive() || !unsupported.isEmpty();
+        return cobwebs.isActive() || cornerCobwebs.isActive() || wallGrowth.isActive()
+                || floorGrowth.isActive() || hangingGrowth.isActive()
+                || underwaterGrowth.isActive() || floatingGrowth.isActive()
+                || !unsupported.isEmpty();
     }
 
     /** Positions holding an {@code unsupported} block with nothing solid horizontally beside it. */
@@ -425,6 +455,162 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
                 return;
             }
         }
+    }
+
+    /**
+     * Webs the <strong>junction</strong> between a wall and a floor or ceiling.
+     *
+     * <h3>Why this is not just another block in the {@code cobwebs} palette</h3>
+     * <p>A plain {@code minecraft:cobweb} fills its cell and strings itself across any gap, so
+     * "air with something solid beside it" is the whole requirement. A <em>corner</em> web is
+     * modelled as a triangular sheet gathering into the angle where two surfaces meet, and tapering
+     * away from it. Put one halfway up a bare wall and it has nothing to gather into &mdash; it
+     * reads as a sheet hanging in mid-air, which is worse than the flat web it replaced. It needs
+     * <strong>two</strong> perpendicular surfaces, and that is a different question from the one
+     * {@link #maybeCobweb} asks, not a different palette entry.</p>
+     *
+     * <h3>Orientation</h3>
+     * <p>{@code facing} names the direction the block points <em>away</em> from the surface it is
+     * mounted on (its support is behind {@code facing.getOpposite()}), so a <strong>horizontal</strong>
+     * {@code facing} pointing out of the wall stands the web's sheet against that wall. That is the
+     * same for both junctions.
+     *
+     * <p>Which junction it fills is <strong>{@code half}</strong>: {@code TOP} gathers the web where
+     * the wall meets the ceiling, {@code BOTTOM} where it meets the floor. <strong>It has to be a
+     * property and cannot be a rotation</strong> &mdash; learned the hard way, in game, 2026-08-10.
+     * A vertical {@code facing} tips the sheet about the X axis and lays it flat on the floor
+     * instead of standing it against the wall; and the vertical mirror that would be wanted instead
+     * is expressible neither in a blockstate (which rotates only about x and y) nor by vanilla's
+     * placement rotation. A web with no {@code half} can only offer the one look, so it is used for
+     * ceiling junctions and skipped at floor-only ones rather than placed wrong.
+     *
+     * <p>The chosen state goes through {@link #storedFor}, without which the web points the wrong
+     * way in any piece vanilla mirrors or rotates. Nothing here names a block: a web either carries
+     * the properties or it does not.</p>
+     */
+    private void maybeCornerCobweb(BlockPos pos, Map<BlockPos, BlockState> byPos,
+                                   Map<BlockPos, BlockState> replacements,
+                                   StructurePlaceSettings settings) {
+        if (!cornerCobwebs.isActive() || replacements.containsKey(pos)) {
+            return;
+        }
+        RandomSource random = RandomSource.create(Mth.getSeed(pos) ^ CORNER_COBWEB_SALT);
+        if (random.nextFloat() >= cornerCobwebs.probability()) {
+            return;
+        }
+
+        // A corner web lies against its surfaces, so both have to be full cubes -- isSolid is true
+        // of stairs, slabs and facades, none of which present a face to gather against.
+        boolean ceiling = isFullCubeAt(pos.above(), byPos);
+        boolean floor = isFullCubeAt(pos.below(), byPos);
+        if (!ceiling && !floor) {
+            return;
+        }
+        List<Direction> walls = new ArrayList<>(4);
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            if (isFullCubeAt(pos.relative(direction), byPos)) {
+                walls.add(direction);
+            }
+        }
+        if (walls.isEmpty()) {
+            return;
+        }
+
+        BlockState web = cornerCobwebs.pick(random).defaultBlockState();
+        Direction wall = walls.get(random.nextInt(walls.size()));
+
+        // The facing is the same for both junctions -- horizontal, pointing away from the wall, so
+        // the web's sheet stands against it. Which junction it fills is `half`, NOT a rotation:
+        // a vertical facing would tip the sheet flat onto the floor, and no rotation can mirror the
+        // model vertically while leaving it on the same wall.
+        BlockState wanted = withFacing(web, wall.getOpposite());
+        if (wanted == null) {
+            return;
+        }
+
+        boolean canFlip = wanted.hasProperty(BlockStateProperties.HALF);
+        boolean useCeiling;
+        if (ceiling && floor) {
+            // Both available: alternate, so a run of webs along one wall does not all gather at the
+            // same height. A web that cannot flip has only the one look to offer.
+            useCeiling = !canFlip || random.nextBoolean();
+        } else if (ceiling) {
+            useCeiling = true;
+        } else if (canFlip) {
+            useCeiling = false;
+        } else {
+            // Floor only, and this web cannot express that junction -- draw nothing rather than a
+            // ceiling web hanging over an open cell.
+            return;
+        }
+        if (canFlip) {
+            wanted = wanted.setValue(BlockStateProperties.HALF, useCeiling ? Half.TOP : Half.BOTTOM);
+        }
+        BlockState stored = storedFor(wanted, settings);
+        if (stored == null) {
+            return;
+        }
+        replacements.put(pos, stored);
+    }
+
+    /** Sets {@code facing} if the block has one and the value is legal, else null. */
+    private static BlockState withFacing(BlockState state, Direction facing) {
+        DirectionProperty property = facingPropertyOf(state);
+        if (property == null || !property.getPossibleValues().contains(facing)) {
+            return null;
+        }
+        return state.setValue(property, facing);
+    }
+
+    /**
+     * The state to <strong>store</strong> so that vanilla's {@code state.mirror(m).rotate(r)} at
+     * write time produces {@code wanted}. Null when no state does.
+     *
+     * <h3>Why this searches instead of inverting the transform</h3>
+     * <p>{@link #storedFacing} inverts both the mirror and the rotation, which is right for a
+     * multiface growth because {@code MultifaceBlock} implements both. **Whether a block
+     * transforms a given property at all is up to the block</strong>, and for these webs it is neither
+     * uniform nor complete: GottschCore's own {@code FacingBlock} overrides {@code rotate} but not
+     * {@code mirror}, and a mod's custom {@code rotation} property is transformed by nothing.
+     * Inverting a transform the block does not apply is just as wrong as failing to invert one it
+     * does &mdash; and this class cannot know which.
+     *
+     * <p>So it asks instead of assuming: run every state the block has through the same call
+     * vanilla will make, and keep the one that lands on the target. The state space is a handful of
+     * variants and this only runs on cells that already passed a probability roll.</p>
+     */
+    private static BlockState storedFor(BlockState wanted, StructurePlaceSettings settings) {
+        Mirror mirror = settings.getMirror();
+        Rotation rotation = settings.getRotation();
+        if (mirror == Mirror.NONE && rotation == Rotation.NONE) {
+            return wanted;
+        }
+        for (BlockState candidate : wanted.getBlock().getStateDefinition().getPossibleStates()) {
+            if (candidate.mirror(mirror).rotate(rotation).equals(wanted)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isFullCubeAt(BlockPos pos, Map<BlockPos, BlockState> byPos) {
+        BlockState state = byPos.get(pos);
+        return state != null && isFullCube(state);
+    }
+
+    /**
+     * The block's {@code facing} property, or null if it has none.
+     *
+     * <p>Two distinct properties share the name: the six-way {@link BlockStateProperties#FACING}
+     * and the four-way {@link BlockStateProperties#HORIZONTAL_FACING}. They are different objects,
+     * so {@code hasProperty} on one says nothing about the other and both have to be tried.</p>
+     */
+    private static DirectionProperty facingPropertyOf(BlockState state) {
+        if (state.hasProperty(BlockStateProperties.FACING)) {
+            return BlockStateProperties.FACING;
+        }
+        return state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
+                ? BlockStateProperties.HORIZONTAL_FACING : null;
     }
 
     /** Replaces water standing on a solid floor. Unlike the rest, this overwrites water, not air. */
