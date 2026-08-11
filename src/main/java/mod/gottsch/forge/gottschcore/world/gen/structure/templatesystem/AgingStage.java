@@ -21,22 +21,23 @@ package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 /**
  * One step in an {@link AgingRule}'s decay chain: the block this stage degrades to,
  * and the chance of reaching it <em>given the previous stage was reached</em>.
  *
- * <p>The block is resolved by the codec, so an unknown id fails the datapack file
- * loudly at load rather than silently producing a rule that never fires.</p>
+ * <p>The block is resolved by {@link BlockIds#CODEC}, so an unknown id is <strong>warned</strong>
+ * at load. It still resolves to air and the stage still does nothing &mdash; this javadoc used to
+ * claim the id "fails the datapack file loudly", and that was never true; see {@link BlockIds} for
+ * why {@code byNameCodec()} cannot fail here.</p>
  *
  * @author Mark Gottschling on Jul 27, 2026
  */
 public record AgingStage(Block block, double probability) {
 
     public static final Codec<AgingStage> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(AgingStage::block),
+            BlockIds.CODEC.fieldOf("block").forGetter(AgingStage::block),
             Codec.DOUBLE.optionalFieldOf("probability", 0.0D).forGetter(AgingStage::probability)
     ).apply(instance, AgingStage::new));
 }

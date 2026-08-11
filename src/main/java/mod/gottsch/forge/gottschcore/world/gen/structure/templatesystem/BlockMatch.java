@@ -19,7 +19,6 @@ package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -55,7 +54,7 @@ public record BlockMatch(List<Block> blocks, List<TagKey<Block>> tags) {
     public static final BlockMatch NONE = new BlockMatch(List.of(), List.of());
 
     public static final Codec<BlockMatch> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BuiltInRegistries.BLOCK.byNameCodec().listOf()
+            BlockIds.CODEC.listOf()
                     .optionalFieldOf("blocks", List.of()).forGetter(BlockMatch::blocks),
             TagKey.codec(Registries.BLOCK).listOf()
                     .optionalFieldOf("tags", List.of()).forGetter(BlockMatch::tags)

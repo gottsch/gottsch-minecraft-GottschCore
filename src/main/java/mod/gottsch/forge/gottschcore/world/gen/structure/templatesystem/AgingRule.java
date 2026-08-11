@@ -21,7 +21,6 @@ package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -41,7 +40,7 @@ import java.util.List;
 public record AgingRule(Block block, List<AgingStage> outputBlocks) {
 
     public static final Codec<AgingRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block").forGetter(AgingRule::block),
+            BlockIds.CODEC.fieldOf("block").forGetter(AgingRule::block),
             AgingStage.CODEC.listOf().fieldOf("output_blocks").forGetter(AgingRule::outputBlocks)
     ).apply(instance, AgingRule::new));
 }
