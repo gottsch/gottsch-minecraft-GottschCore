@@ -1,1 +1,1 @@
-[11Aug2026 14:36:01.437] [Test worker/WARN] [gottschcore/]: block id 'dungeonblocks:mosy_bricks' is not registered; it resolves to minecraft:air, so whatever rule or palette names it will do nothing. Check the spelling, and that the mod providing it is installed.
+[16Aug2026 20:47:41.872] [Test worker/WARN] [gottschcore/]: block id 'dungeonblocks:mosy_bricks' is not registered; it resolves to minecraft:air, so whatever rule or palette names it will do nothing. Check the spelling, and that the mod providing it is installed.

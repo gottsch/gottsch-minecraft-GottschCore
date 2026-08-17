@@ -92,14 +92,24 @@ public class SpawnUtil {
             mob.setPos(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D);
 
             if (mob instanceof Mob) {
-                // allow the mob (and other mods) to finalize the spawn: equipment, difficulty scaling, etc.
-                SpawnGroupData groupData = ForgeEventFactory.onFinalizeSpawn(
-                        (Mob) mob, level, difficulty, spawnType, null, null);
-                // a null result means the finalize-spawn event was cancelled -- discard and try another position
-                if (groupData == null) {
-                    mob.discard();
-                    continue;
-                }
+                // Allow the mob (and other mods) to finalize the spawn: equipment, difficulty
+                // scaling, etc. Called for its SIDE EFFECTS; the return value is deliberately
+                // ignored.
+                //
+                // DO NOT reinstate a null check here. Forge returns
+                //     cancel ? null : event.getSpawnData()
+                // and event.getSpawnData() is whatever was passed IN unless a listener replaces it
+                // -- and we pass null. So an ordinary, uncancelled spawn returns null every single
+                // time. Treating that as cancellation discarded the mob on all MAX_SPAWN_TRIES
+                // attempts and made spawnMob return empty unconditionally: proximity spawners
+                // appeared to fire and spawn nothing, in every mod using this class. Forge's own
+                // javadoc says both halves of this outright -- "The return value of this method has
+                // no bearing on if the entity will be spawned" and "Callers do not need to check if
+                // the entity's spawn was cancelled, as the spawn will be blocked by Forge."
+                //
+                // Found 2026-08-16 from Dungeons2, by stepping into this loop in a debugger after
+                // the symptom had survived five wrong theories further up the stack.
+                ForgeEventFactory.onFinalizeSpawn((Mob) mob, level, difficulty, spawnType, null, null);
             }
             return Optional.of(mob);
         }

@@ -164,6 +164,29 @@ publishing {
     }
 }
 
+// Publish to BOTH targets in one go.
+//
+// GottschCore is consumed from two different repositories and the consuming projects do not agree
+// on which: a project's build.gradle typically lists mavenLocal() AND file://.../git/maven, and the
+// first one holding the coordinate wins. So publishing to only one leaves the other serving a stale
+// jar, and a downstream mod silently keeps building against old code -- with nothing to notice,
+// because the version number does not change when the contents do.
+//
+// That has now cost real time twice. Backlog #13 of the Dungeons2 project recorded "republished to
+// both targets" as a lesson in Aug 2026, and on 2026-08-16 a SpawnUtil fix went to mavenLocal only,
+// leaving every consumer resolving from ../maven (Village Dungeons among them) on the buggy build.
+//
+//   ./gradlew publishAll
+//
+// AND VERIFY THE JAR CONTENTS, not the version: the published jar is reobfuscated to SRG names, so
+// grep for the SRG method (e.g. m_146870_ for Entity.discard) rather than the source name, which
+// will never appear and will happily "confirm" any change you like.
+tasks.register('publishAll') {
+    group = 'publishing'
+    description = 'Publishes to the shared ../maven repo AND to mavenLocal, so neither can go stale.'
+    dependsOn 'publish', 'publishToMavenLocal'
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
