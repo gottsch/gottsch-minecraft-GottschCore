@@ -35,15 +35,20 @@ import java.util.List;
  *
  * @author Mark Gottschling on Jul 28, 2026
  */
-public record WallGrowthRule(float probability, float bonus, float max, List<Block> blocks) {
+public record WallGrowthRule(float probability, float bonus, float max, List<WeightedBlock> blocks) {
 
     public static final WallGrowthRule NONE = new WallGrowthRule(0.0F, 0.0F, 1.0F, List.of());
+
+    /** Builds an unweighted rule; see {@code DecorationRule#of}. */
+    public static WallGrowthRule of(float probability, float bonus, float max, List<Block> blocks) {
+        return new WallGrowthRule(probability, bonus, max, WeightedBlock.unweighted(blocks));
+    }
 
     public static final Codec<WallGrowthRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.optionalFieldOf("probability", 0.0F).forGetter(WallGrowthRule::probability),
             Codec.FLOAT.optionalFieldOf("bonus", 0.0F).forGetter(WallGrowthRule::bonus),
             Codec.FLOAT.optionalFieldOf("max", 1.0F).forGetter(WallGrowthRule::max),
-            BlockIds.CODEC.listOf()
+            WeightedBlock.LIST_CODEC
                     .optionalFieldOf("blocks", List.of()).forGetter(WallGrowthRule::blocks)
     ).apply(instance, WallGrowthRule::new));
 
@@ -52,7 +57,7 @@ public record WallGrowthRule(float probability, float bonus, float max, List<Blo
     }
 
     public boolean isActive() {
-        return probability > 0.0F && !blocks.isEmpty();
+        return probability > 0.0F && WeightedBlock.totalWeight(blocks) > 0;
     }
 
     /** The chance for a candidate with {@code adjacentGrowth} growth blocks touching it. */
@@ -61,6 +66,6 @@ public record WallGrowthRule(float probability, float bonus, float max, List<Blo
     }
 
     public Block pick(RandomSource random) {
-        return blocks.get(random.nextInt(blocks.size()));
+        return WeightedBlock.pick(blocks, random);
     }
 }

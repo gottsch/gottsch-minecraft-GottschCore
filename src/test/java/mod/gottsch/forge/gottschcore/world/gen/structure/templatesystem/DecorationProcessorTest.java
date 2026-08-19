@@ -86,11 +86,11 @@ class DecorationProcessorTest {
     // ---- builders -----------------------------------------------------------------
 
     private static DecorationRule rule(float probability, Block... blocks) {
-        return new DecorationRule(probability, List.of(blocks));
+        return DecorationRule.of(probability, List.of(blocks));
     }
 
     private static WallGrowthRule wall(float probability, float bonus, float max, Block... blocks) {
-        return new WallGrowthRule(probability, bonus, max, List.of(blocks));
+        return WallGrowthRule.of(probability, bonus, max, List.of(blocks));
     }
 
     private static BlockMatch match(Block... blocks) {
@@ -828,7 +828,7 @@ class DecorationProcessorTest {
         // naming any. A probability alone must not fire and pick from an empty list.
         List<StructureTemplate.StructureBlockInfo> wall = wallWithAirInFront(8);
         DecorationProcessor paletteless = new DecorationProcessor(NO_TYPE,
-                new DecorationRule(1.0F, List.of()), DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
+                DecorationRule.of(1.0F, List.of()), DecorationRule.NONE, WallGrowthRule.NONE, BlockMatch.NONE,
                 DecorationRule.NONE, DecorationRule.NONE, DecorationRule.NONE,
                 DecorationRule.NONE, BlockMatch.NONE);
 
