@@ -20,6 +20,7 @@
 package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
+import mod.gottsch.forge.gottschcore.json.StrictCodecs;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -143,7 +144,7 @@ public class AgingProcessor extends StructureProcessor implements LevelIndepende
      */
     public static Codec<AgingProcessor> codec(Supplier<StructureProcessorType<?>> type) {
         return RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.optionalFieldOf("agings", 1).forGetter(processor -> processor.agings),
+                StrictCodecs.strictOptionalFieldOf(Codec.INT, "agings", 1).forGetter(processor -> processor.agings),
                 AgingRule.CODEC.listOf().fieldOf("rules").forGetter(processor -> processor.rules)
         ).apply(instance, (agings, rules) -> new AgingProcessor(type, agings, rules)));
     }

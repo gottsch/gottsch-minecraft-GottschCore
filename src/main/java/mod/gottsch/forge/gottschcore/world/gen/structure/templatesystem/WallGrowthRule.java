@@ -18,6 +18,7 @@
 package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
+import mod.gottsch.forge.gottschcore.json.StrictCodecs;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
@@ -45,11 +46,10 @@ public record WallGrowthRule(float probability, float bonus, float max, List<Wei
     }
 
     public static final Codec<WallGrowthRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.FLOAT.optionalFieldOf("probability", 0.0F).forGetter(WallGrowthRule::probability),
-            Codec.FLOAT.optionalFieldOf("bonus", 0.0F).forGetter(WallGrowthRule::bonus),
-            Codec.FLOAT.optionalFieldOf("max", 1.0F).forGetter(WallGrowthRule::max),
-            WeightedBlock.LIST_CODEC
-                    .optionalFieldOf("blocks", List.of()).forGetter(WallGrowthRule::blocks)
+            StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "probability", 0.0F).forGetter(WallGrowthRule::probability),
+            StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "bonus", 0.0F).forGetter(WallGrowthRule::bonus),
+            StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "max", 1.0F).forGetter(WallGrowthRule::max),
+            StrictCodecs.strictOptionalFieldOf(WeightedBlock.LIST_CODEC, "blocks", List.of()).forGetter(WallGrowthRule::blocks)
     ).apply(instance, WallGrowthRule::new));
 
     public WallGrowthRule {

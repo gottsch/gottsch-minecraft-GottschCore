@@ -18,6 +18,7 @@
 package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
+import mod.gottsch.forge.gottschcore.json.StrictCodecs;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -153,23 +154,23 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
      */
     public static Codec<DecorationProcessor> codec(Supplier<StructureProcessorType<?>> type) {
         return RecordCodecBuilder.create(instance -> instance.group(
-            DecorationRule.CODEC.optionalFieldOf("cobwebs", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "cobwebs", DecorationRule.NONE)
                     .forGetter(processor -> processor.cobwebs),
-            DecorationRule.CODEC.optionalFieldOf("corner_cobwebs", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "corner_cobwebs", DecorationRule.NONE)
                     .forGetter(processor -> processor.cornerCobwebs),
-            WallGrowthRule.CODEC.optionalFieldOf("wall_growth", WallGrowthRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(WallGrowthRule.CODEC, "wall_growth", WallGrowthRule.NONE)
                     .forGetter(processor -> processor.wallGrowth),
-            BlockMatch.CODEC.optionalFieldOf("dirt", BlockMatch.NONE)
+            StrictCodecs.strictOptionalFieldOf(BlockMatch.CODEC, "dirt", BlockMatch.NONE)
                     .forGetter(processor -> processor.dirt),
-            DecorationRule.CODEC.optionalFieldOf("floor_growth", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "floor_growth", DecorationRule.NONE)
                     .forGetter(processor -> processor.floorGrowth),
-            DecorationRule.CODEC.optionalFieldOf("hanging_growth", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "hanging_growth", DecorationRule.NONE)
                     .forGetter(processor -> processor.hangingGrowth),
-            DecorationRule.CODEC.optionalFieldOf("underwater_growth", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "underwater_growth", DecorationRule.NONE)
                     .forGetter(processor -> processor.underwaterGrowth),
-            DecorationRule.CODEC.optionalFieldOf("floating_growth", DecorationRule.NONE)
+            StrictCodecs.strictOptionalFieldOf(DecorationRule.CODEC, "floating_growth", DecorationRule.NONE)
                     .forGetter(processor -> processor.floatingGrowth),
-            BlockMatch.CODEC.optionalFieldOf("unsupported", BlockMatch.NONE)
+            StrictCodecs.strictOptionalFieldOf(BlockMatch.CODEC, "unsupported", BlockMatch.NONE)
                     .forGetter(processor -> processor.unsupported)
         ).apply(instance, (cobwebs, cornerCobwebs, wallGrowth, dirt, floorGrowth, hangingGrowth,
                 underwaterGrowth, floatingGrowth, unsupported) -> new DecorationProcessor(

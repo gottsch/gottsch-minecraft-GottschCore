@@ -20,6 +20,7 @@
 package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
+import mod.gottsch.forge.gottschcore.json.StrictCodecs;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.level.block.Block;
 
@@ -38,6 +39,6 @@ public record AgingStage(Block block, double probability) {
 
     public static final Codec<AgingStage> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockIds.CODEC.fieldOf("block").forGetter(AgingStage::block),
-            Codec.DOUBLE.optionalFieldOf("probability", 0.0D).forGetter(AgingStage::probability)
+            StrictCodecs.strictOptionalFieldOf(Codec.DOUBLE, "probability", 0.0D).forGetter(AgingStage::probability)
     ).apply(instance, AgingStage::new));
 }

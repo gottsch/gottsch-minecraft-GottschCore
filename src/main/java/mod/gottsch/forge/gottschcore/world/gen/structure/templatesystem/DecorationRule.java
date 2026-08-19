@@ -18,6 +18,7 @@
 package mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem;
 
 import com.mojang.serialization.Codec;
+import mod.gottsch.forge.gottschcore.json.StrictCodecs;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
@@ -49,9 +50,8 @@ public record DecorationRule(float probability, List<WeightedBlock> blocks) {
     }
 
     public static final Codec<DecorationRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.FLOAT.optionalFieldOf("probability", 0.0F).forGetter(DecorationRule::probability),
-            WeightedBlock.LIST_CODEC
-                    .optionalFieldOf("blocks", List.of()).forGetter(DecorationRule::blocks)
+            StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "probability", 0.0F).forGetter(DecorationRule::probability),
+            StrictCodecs.strictOptionalFieldOf(WeightedBlock.LIST_CODEC, "blocks", List.of()).forGetter(DecorationRule::blocks)
     ).apply(instance, DecorationRule::new));
 
     public DecorationRule {
