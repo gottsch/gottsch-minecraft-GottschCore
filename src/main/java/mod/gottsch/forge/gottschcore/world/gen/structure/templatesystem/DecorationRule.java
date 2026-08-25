@@ -40,18 +40,18 @@ import java.util.List;
  *
  * @author Mark Gottschling on Jul 28, 2026
  */
-public record DecorationRule(float probability, List<WeightedBlock> blocks) {
+public record DecorationRule(float probability, List<WeightedGrowth> blocks) {
 
     public static final DecorationRule NONE = new DecorationRule(0.0F, List.of());
 
     /** Builds an unweighted rule, for callers that assemble a palette in code rather than JSON. */
     public static DecorationRule of(float probability, List<Block> blocks) {
-        return new DecorationRule(probability, WeightedBlock.unweighted(blocks));
+        return new DecorationRule(probability, WeightedGrowth.unweighted(blocks));
     }
 
     public static final Codec<DecorationRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "probability", 0.0F).forGetter(DecorationRule::probability),
-            StrictCodecs.strictOptionalFieldOf(WeightedBlock.LIST_CODEC, "blocks", List.of()).forGetter(DecorationRule::blocks)
+            StrictCodecs.strictOptionalFieldOf(WeightedGrowth.LIST_CODEC, "blocks", List.of()).forGetter(DecorationRule::blocks)
     ).apply(instance, DecorationRule::new));
 
     public DecorationRule {
@@ -62,16 +62,16 @@ public record DecorationRule(float probability, List<WeightedBlock> blocks) {
      * A rule with no probability, an empty palette, or a palette whose weights are all zero does
      * nothing. The last of those is why this asks for the total rather than just {@code isEmpty}:
      * an all-zero palette has entries but nothing drawable, and treating it as active would put the
-     * null from {@link WeightedBlock#pick} into a caller that has no reason to expect one.
+     * null from {@link WeightedGrowth#pick} into a caller that has no reason to expect one.
      */
     public boolean isActive() {
-        return probability > 0.0F && WeightedBlock.totalWeight(blocks) > 0;
+        return probability > 0.0F && WeightedGrowth.totalWeight(blocks) > 0;
     }
 
     /** Weighted pick. Draws from {@code random} even for a single-entry palette, so the
      *  number of draws at a position doesn't depend on how the palette was authored. An unweighted
-     *  palette draws exactly as it did before weights existed -- see {@link WeightedBlock}. */
-    public Block pick(RandomSource random) {
-        return WeightedBlock.pick(blocks, random);
+     *  palette draws exactly as it did before weights existed -- see {@link WeightedGrowth}. */
+    public WeightedGrowth pick(RandomSource random) {
+        return WeightedGrowth.pick(blocks, random);
     }
 }

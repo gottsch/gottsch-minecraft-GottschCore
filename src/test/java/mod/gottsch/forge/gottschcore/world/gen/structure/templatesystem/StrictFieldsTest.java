@@ -157,8 +157,8 @@ class StrictFieldsTest {
                 """).getOrThrow(false, message -> { throw new AssertionError(message); });
         assertEquals(0.35F, decoded.probability());
         assertEquals(2, decoded.blocks().size());
-        assertEquals(new WeightedBlock(Blocks.FERN, 1), decoded.blocks().get(0));
-        assertEquals(new WeightedBlock(Blocks.DEAD_BUSH, 3), decoded.blocks().get(1));
+        assertEquals(WeightedGrowth.of(Blocks.FERN, 1), decoded.blocks().get(0));
+        assertEquals(WeightedGrowth.of(Blocks.DEAD_BUSH, 3), decoded.blocks().get(1));
         assertTrue(decoded.isActive());
     }
 }

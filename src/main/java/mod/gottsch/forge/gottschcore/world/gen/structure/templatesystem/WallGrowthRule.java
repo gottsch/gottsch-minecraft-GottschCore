@@ -36,20 +36,20 @@ import java.util.List;
  *
  * @author Mark Gottschling on Jul 28, 2026
  */
-public record WallGrowthRule(float probability, float bonus, float max, List<WeightedBlock> blocks) {
+public record WallGrowthRule(float probability, float bonus, float max, List<WeightedGrowth> blocks) {
 
     public static final WallGrowthRule NONE = new WallGrowthRule(0.0F, 0.0F, 1.0F, List.of());
 
     /** Builds an unweighted rule; see {@code DecorationRule#of}. */
     public static WallGrowthRule of(float probability, float bonus, float max, List<Block> blocks) {
-        return new WallGrowthRule(probability, bonus, max, WeightedBlock.unweighted(blocks));
+        return new WallGrowthRule(probability, bonus, max, WeightedGrowth.unweighted(blocks));
     }
 
     public static final Codec<WallGrowthRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "probability", 0.0F).forGetter(WallGrowthRule::probability),
             StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "bonus", 0.0F).forGetter(WallGrowthRule::bonus),
             StrictCodecs.strictOptionalFieldOf(Codec.FLOAT, "max", 1.0F).forGetter(WallGrowthRule::max),
-            StrictCodecs.strictOptionalFieldOf(WeightedBlock.LIST_CODEC, "blocks", List.of()).forGetter(WallGrowthRule::blocks)
+            StrictCodecs.strictOptionalFieldOf(WeightedGrowth.LIST_CODEC, "blocks", List.of()).forGetter(WallGrowthRule::blocks)
     ).apply(instance, WallGrowthRule::new));
 
     public WallGrowthRule {
@@ -57,7 +57,7 @@ public record WallGrowthRule(float probability, float bonus, float max, List<Wei
     }
 
     public boolean isActive() {
-        return probability > 0.0F && WeightedBlock.totalWeight(blocks) > 0;
+        return probability > 0.0F && WeightedGrowth.totalWeight(blocks) > 0;
     }
 
     /** The chance for a candidate with {@code adjacentGrowth} growth blocks touching it. */
@@ -65,7 +65,7 @@ public record WallGrowthRule(float probability, float bonus, float max, List<Wei
         return Math.min(max, probability + adjacentGrowth * bonus);
     }
 
-    public Block pick(RandomSource random) {
-        return WeightedBlock.pick(blocks, random);
+    public WeightedGrowth pick(RandomSource random) {
+        return WeightedGrowth.pick(blocks, random);
     }
 }

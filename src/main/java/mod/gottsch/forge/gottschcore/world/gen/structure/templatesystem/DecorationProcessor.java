@@ -37,6 +37,13 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.Property;
+import mod.gottsch.forge.gottschcore.GottschCore;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
@@ -178,6 +185,9 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
                         underwaterGrowth, floatingGrowth, unsupported)));
     }
 
+    /** Keeps grown-mob rotation off every other position-seeded stream in this class. */
+    private static final long SPAWN_YAW_SALT = 0x6C_0F_9A_11L;
+
     private final Supplier<StructureProcessorType<?>> type;
     private final DecorationRule cobwebs;
     private final DecorationRule cornerCobwebs;
@@ -253,6 +263,9 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
         // Growth placed so far, for the clustering bonus. Kept apart from `replacements` so
         // cobwebs and mushrooms don't seed lichen patches.
         Map<BlockPos, Block> growth = new HashMap<>();
+        // Cells that grew an ENTITY rather than a block. Those cells stay air; the mobs are spawned
+        // at the end of this method, where the chunk clip is known.
+        Map<BlockPos, ResourceLocation> spawns = new HashMap<>();
 
         for (StructureTemplate.StructureBlockInfo info : processedBlocks) {
             BlockPos blockPos = info.pos();
@@ -270,12 +283,12 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
             }
             // Independent checks, not else-if -- see the class doc.
             if (dirt.matches(state)) {
-                growInto(blockPos.above(), floorGrowth, FLOOR_GROWTH_SALT, byPos, replacements);
-                growInto(blockPos.below(), hangingGrowth, HANGING_GROWTH_SALT, byPos, replacements);
+                growInto(blockPos.above(), floorGrowth, FLOOR_GROWTH_SALT, byPos, replacements, spawns);
+                growInto(blockPos.below(), hangingGrowth, HANGING_GROWTH_SALT, byPos, replacements, spawns);
             }
             if (state.is(Blocks.WATER)) {
                 maybeUnderwaterGrowth(blockPos, byPos, replacements);
-                growInto(blockPos.above(), floatingGrowth, FLOATING_GROWTH_SALT, byPos, replacements);
+                growInto(blockPos.above(), floatingGrowth, FLOATING_GROWTH_SALT, byPos, replacements, spawns);
             }
             // Full cube, not merely solid: growth clings to a FACE, so the block has to have
             // one. See isFullCube -- a stair or a facade passes isSolid and would leave the
@@ -284,6 +297,8 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
                 maybeWallGrowth(blockPos, byPos, replacements, growth, settings);
             }
         }
+
+        spawnGrown(level, spawns, settings);
 
         if (replacements.isEmpty() && cleared.isEmpty()) {
             return processedBlocks;
@@ -424,8 +439,9 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
      * cell can't roll for it twice.
      */
     private void growInto(BlockPos target, DecorationRule rule, long salt,
-                          Map<BlockPos, BlockState> byPos, Map<BlockPos, BlockState> replacements) {
-        if (!rule.isActive() || replacements.containsKey(target)) {
+                          Map<BlockPos, BlockState> byPos, Map<BlockPos, BlockState> replacements,
+                          Map<BlockPos, ResourceLocation> spawns) {
+        if (!rule.isActive() || replacements.containsKey(target) || spawns.containsKey(target)) {
             return;
         }
         BlockState existing = byPos.get(target);
@@ -436,7 +452,41 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
         if (random.nextFloat() >= rule.probability()) {
             return;
         }
-        replacements.put(target, rule.pick(random).defaultBlockState());
+        WeightedGrowth drawn = rule.pick(random);
+        if (drawn == null) {
+            return;   // all-zero palette; isActive already rules this out, but pick may return null
+        }
+        if (drawn.isEntity()) {
+            // The cell stays AIR and the mob is spawned in finalizeProcessing, once the chunk clip
+            // is known. Recorded rather than spawned here because this runs per candidate cell and
+            // the clip is a property of the whole pass.
+            spawns.put(target, drawn.entity());
+            return;
+        }
+        replacements.put(target, drawn.block().defaultBlockState());
+    }
+
+    /**
+     * The block a drawn entry names, or {@code null} with a warning when it names an entity.
+     *
+     * <p>Only the {@code growInto} behaviours &mdash; floor, hanging and floating growth &mdash;
+     * can place an entity. The rest of this processor's rules derive a block STATE from geometry:
+     * a cobweb picks a corner and a half, wall growth picks a facing. An entity has no such state
+     * to carry, so rather than guess at what "a shrieker on a wall, facing east" should mean, an
+     * entity in one of those palettes is refused and said so out loud.</p>
+     */
+    private Block blockOnly(WeightedGrowth drawn, String ruleName) {
+        if (drawn == null) {
+            return null;
+        }
+        if (drawn.isEntity()) {
+            GottschCore.LOGGER.warn(
+                    "the '{}' palette names the entity '{}', but only floor/hanging/floating growth"
+                    + " can place one -- this rule derives a block state from geometry. Nothing was"
+                    + " placed for that draw.", ruleName, drawn.entity());
+            return null;
+        }
+        return drawn.block();
     }
 
     /** Webs an air block that has something solid beside it. */
@@ -452,7 +502,10 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockState neighbour = byPos.get(pos.relative(direction));
             if (neighbour != null && isSolid(neighbour)) {
-                replacements.put(pos, cobwebs.pick(random).defaultBlockState());
+                Block web = blockOnly(cobwebs.pick(random), "cobwebs");
+                if (web != null) {
+                    replacements.put(pos, web.defaultBlockState());
+                }
                 return;
             }
         }
@@ -517,7 +570,11 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
             return;
         }
 
-        BlockState web = cornerCobwebs.pick(random).defaultBlockState();
+        Block cornerBlock = blockOnly(cornerCobwebs.pick(random), "corner_cobwebs");
+        if (cornerBlock == null) {
+            return;
+        }
+        BlockState web = cornerBlock.defaultBlockState();
         Direction wall = walls.get(random.nextInt(walls.size()));
 
         // The facing is the same for both junctions -- horizontal, pointing away from the wall, so
@@ -628,7 +685,11 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
         if (random.nextFloat() >= underwaterGrowth.probability()) {
             return;
         }
-        replacements.put(pos, underwaterGrowth.pick(random).defaultBlockState());
+        Block weed = blockOnly(underwaterGrowth.pick(random), "underwater_growth");
+        if (weed == null) {
+            return;
+        }
+        replacements.put(pos, weed.defaultBlockState());
     }
 
     /**
@@ -668,7 +729,7 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
                 continue;
             }
             if (species == null) {
-                species = wallGrowth.pick(random);
+                species = blockOnly(wallGrowth.pick(random), "wall_growth");
             }
 
             // The growth sits in the air block and clings to the wall, so its face is the
@@ -735,5 +796,68 @@ public class DecorationProcessor extends StructureProcessor implements LevelInde
     @Override
     protected StructureProcessorType<?> getType() {
         return type.get();
+    }
+
+    /**
+     * Spawns the mobs the growth pass drew, clipped to the chunk this placement is writing.
+     *
+     * <h2>The clip is the whole reason this can work at all</h2>
+     * <p>{@code StructureTemplate.processBlockInfos} is <strong>not</strong> chunk-clipped &mdash;
+     * it hands {@code finalizeProcessing} every block of the piece &mdash; and a piece's placement
+     * runs once per chunk it overlaps. Blocks survive that because each run rewrites the same states
+     * and the writes are clipped downstream. {@code addFreshEntity} has no such idempotence, so an
+     * unclipped spawn would add one copy of every mob per overlapping chunk.</p>
+     *
+     * <p>{@code StructurePlaceSettings#getBoundingBox} is the chunk box during a piece placement
+     * ({@code SinglePoolElement} sets it from the box {@code postProcess} was handed), so testing
+     * each cell against it gives every spawn exactly one owning chunk &mdash; the same guard
+     * vanilla's own {@code StructureTemplate.placeEntities} applies two methods further down. The
+     * box is <strong>null unless someone set it</strong>, which is the honest signal for a
+     * single-shot caller (a command, a test) that has no chunk to clip to; there, spawn everything.</p>
+     *
+     * <h2>Rotation</h2>
+     * <p>Derived from the cell position, not drawn from a stream: this method runs once per chunk
+     * and must produce the same answer each time, or the clip above stops being a correct
+     * exactly-once filter. Same reasoning as the growth draw itself.</p>
+     *
+     * <p>An unresolvable entity id warns and is skipped, matching {@link BlockIds}'
+     * degrade-don't-abort convention: losing one mob is not worth killing a chunk over.</p>
+     */
+    private void spawnGrown(ServerLevelAccessor level, Map<BlockPos, ResourceLocation> spawns,
+                            StructurePlaceSettings settings) {
+        if (spawns.isEmpty()) {
+            return;
+        }
+        BoundingBox box = settings.getBoundingBox();
+        for (Map.Entry<BlockPos, ResourceLocation> spawn : spawns.entrySet()) {
+            BlockPos pos = spawn.getKey();
+            if (box != null && !box.isInside(pos)) {
+                continue;   // another chunk's placement owns this one
+            }
+            EntityType<?> type = EntityType.byString(spawn.getValue().toString()).orElse(null);
+            if (type == null) {
+                GottschCore.LOGGER.warn(
+                        "growth names the entity '{}', which is not registered; nothing was spawned"
+                        + " at {}. Check the spelling, and that the mod providing it is installed.",
+                        spawn.getValue(), pos.toShortString());
+                continue;
+            }
+            Entity entity = type.create(level.getLevel());
+            if (entity == null) {
+                GottschCore.LOGGER.warn("entity type '{}' would not construct at {}",
+                        spawn.getValue(), pos.toShortString());
+                continue;
+            }
+            RandomSource random = RandomSource.create(Mth.getSeed(pos) ^ SPAWN_YAW_SALT);
+            entity.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D,
+                    random.nextFloat() * 360.0F, 0.0F);
+            if (entity instanceof Mob mob) {
+                // Without this a mob arrives half-built: vanilla's difficulty setup and any
+                // spawn-time work its own class does (rooting itself, reading a config) never run.
+                mob.finalizeSpawn(level, level.getCurrentDifficultyAt(pos),
+                        MobSpawnType.STRUCTURE, null, null);
+            }
+            level.addFreshEntity(entity);
+        }
     }
 }

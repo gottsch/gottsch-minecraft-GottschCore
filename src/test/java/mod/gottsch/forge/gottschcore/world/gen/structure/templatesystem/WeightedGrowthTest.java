@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * exists &mdash; with no error and no way back. Weights had to be added without touching the
  * unweighted case at all.</p>
  */
-class WeightedBlockTest {
+class WeightedGrowthTest {
 
     @BeforeAll
     static void bootstrap() {
@@ -73,10 +73,10 @@ class WeightedBlockTest {
     @Test
     void anUnweightedPaletteDrawsExactlyAsItDidBefore() {
         List<Block> palette = palette();
-        List<WeightedBlock> weighted = WeightedBlock.unweighted(palette);
+        List<WeightedGrowth> weighted = WeightedGrowth.unweighted(palette);
         for (long seed = 0; seed < 500; seed++) {
             Block before = palette.get(RandomSource.create(seed).nextInt(palette.size()));
-            Block after = WeightedBlock.pick(weighted, RandomSource.create(seed));
+            Block after = WeightedGrowth.pick(weighted, RandomSource.create(seed)).block();
             assertEquals(before, after,
                     "seed " + seed + " decorates differently than it did before weights existed");
         }
@@ -85,15 +85,15 @@ class WeightedBlockTest {
     /** And it must consume the same ONE draw, or everything downstream of it shifts. */
     @Test
     void oneDrawIsConsumedWhateverThePaletteLooksLike() {
-        for (List<WeightedBlock> palette : List.of(
-                WeightedBlock.unweighted(palette()),
-                WeightedBlock.unweighted(List.of(Blocks.FERN)),
-                List.of(new WeightedBlock(Blocks.FERN, 97), new WeightedBlock(Blocks.GRASS, 3)))) {
+        for (List<WeightedGrowth> palette : List.of(
+                WeightedGrowth.unweighted(palette()),
+                WeightedGrowth.unweighted(List.of(Blocks.FERN)),
+                List.of(WeightedGrowth.of(Blocks.FERN, 97), WeightedGrowth.of(Blocks.GRASS, 3)))) {
             RandomSource actual = RandomSource.create(1234L);
-            WeightedBlock.pick(palette, actual);
+            WeightedGrowth.pick(palette, actual);
 
             RandomSource expected = RandomSource.create(1234L);
-            expected.nextInt(WeightedBlock.totalWeight(palette));
+            expected.nextInt(WeightedGrowth.totalWeight(palette));
 
             assertEquals(expected.nextLong(), actual.nextLong(),
                     "the stream is at a different position, so this palette consumed a different"
@@ -103,16 +103,16 @@ class WeightedBlockTest {
 
     @Test
     void weightsActuallySkewTheDraw() {
-        List<WeightedBlock> palette = List.of(
-                new WeightedBlock(Blocks.BROWN_MUSHROOM, 10),
-                new WeightedBlock(Blocks.FERN, 10),
-                new WeightedBlock(Blocks.DEAD_BUSH, 1));
+        List<WeightedGrowth> palette = List.of(
+                WeightedGrowth.of(Blocks.BROWN_MUSHROOM, 10),
+                WeightedGrowth.of(Blocks.FERN, 10),
+                WeightedGrowth.of(Blocks.DEAD_BUSH, 1));
 
         Map<Block, Integer> counts = new HashMap<>();
         RandomSource random = RandomSource.create(0xC0FFEEL);
         int draws = 21_000;
         for (int i = 0; i < draws; i++) {
-            counts.merge(WeightedBlock.pick(palette, random), 1, Integer::sum);
+            counts.merge(WeightedGrowth.pick(palette, random).block(), 1, Integer::sum);
         }
 
         // 10 : 10 : 1 over 21 total -- expect ~47.6% / ~47.6% / ~4.8%.
@@ -125,17 +125,17 @@ class WeightedBlockTest {
 
     @Test
     void weightZeroIsNeverDrawnAndAnAllZeroPaletteIsInactive() {
-        List<WeightedBlock> palette = List.of(
-                new WeightedBlock(Blocks.FERN, 1), new WeightedBlock(Blocks.DEAD_BUSH, 0));
+        List<WeightedGrowth> palette = List.of(
+                WeightedGrowth.of(Blocks.FERN, 1), WeightedGrowth.of(Blocks.DEAD_BUSH, 0));
         RandomSource random = RandomSource.create(7L);
         for (int i = 0; i < 500; i++) {
-            assertEquals(Blocks.FERN, WeightedBlock.pick(palette, random),
+            assertEquals(Blocks.FERN, WeightedGrowth.pick(palette, random).block(),
                     "a weight-0 entry was drawn");
         }
 
-        List<WeightedBlock> allZero = List.of(new WeightedBlock(Blocks.FERN, 0));
-        assertEquals(0, WeightedBlock.totalWeight(allZero));
-        assertNull(WeightedBlock.pick(allZero, RandomSource.create(1L)));
+        List<WeightedGrowth> allZero = List.of(WeightedGrowth.of(Blocks.FERN, 0));
+        assertEquals(0, WeightedGrowth.totalWeight(allZero));
+        assertNull(WeightedGrowth.pick(allZero, RandomSource.create(1L)));
         // The rule must report itself inactive rather than handing that null to a caller.
         assertFalse(new DecorationRule(1.0F, allZero).isActive());
         assertFalse(new WallGrowthRule(1.0F, 0.0F, 1.0F, allZero).isActive());
@@ -158,12 +158,12 @@ class WeightedBlockTest {
                 .getOrThrow(false, message -> { throw new AssertionError(message); });
 
         assertEquals(3, rule.blocks().size());
-        assertEquals(new WeightedBlock(Blocks.BROWN_MUSHROOM, 1), rule.blocks().get(0),
+        assertEquals(WeightedGrowth.of(Blocks.BROWN_MUSHROOM, 1), rule.blocks().get(0),
                 "a bare id must mean weight 1, or every pre-weights pack changes meaning");
-        assertEquals(new WeightedBlock(Blocks.FERN, 5), rule.blocks().get(1));
-        assertEquals(new WeightedBlock(Blocks.DEAD_BUSH, 1), rule.blocks().get(2),
+        assertEquals(WeightedGrowth.of(Blocks.FERN, 5), rule.blocks().get(1));
+        assertEquals(WeightedGrowth.of(Blocks.DEAD_BUSH, 1), rule.blocks().get(2),
                 "an explicit weight of 1 must survive decoding");
-        assertEquals(7, WeightedBlock.totalWeight(rule.blocks()));
+        assertEquals(7, WeightedGrowth.totalWeight(rule.blocks()));
     }
 
     /**
@@ -173,7 +173,7 @@ class WeightedBlockTest {
     @Test
     void weightOneEncodesBackToABareId() {
         DecorationRule rule = new DecorationRule(0.35F, List.of(
-                new WeightedBlock(Blocks.FERN, 1), new WeightedBlock(Blocks.DEAD_BUSH, 4)));
+                WeightedGrowth.of(Blocks.FERN, 1), WeightedGrowth.of(Blocks.DEAD_BUSH, 4)));
         JsonElement encoded = DecorationRule.CODEC
                 .encodeStart(JsonOps.INSTANCE, rule)
                 .getOrThrow(false, message -> { throw new AssertionError(message); });
@@ -227,7 +227,89 @@ class WeightedBlockTest {
      * &mdash; but it is a real silent-failure path and is worth closing separately, the way
      * Dungeons2 closed the same class of bug for its own configs.</p>
      */
-    private static com.mojang.serialization.DataResult<WeightedBlock> parseEntry(String json) {
-        return WeightedBlock.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json));
+    private static com.mojang.serialization.DataResult<WeightedGrowth> parseEntry(String json) {
+        return WeightedGrowth.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json));
+    }
+
+    // --- entity entries -------------------------------------------------------------------------
+
+    /** The point of the whole exercise: a palette can name a mob instead of a block. */
+    @Test
+    void anEntityEntryDecodes() {
+        DecorationRule rule = DecorationRule.CODEC
+                .parse(JsonOps.INSTANCE, JsonParser.parseString("""
+                        {
+                          "probability": 0.35,
+                          "blocks": [
+                            { "block": "minecraft:brown_mushroom", "weight": 10 },
+                            { "entity": "dungeons2:shrieker", "weight": 1 }
+                          ]
+                        }
+                        """))
+                .getOrThrow(false, message -> { throw new AssertionError(message); });
+
+        assertEquals(2, rule.blocks().size());
+        assertTrue(rule.blocks().get(0).isBlock());
+        assertFalse(rule.blocks().get(0).isEntity());
+
+        WeightedGrowth fungus = rule.blocks().get(1);
+        assertTrue(fungus.isEntity());
+        assertFalse(fungus.isBlock());
+        assertEquals("dungeons2:shrieker", fungus.entity().toString());
+        assertEquals(1, fungus.weight());
+        // An unregistered entity id must NOT be resolved at decode: a datapack may legitimately
+        // name a mob from a mod the pack ships alongside, and this decodes at load.
+        assertEquals(11, WeightedGrowth.totalWeight(rule.blocks()));
+        assertTrue(rule.isActive());
+    }
+
+    /** Both is an author expressing two intentions; neither does nothing. Guessing is worse. */
+    @Test
+    void anEntryMustNameExactlyOneOfBlockOrEntity() {
+        assertTrue(parseEntry(
+                        "{ \"block\": \"minecraft:fern\", \"entity\": \"minecraft:bat\", \"weight\": 1 }")
+                        .error().isPresent(),
+                "an entry naming both a block and an entity decoded");
+        assertTrue(parseEntry("{ \"weight\": 1 }").error().isPresent(),
+                "an entry naming neither decoded, so the palette would silently shrink");
+    }
+
+    /** An entity entry is verbose by nature -- there is no bare-id shorthand for one. */
+    @Test
+    void anEntityEntryRoundTrips() {
+        DecorationRule rule = new DecorationRule(0.35F, List.of(
+                WeightedGrowth.of(Blocks.FERN, 1),
+                WeightedGrowth.ofEntity(new net.minecraft.resources.ResourceLocation(
+                        "dungeons2", "violet_fungus"), 2)));
+        JsonElement encoded = DecorationRule.CODEC
+                .encodeStart(JsonOps.INSTANCE, rule)
+                .getOrThrow(false, message -> { throw new AssertionError(message); });
+        DecorationRule back = DecorationRule.CODEC
+                .parse(JsonOps.INSTANCE, encoded)
+                .getOrThrow(false, message -> { throw new AssertionError(message); });
+        assertEquals(rule, back);
+
+        JsonElement entry = encoded.getAsJsonObject().get("blocks").getAsJsonArray().get(1);
+        assertTrue(entry.isJsonObject() && entry.getAsJsonObject().has("entity"),
+                "an entity entry must survive as an object with an 'entity' key, got " + entry);
+    }
+
+    /** Weighting works the same whichever kind of entry wins. */
+    @Test
+    void anEntityEntryTakesItsShareOfTheDraw() {
+        List<WeightedGrowth> palette = List.of(
+                WeightedGrowth.of(Blocks.FERN, 9),
+                WeightedGrowth.ofEntity(new net.minecraft.resources.ResourceLocation(
+                        "dungeons2", "shrieker"), 1));
+        RandomSource random = RandomSource.create(0xF0E1L);
+        int entities = 0;
+        int draws = 10_000;
+        for (int i = 0; i < draws; i++) {
+            if (WeightedGrowth.pick(palette, random).isEntity()) {
+                entities++;
+            }
+        }
+        double rate = 100.0 * entities / draws;
+        assertTrue(rate > 8.0 && rate < 12.0, "1 of 10 drew " + rate + "%, expected ~10%");
     }
 }
