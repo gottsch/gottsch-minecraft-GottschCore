@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.9.0] - 2026-07-05
 
 ### Fixed
+- `SpawnUtil.spawnMob` now rejects a candidate position that fails `Mob.checkSpawnObstruction` (the full-bounding-box collision test), matching the check vanilla's own `BaseSpawner` performs. `NaturalSpawner.isSpawnPositionOk` only tests the target `BlockPos` (and the block above it) for a full/suffocating block; it says nothing about whether the mob's actual hitbox clips solid geometry once positioned, e.g. a corner, pilaster or partial-shape block adjacent to the target cell. Without this check, `spawnMob` could hand back a mob already embedded in a wall, which then took suffocation damage and died — intermittently, since it only bit when the random offset happened to land against geometry the single-block check let through.
 - `SpawnUtil.spawnAndAddMob` now adds the created/positioned mob to the world. It previously added an un-positioned, passed-in instance and discarded the actual spawned mob, so mob-set proximity spawners spawned nothing.
 - `ProximityMobSetSpawnerBlockEntity.execute` no longer creates and finalizes a mob twice; it delegates spawning to `SpawnUtil.spawnAndAddMob`.
 - `MobSetDataHandler` now clears the registry at the start of each reload so removed/edited data packs no longer leave stale entries behind.

@@ -91,6 +91,19 @@ public class SpawnUtil {
             // center on the block for x/z
             mob.setPos(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D);
 
+            // isSpawnPositionOk only tests spawnPos and spawnPos.above() for a full/suffocating
+            // block -- a single-BlockPos heuristic. It says nothing about whether THIS mob's real
+            // bounding box (which can be wider than one block, or just off-center against a
+            // column/pilaster/corner) actually clips solid geometry once positioned. Vanilla's own
+            // BaseSpawner guards exactly this with checkSpawnObstruction before adding the mob;
+            // without it here, a mob can be created, added and left overlapping a wall, taking
+            // suffocation damage until it dies -- intermittently, since it only bites on the
+            // offsets that land against decorative geometry the single-block check let through.
+            if (mob instanceof Mob checkedMob && !checkedMob.checkSpawnObstruction(level)) {
+                mob.discard();
+                continue;
+            }
+
             if (mob instanceof Mob) {
                 // Allow the mob (and other mods) to finalize the spawn: equipment, difficulty
                 // scaling, etc. Called for its SIDE EFFECTS; the return value is deliberately
