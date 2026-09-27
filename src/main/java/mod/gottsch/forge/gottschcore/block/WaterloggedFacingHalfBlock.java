@@ -72,7 +72,7 @@ public class WaterloggedFacingHalfBlock extends FacingHalfBlock implements Simpl
 		FluidState fluidState = context.getLevel().getFluidState(blockPos);
 
 		BlockState blockState = super.getStateForPlacement(context);
-		blockState.setValue(WATERLOGGED, Boolean.valueOf(fluidState.getType() == Fluids.WATER));
+		blockState = blockState.setValue(WATERLOGGED, Boolean.valueOf(fluidState.getType() == Fluids.WATER));
 
 		return blockState;
 	}
