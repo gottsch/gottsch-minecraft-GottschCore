@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.9.0] - Unreleased
+## [2.9.0] - 2026-10-08
 
 ### Fixed
 - `SpawnUtil.spawnMob` no longer discards every mob it creates. It treated a `null` return from `ForgeEventFactory.onFinalizeSpawn` as a cancelled spawn, but Forge returns the spawn data that was passed in (here `null`) for an ordinary, uncancelled spawn, so every attempt was discarded and proximity spawners in every mod using this class fired and spawned nothing. The return value is now ignored, as Forge's own javadoc says it should be.
