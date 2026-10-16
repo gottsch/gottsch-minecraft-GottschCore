@@ -1,1 +1,3 @@
-[16Sep2026 10:18:53.064] [Test worker/WARN] [gottschcore/]: block id 'dungeonblocks:mosy_bricks' is not registered; it resolves to minecraft:air, so whatever rule or palette names it will do nothing. Check the spelling, and that the mod providing it is installed.
+[16Oct2026 06:13:59.912] [Test worker/WARN] [gottschcore/]: can't read test:state: Not a map: "not a state"
+[16Oct2026 06:13:59.917] [Test worker/WARN] [gottschcore/]: can't write test:broken: no
+[16Oct2026 06:14:00.045] [Test worker/WARN] [gottschcore/]: block id 'dungeonblocks:mosy_bricks' is not registered; it resolves to minecraft:air, so whatever rule or palette names it will do nothing. Check the spelling, and that the mod providing it is installed.
