@@ -22,6 +22,7 @@ import com.someguyssoftware.gottschcore.mod.IMod;
 import com.someguyssoftware.gottschcore.positional.ICoords;
 import com.someguyssoftware.gottschcore.property.PropertyHelper;
 import com.someguyssoftware.gottschcore.random.RandomHelper;
+import com.someguyssoftware.gottschcore.world.WorldInfo;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -107,6 +108,10 @@ public class DecayProcessor implements IDecayProcessor {
 				// determine if back filling needs to occur
 				if (isBackFill()) {
 					ICoords fillCoords = decay.getCoords().down(1);
+					// check if the the fill position is valid ie > minHeight before getting the state
+					if (!WorldInfo.isValidY(world, fillCoords)) {
+						break;
+					}
 					IBlockState fillState = world.getBlockState(fillCoords.toPos());
 					int depth = 1;
 					while (!fillState.getMaterial().isSolid()) {
@@ -115,6 +120,9 @@ public class DecayProcessor implements IDecayProcessor {
 								(depth > 3) ? Blocks.STONE.getDefaultState() : Blocks.DIRT.getDefaultState());
 						// move down
 						fillCoords = fillCoords.down(1);
+						if (!WorldInfo.isValidY(world, fillCoords)) {
+							break;
+						}
 						fillState = world.getBlockState(fillCoords.toPos());
 						depth++;
 					}

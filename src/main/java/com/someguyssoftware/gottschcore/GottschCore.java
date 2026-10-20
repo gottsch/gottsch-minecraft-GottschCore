@@ -26,13 +26,13 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
  * @author Mark Gottschling on Jul 13, 2017
  *
  */
-@Mod(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, dependencies = "required-after:forge@[14.23.5.2854,)", acceptedMinecraftVersions = "[1.12.2]", updateJSON = GottschCore.UPDATE_JSON_URL)
+@Mod(modid = GottschCore.MODID, name = GottschCore.NAME, version = GottschCore.VERSION, dependencies = "required-after:forge@[14.23.5.2847,)", acceptedMinecraftVersions = "[1.12.2]", updateJSON = GottschCore.UPDATE_JSON_URL)
 @Credits(values = { "GottschCore for Minecraft 1.12+ was first developed by Mark Gottschling on Jul 13, 2017." })
 public class GottschCore extends AbstractMod {
 	// constants
 	public static final String MODID = "gottschcore";
 	protected static final String NAME = "GottschCore";
-	protected static final String VERSION = "1.15.0";
+	protected static final String VERSION = Tags.VERSION;
 	public static final String UPDATE_JSON_URL = "https://raw.githubusercontent.com/gottsch/gottsch-minecraft-GottschCore/1.12.2-master/update.json";
 
 	// the version of Minecraft that this mod is developed for

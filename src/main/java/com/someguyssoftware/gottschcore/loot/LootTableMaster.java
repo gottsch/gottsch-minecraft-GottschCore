@@ -205,7 +205,7 @@ public class LootTableMaster {
 							continue;
 						}
 						
-						GottschCore.logger.error("is file system loot table current -> {}", isCurrent);
+						GottschCore.logger.debug("is file system loot table current -> {}", isCurrent);
 						if (!isCurrent) {
 							Files.move(
 									fileSystemFilePath, 
