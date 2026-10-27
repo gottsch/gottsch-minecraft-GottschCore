@@ -16,6 +16,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * Data pack reload listener that loads mob set definitions into the {@link MobSetDataRegistry}.
+ * <p>
+ * Mob set JSON files are read from {@code data/<namespace>/mob_sets/} (parsed via {@link MobSetData#CODEC}).
+ * <p>
+ * GottschCore does not register this listener itself; a consuming mod must register it with the
+ * data pack manager, e.g. from a Forge event handler:
+ * <pre>{@code
+ * @SubscribeEvent
+ * public static void onAddReloadListener(AddReloadListenerEvent event) {
+ *     event.addListener(new MobSetDataHandler());
+ * }
+ * }</pre>
+ *
  * @author by Mark Gottschling on 9/18/2025
  */
 public class MobSetDataHandler extends SimpleJsonResourceReloadListener {
@@ -38,6 +51,9 @@ public class MobSetDataHandler extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> jsonElementMap, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         GottschCore.LOGGER.info("loading mob_sets from data packs...");
 
+        // clear the registry so removed/edited data packs don't leave stale entries behind on reload
+        MobSetDataRegistry.clear();
+
         jsonElementMap.forEach((location, jsonElement) -> {
             try {
                 // deserialize the JSON element into our MobSetData object
@@ -49,7 +65,8 @@ public class MobSetDataHandler extends SimpleJsonResourceReloadListener {
                 MobSetDataRegistry.get(newData.getId())
                         .ifPresentOrElse(
                                 existingData -> {
-                                    MobSetData finalData = existingData.isReplace()
+                                    // the incoming data declares whether it replaces or merges with existing data
+                                    MobSetData finalData = newData.isReplace()
                                             ? newData
                                             : mergeMobSetData(existingData, newData); // delegate merging to a helper method
                                     // replace existing data with final data
@@ -86,10 +103,10 @@ public class MobSetDataHandler extends SimpleJsonResourceReloadListener {
 
         // for each new mob, either update the existing one or add it
         newData.getMobs().forEach(newMob -> {
-            mergedMobs.compute(newMob.getId(), (mobId, existingMob) -> {
+            mergedMobs.compute(newMob.id(), (mobId, existingMob) -> {
                 if (existingMob != null) {
                     // mob found: update the existing mob with properties from the new mob.
-                    return existingMob.withWeight(newMob.getWeight()); // Example update
+                    return existingMob.withWeight(newMob.weight()); // Example update
                 } else {
                     // Mob not found: Add the new mob.
                     return newMob;

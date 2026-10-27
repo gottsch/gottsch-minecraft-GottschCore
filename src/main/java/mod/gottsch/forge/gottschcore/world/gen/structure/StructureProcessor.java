@@ -24,6 +24,30 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 
+/**
+ * Processor for the legacy {@link GottschTemplate} placement path &mdash; GottschCore's
+ * own fork of an older version of vanilla's template system, operating on
+ * {@link GottschTemplate.BlockInfo} and {@link PlacementSettings}.
+ *
+ * @deprecated Prefer vanilla's own template system: extend
+ *             {@link net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor}
+ *             and register a
+ *             {@link net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType},
+ *             so processors are datapack-authored through {@code worldgen/processor_list}
+ *             JSON and apply to jigsaw/template placement for free. GottschCore's
+ *             {@code world.gen.structure.templatesystem} package holds shared processors
+ *             built that way (see
+ *             {@link mod.gottsch.forge.gottschcore.world.gen.structure.templatesystem.AgingProcessor}).
+ *             <p>This class is <strong>not scheduled for removal</strong> &mdash; the
+ *             {@code GottschTemplate} path it serves is still in use and has no
+ *             replacement for some of what it does. The deprecation is a direction
+ *             marker for new code, not a removal notice.</p>
+ *             <p><strong>Do not confuse the two:</strong> this type and the vanilla one
+ *             share a simple name but are unrelated and not interchangeable. That is why
+ *             the vanilla-based processors live in a separate sub-package rather than
+ *             here, where they would shadow vanilla's class on import.</p>
+ */
+@Deprecated
 public abstract class StructureProcessor {
    @Nullable
    @Deprecated

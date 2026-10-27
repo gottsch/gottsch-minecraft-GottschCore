@@ -37,7 +37,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -179,7 +178,10 @@ public class ProximityMobSetSpawnerBlockEntity extends AbstractProximityBlockEnt
         ServerLevel level = (ServerLevel) world;
         int numberOfMobs = RandomHelper.randomInt(random, this.getMobSizeRange().getMin(), this.getMobSizeRange().getMax());
 
-        MobSetDataRegistry.get(getMobSetName()).ifPresent(data -> {
+        // resolve which mob set to use: an explicit single set, else a random pick from the list (deferred to trigger time)
+        ResourceLocation selectedMobSet = selectMobSetName(random);
+
+        MobSetDataRegistry.get(selectedMobSet).ifPresent(data -> {
             WeightedCollection<Integer, ResourceLocation> collection = new WeightedCollection<>();
             data.getMobs().forEach(weightedMob -> collection.add(weightedMob.weight(), weightedMob.id()));
 
@@ -187,23 +189,34 @@ public class ProximityMobSetSpawnerBlockEntity extends AbstractProximityBlockEnt
             for (int i = 0; i < numberOfMobs; i++) {
                 ResourceLocation mobName = Optional.ofNullable(collection.next()).orElse(DEFAULT_MOB);
 
-                EntityType.byString(mobName.toString()).ifPresentOrElse(entityType -> {
-                    // TODO this is incorrect. onFinalizeSpawn is part of spawnMob() and spawnMob() no longer adds the entity to the world
-                            Entity mob = entityType.create(level);
-                            if (mob instanceof Mob) {
-                                ForgeEventFactory.onFinalizeSpawn((Mob) mob, level, level.getCurrentDifficultyAt(getBlockPos()), MobSpawnType.EVENT, null, null);
-                            }
-                            SpawnUtil.spawnMob(level, random, (EntityType<? extends LivingEntity>) entityType, mob, blockCoords);
-                        },
+                EntityType.byString(mobName.toString()).ifPresentOrElse(entityType ->
+                                // spawnMob() creates, positions and finalizes the mob; spawnAndAddMob() adds it to the world.
+                                SpawnUtil.spawnAndAddMob(level, random, (EntityType<? extends LivingEntity>) entityType, blockCoords),
                         () -> {
                             GottschCore.LOGGER.debug("unable to get entityType -> {}", mobName);
                             collection.remove(mobName);
                         });
-                Optional<EntityType<?>> entityType = EntityType.byString(mobName.toString());
             }
         });
         // TODO this doesn't account for a wrong mobSet ID - do we ignore or use a default list?
         this.selfDestruct();
+    }
+
+    /**
+     * Resolves the mob set to spawn from. Prefers the explicit single {@link #getMobSetName()};
+     * otherwise selects one at random from {@link #getMobSetNames()}, deferring the choice to
+     * trigger time so a regenerated/revisited structure can spawn a different set. Returns null
+     * if none is configured.
+     */
+    private ResourceLocation selectMobSetName(RandomSource random) {
+        if (getMobSetName() != null) {
+            return getMobSetName();
+        }
+        List<ResourceLocation> names = getMobSetNames();
+        if (names != null && !names.isEmpty()) {
+            return names.get(random.nextInt(names.size()));
+        }
+        return null;
     }
 
     private void selfDestruct() {
