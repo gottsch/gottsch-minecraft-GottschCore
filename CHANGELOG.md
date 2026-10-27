@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-10-16
+
+### Added
+- **Codec-backed NBT fields** (`mod.gottsch.forge.gottschcore.nbt`): a typed value kept under one key, read and written through its codec, so code stops hand-writing `putInt`/`getString` pairs for structured data.
+  - `TagComponent<T>(key, codec)` names one value; `TagComponent.of(modid, name, codec)` keys it `"modid:name"`, the same id a 1.21 data component would have.
+  - `TagData` does `get`, `has`, `set`, `remove` and `getOrDefault` on any `CompoundTag`: a block entity's save data, a structure piece's tag, an entity's persistent data.
+  - `StackData` does the same on an `ItemStack`, as a stand-in for 1.21's item data components: a mod ported back from 1.21 turns `stack.get(X.get())` into `StackData.get(stack, X)`. The stack tag syncs to clients by itself, so no capability or sync packet is needed.
+  - Reads never write (safe from tooltips and rendering), setting null removes a value, a value that won't decode reads as absent with a warning naming the key, and removing a stack's last value clears its tag so it stacks with a fresh one again.
+
 ## [2.9.0] - 2026-10-08
 
 ### Fixed
